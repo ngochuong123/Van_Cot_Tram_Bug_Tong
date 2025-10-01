@@ -1,4 +1,25 @@
 package vn.uet.oop.arkanoid.model;
 
-public class MovableObject {
+import javafx.scene.canvas.GraphicsContext;
+import javafx.geometry.Rectangle2D;
+
+
+public abstract class MovableObject {
+    protected double x, y;          // tọa độ
+    protected double width, height; // kích thước
+    public double dx, dy;        // vận tốc
+
+    public MovableObject(double x, double y, double width, double height, double dx, double dy) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.dx = dx;
+        this.dy = dy;
+    }
+    // cập nhật vị trí
+    public void move() {
+        x += dx;
+        y += dy;
+    }
 }

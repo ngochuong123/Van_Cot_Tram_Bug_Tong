@@ -8,5 +8,5 @@ public class Renderable {
     /*
      * render object
      */
-    void render(Graphics g);
+
 }
