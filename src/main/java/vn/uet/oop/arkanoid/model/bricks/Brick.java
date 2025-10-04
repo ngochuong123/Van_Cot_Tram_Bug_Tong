@@ -8,4 +8,8 @@ public abstract class Brick extends GameObject {
     public abstract int takeHit();          // return the remaining durability points after taking hit
     public abstract boolean isBroken();     // return true if the brick is broken
 
+    public Brick(double x, double y, double width, double heiht) {
+        super(x, y, width, heiht);
+    }
+
 }

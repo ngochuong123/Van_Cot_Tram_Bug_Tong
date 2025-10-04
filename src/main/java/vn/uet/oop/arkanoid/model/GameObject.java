@@ -1,8 +1,11 @@
 package vn.uet.oop.arkanoid.model;
 
 import javafx.scene.canvas.GraphicsContext;
+import vn.uet.oop.arkanoid.model.interfaces.Collidable;
 
-public abstract class GameObject {
+import java.awt.*;
+
+public abstract class GameObject implements Collidable {
     private double x;               // Top-left corner x
     private double y;               // Top-left corner y
 
@@ -19,4 +22,14 @@ public abstract class GameObject {
     public abstract void update(double deltaTime);
     public abstract void render(GraphicsContext gc);
 
+    @Override
+    public Rectangle getBounds() {
+        // Trả về khung bao (bounding box) của object — dùng để check collision
+        return new Rectangle((int)x, (int)y, (int)width, (int)height);
+    }
+
+    @Override
+    public void onCollision(Collidable other) {
+        // Mặc định không làm gì cả — class con có thể override
+    }
 }

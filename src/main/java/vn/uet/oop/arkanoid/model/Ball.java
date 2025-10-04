@@ -14,6 +14,7 @@ import javafx.scene.paint.Color;
             this.worldHeight = worldHeight;
         }
 
+        //cai nay cung xoa luon
         @Override
         public void move() {
             super.move();
