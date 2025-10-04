@@ -33,11 +33,15 @@ import javafx.scene.paint.Color;
             if (movingRight) vx += speed;
 
             // Cập nhật vị trí theo deltaTime
-            x += vx * dt;
+            setX(getX() + vx * dt);
 
             // Giới hạn trong màn hình
-            if (x < 0) x = 0;
-            if (x + width > worldWidth) x = worldWidth - width;
+            if (getX() < 0) setX(0);
+            if (getX() + getWidth() > worldWidth) setX(worldWidth - getWidth());
+        }
+        @Override
+        public void render(GraphicsContext gc) {
+
         }
 
     }
