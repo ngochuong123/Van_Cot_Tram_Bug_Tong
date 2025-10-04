@@ -4,7 +4,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.geometry.Rectangle2D;
 
 
-public abstract class MovableObject {
+public abstract class MovableObject extends GameObject {
     protected double x, y;          // tọa độ
     protected double width, height; // kích thước
     public double dx, dy;        // vận tốc
@@ -16,10 +16,5 @@ public abstract class MovableObject {
         this.height = height;
         this.dx = dx;
         this.dy = dy;
-    }
-    // cập nhật vị trí
-    public void move() {
-        x += dx;
-        y += dy;
     }
 }
