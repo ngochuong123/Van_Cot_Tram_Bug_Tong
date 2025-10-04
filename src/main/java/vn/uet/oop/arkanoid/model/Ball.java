@@ -14,9 +14,11 @@ import javafx.scene.paint.Color;
             this.worldHeight = worldHeight;
         }
 
+        public void
         @Override
-        public void move() {
-            super.move();
+        public void update(double dt) {
+            x += dt * dx;
+            y += dt * dy;
             // Va chạm tường
             if (x <= 0 || x + width >= worldWidth) dx = -dx;
             if (y <= 0 || y + height >= worldHeight) dy = -dy;
