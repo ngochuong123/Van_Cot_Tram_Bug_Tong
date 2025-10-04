@@ -1,4 +1,5 @@
-package vn.uet.oop.arkanoid.core;
+package vn.uet.oop.arkanoid;
 
 public class GameManager {
+
 }

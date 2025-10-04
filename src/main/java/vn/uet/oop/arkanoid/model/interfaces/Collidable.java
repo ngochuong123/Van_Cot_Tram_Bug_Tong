@@ -5,13 +5,5 @@ package vn.uet.oop.arkanoid.model.interfaces;
  */
 public class Collidable {
 
-    /**
-     * check bounds
-     */
-    Rectangle getBounds();
 
-    /**
-     * handle collision
-     */
-    void onCollision(Collidable other);
 }
