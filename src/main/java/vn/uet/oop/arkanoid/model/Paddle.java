@@ -6,6 +6,8 @@ import javafx.scene.paint.Color;
     public class Paddle extends MovableObject {
         private final double speed;
         private final int worldWidth;
+        private boolean movingLeft = false;
+        private boolean movingRight = false;
 
         public Paddle(double x, double y, double width, double height, double speed, int worldWidth) {
             super(x, y, width, height, 0, 0);
@@ -13,14 +15,34 @@ import javafx.scene.paint.Color;
             this.worldWidth = worldWidth;
         }
 
-        public void moveLeft() {
-            x -= speed;
-            if (x < 0) x = 0;
+        // Gọi từ input handler (khi nhấn phím)
+        public void setMovingLeft(boolean movingLeft) {
+            this.movingLeft = movingLeft;
         }
 
-        public void moveRight() {
-            x += speed;
-            if (x + width > worldWidth) x = worldWidth - width;
+        public void setMovingRight(boolean movingRight) {
+            this.movingRight = movingRight;
         }
+
+        @Override
+        public void update(double dt) {
+            // Tính toán hướng di chuyển
+            double vx = 0;
+
+            if (movingLeft) vx -= speed;
+            if (movingRight) vx += speed;
+
+            // Cập nhật vị trí theo deltaTime
+            setX(getX() + vx * dt);
+
+            // Giới hạn trong màn hình
+            if (getX() < 0) setX(0);
+            if (getX() + getWidth() > worldWidth) setX(worldWidth - getWidth());
+        }
+        @Override
+        public void render(GraphicsContext gc) {
+
+        }
+
     }
 
