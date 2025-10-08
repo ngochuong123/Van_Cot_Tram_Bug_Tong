@@ -1,6 +1,7 @@
 package vn.uet.oop.arkanoid.model.bricks;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 import vn.uet.oop.arkanoid.model.GameObject;
 
 public class NormalBrick extends Brick {
@@ -18,7 +19,7 @@ public class NormalBrick extends Brick {
         return durabilityPoints;
     }
     @Override
-    public boolean isBroken() {
+    public boolean isDestroyed() {
         return durabilityPoints == 0;
     }
 
@@ -29,7 +30,17 @@ public class NormalBrick extends Brick {
 
     @Override
     public void render(GraphicsContext gc) {
-        //render
+        if (isDestroyed()) {
+            return;
+        }
+
+        gc.setFill(Color.GREEN);
+        gc.fillRect(getX(), getY(), getWidth(), getHeight());
+
+        gc.setStroke(Color.BLACK);
+        gc.setLineWidth(2);
+        gc.strokeRect(getX(), getY(), getWidth(), getHeight());
+
 
     }
 

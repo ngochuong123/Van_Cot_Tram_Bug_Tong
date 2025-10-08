@@ -13,13 +13,15 @@ import javafx.scene.paint.Color;
             this.worldWidth = worldWidth;
             this.worldHeight = worldHeight;
         }
-
-        //cai nay cung xoa luon
         @Override
-        public void move() {
-            super.move();
-            // Va chạm tường
-            if (x <= 0 || x + width >= worldWidth) dx = -dx;
-            if (y <= 0 || y + height >= worldHeight) dy = -dy;
+        public void update(double dt) {
+            // Cập nhật vị trí dựa theo vận tốc
+            setX(getX() + getDx() * dt);
+            setY(getY() + getDy() * dt);
+        }
+
+        @Override
+        public void render(GraphicsContext gc) {
+
         }
     }
