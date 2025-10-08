@@ -2,47 +2,38 @@ package vn.uet.oop.arkanoid.model;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import vn.uet.oop.arkanoid.config.GameConfig;
 
-    public class Paddle extends MovableObject {
-        private final double speed;
-        private final int worldWidth;
-        private boolean movingLeft = false;
-        private boolean movingRight = false;
+public class Paddle extends MovableObject {
+    private final double speed;
 
-        public Paddle(double x, double y, double width, double height, double speed, int worldWidth) {
-            super(x, y, width, height, 0, 0);
-            this.speed = speed;
-            this.worldWidth = worldWidth;
-        }
-
-        // Gọi từ input handler (khi nhấn phím)
-        public void setMovingLeft(boolean movingLeft) {
-            this.movingLeft = movingLeft;
-        }
-
-        public void setMovingRight(boolean movingRight) {
-            this.movingRight = movingRight;
-        }
-
-        @Override
-        public void update(double dt) {
-            // Tính toán hướng di chuyển
-            double vx = 0;
-
-            if (movingLeft) vx -= speed;
-            if (movingRight) vx += speed;
-
-            // Cập nhật vị trí theo deltaTime
-            setX(getX() + vx * dt);
-
-            // Giới hạn trong màn hình
-            if (getX() < 0) setX(0);
-            if (getX() + getWidth() > worldWidth) setX(worldWidth - getWidth());
-        }
-        @Override
-        public void render(GraphicsContext gc) {
-
-        }
-
+    public Paddle(double x, double y, double width, double height, double speed) {
+        super(x, y, width, height, 0, 0);
+        this.speed = speed;
     }
 
+    @Override
+    public void render(GraphicsContext gc) {
+        gc.setFill(Color.WHITE);
+        gc.fillRect(getX(),getY(), getWidth(), getHeight());
+    }
+
+    public void update(double deltaTime, boolean leftPressed, boolean rightPressed) {
+        double dx = 0;
+
+        if (leftPressed) {
+            dx -= GameConfig.PADDLE_SPEED * deltaTime;
+        }
+        if (rightPressed) {
+            dx += GameConfig.PADDLE_SPEED * deltaTime;
+        }
+
+        // Cập nhật vị trí
+        setX(getX() + dx);
+
+        // Giới hạn trong màn hình
+        if (getX() < 0) setX(0);
+        if (getX() + getWidth() > GameConfig.SCREEN_WIDTH)
+            setX(GameConfig.SCREEN_WIDTH - getWidth());
+    }
+}
