@@ -19,7 +19,7 @@ public class StrongBrick extends Brick {
     }
 
     @Override
-    public boolean isDestroyed() {
+    public boolean isBroken() {
         return durabilityPoints == 0;
     }
 
@@ -31,7 +31,7 @@ public class StrongBrick extends Brick {
 
     @Override
     public void render(GraphicsContext gc) {
-        if (isDestroyed()) {
+        if (isBroken()) {
             return;
         }
         if (durabilityPoints == 2) {
