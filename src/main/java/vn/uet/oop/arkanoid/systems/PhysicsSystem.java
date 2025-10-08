@@ -16,7 +16,7 @@ public class PhysicsSystem {
      * update ball position
      */
     public void updateBall(Ball ball, double deltaTime) {
-        ball.setPosition(ball.getX() + ball.dx * deltaTime, ball.getY() + ball.dy * deltaTime);
+        ball.setPosition(ball.getX() + ball.getDx() * deltaTime, ball.getY() + ball.getDy() * deltaTime);
     }
 
     /*
@@ -25,12 +25,12 @@ public class PhysicsSystem {
     public void bounceBallOnWalls(Ball ball) {
         // xu ly va cham tuong trai phai
         if (ball.getX() <= 0 || ball.getX() + ball.getWidth() >= GameConfig.SCREEN_WIDTH) {
-            ball.dx = -ball.dx;
+            ball.setDx(-ball.getDx());
         }
 
         //va cham tran
         if (ball.getY() <= 0) {
-            ball.dy = -ball.dy;
+            ball.setDy(-ball.getDy());
         }
     }
 
@@ -42,7 +42,7 @@ public class PhysicsSystem {
             return;
         }
 
-        ball.dy = -Math.abs(ball.dy);
+        ball.setDy(-Math.abs(ball.getDy()));
     }
 
     public void bounceBallOnBricks(Ball ball, List<Brick> bricks) {
@@ -57,9 +57,9 @@ public class PhysicsSystem {
             double dy = (ballCenterY - brickCenterY) / hitBrick.getHeight();
 
             if (Math.abs(dx) > Math.abs(dy)) {
-                ball.dx = -ball.dx;
+                ball.setDx(-ball.getDx());
             } else {
-                ball.dy = -ball.dy;
+                ball.setDy(-ball.getDy());
             }
         }
     }
