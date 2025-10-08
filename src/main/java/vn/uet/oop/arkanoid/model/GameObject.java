@@ -1,6 +1,9 @@
 package vn.uet.oop.arkanoid.model;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.geometry.Rectangle2D;
+import vn.uet.oop.arkanoid.model.interfaces.Collidable;
+import vn.uet.oop.arkanoid.model.interfaces.Renderable;
 
 public abstract class GameObject {
     private double x;               // Top-left corner x
@@ -15,6 +18,16 @@ public abstract class GameObject {
         this.width = width;
         this.height = height;
     }
+
+    @Override
+    public Rectangle2D getBounds() {
+        return new Rectangle2D((int)x, (int)y, (int)width, (int)height);
+    }
+
+//    @Override
+//    public void onCollision(Collidable other) {
+//
+//    }
 
     // Getter
     public double getX() { return x; }
