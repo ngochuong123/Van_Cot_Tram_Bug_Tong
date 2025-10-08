@@ -5,7 +5,7 @@ import javafx.geometry.Rectangle2D;
 import vn.uet.oop.arkanoid.model.interfaces.Collidable;
 import vn.uet.oop.arkanoid.model.interfaces.Renderable;
 
-public abstract class GameObject {
+public abstract class GameObject implements Collidable,Renderable {
     private double x;               // Top-left corner x
     private double y;               // Top-left corner y
 
