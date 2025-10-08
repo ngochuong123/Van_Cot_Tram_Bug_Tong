@@ -55,14 +55,14 @@ public class GameManager {
     }
 
     public void update(double deltaTime, boolean leftPressed, boolean rightPressed) {
-        // Cập nhật vật lý
+
         paddle.update(deltaTime, leftPressed, rightPressed);
         physicsSystem.updateBall(ball, deltaTime);
         physicsSystem.bounceBallOnWalls(ball);
         physicsSystem.bounceBallOnPaddle(ball, paddle);
         physicsSystem.bounceBallOnBricks(ball, bricks);
 
-        // Kiểm tra nếu tất cả gạch đã vỡ → reset hoặc win
+
     }
 
     public void render(GraphicsContext gc) {
