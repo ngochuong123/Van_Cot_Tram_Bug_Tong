@@ -1,12 +1,13 @@
 package vn.uet.oop.arkanoid.model.interfaces;
 
-/**
- * Interface for object that can render
- */
-public class Renderable {
+import javafx.scene.canvas.GraphicsContext;
 
+/**
+ * Interface for objects that can be rendered on a JavaFX canvas.
+ */
+public interface Renderable {
     /*
-     * render object
+     * Render the object on the given GraphicsContext
      */
-    void render(Graphics g);
+    void render(GraphicsContext gc);
 }
