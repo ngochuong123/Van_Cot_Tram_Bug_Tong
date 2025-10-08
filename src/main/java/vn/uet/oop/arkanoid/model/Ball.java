@@ -8,8 +8,13 @@ public class Ball extends MovableObject {
     private final double radius;
 
     public Ball(double x, double y, double radius, double dx, double dy) {
-        super( x,  y, 0,0, dx, dy);
+        super( x,  y, radius * 2,radius * 2, dx, dy);
         this.radius = radius;
+    }
+
+    @Override
+    public void update(double deltaTime) {
+        // update
     }
 
     @Override

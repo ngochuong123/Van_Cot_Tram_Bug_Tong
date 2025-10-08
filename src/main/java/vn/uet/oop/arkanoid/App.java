@@ -10,6 +10,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import vn.uet.oop.arkanoid.config.GameConfig;
+import vn.uet.oop.arkanoid.core.GameManager;
 
 public class App extends Application {
 

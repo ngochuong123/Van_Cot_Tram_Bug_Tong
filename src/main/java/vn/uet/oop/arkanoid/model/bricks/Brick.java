@@ -13,6 +13,6 @@ public abstract class Brick extends GameObject {
 
     }
 
-    }
+
 
 }

@@ -1,4 +1,5 @@
-package vn.uet.oop.arkanoid;
+package vn.uet.oop.arkanoid.core;
+
 import javafx.scene.canvas.GraphicsContext;
 import vn.uet.oop.arkanoid.config.GameConfig;
 import vn.uet.oop.arkanoid.model.*;
