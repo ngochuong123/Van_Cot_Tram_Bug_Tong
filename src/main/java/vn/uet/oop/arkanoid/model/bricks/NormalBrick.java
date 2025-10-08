@@ -19,7 +19,7 @@ public class NormalBrick extends Brick {
         return durabilityPoints;
     }
     @Override
-    public boolean isDestroyed() {
+    public boolean isBroken() {
         return durabilityPoints == 0;
     }
 
@@ -30,18 +30,14 @@ public class NormalBrick extends Brick {
 
     @Override
     public void render(GraphicsContext gc) {
-        if (isDestroyed()) {
-            return;
+        //render
+        if (!isBroken()) {
+            gc.setFill(javafx.scene.paint.Color.ORANGE);
+            gc.fillRect(getX(), getY(), getWidth(), getHeight());
+
+            gc.setStroke(javafx.scene.paint.Color.WHITE);
+            gc.strokeRect(getX(), getY(), getWidth(), getHeight());
         }
-
-        gc.setFill(Color.GREEN);
-        gc.fillRect(getX(), getY(), getWidth(), getHeight());
-
-        gc.setStroke(Color.BLACK);
-        gc.setLineWidth(2);
-        gc.strokeRect(getX(), getY(), getWidth(), getHeight());
-
-
     }
 
 
