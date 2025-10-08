@@ -15,4 +15,8 @@ public abstract class Brick extends GameObject {
 
     
 
+    public Brick(double x, double y, double width, double heiht) {
+        super(x, y, width, heiht);
+    }
+
 }
