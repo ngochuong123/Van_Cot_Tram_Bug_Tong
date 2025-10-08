@@ -1,6 +1,7 @@
 package vn.uet.oop.arkanoid.model;
 
 import javafx.scene.canvas.GraphicsContext;
+import vn.uet.oop.arkanoid.model.interfaces.Collidable;
 
 public abstract class GameObject {
     private double x;
