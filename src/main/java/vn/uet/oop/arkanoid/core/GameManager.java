@@ -44,27 +44,6 @@ public class GameManager {
         powerUpSystem = new PowerUpSystem(powerUps, paddle, ball);
         physicsSystem = new PhysicsSystem();
 
-        loadLevel(vn.uet.oop.arkanoid.config.Levels.LEVEL_1);
-
-        ball.stickTo(paddle);
-    }
-
-    private BrickType.type toType(int code) {
-        return switch (code) {
-            case 1 -> BrickType.type.NORMAL;
-            case 2 -> BrickType.type.STRONG;
-            case 10 -> BrickType.type.UNBREAKABLE;
-            default -> BrickType.type.EMPTY;
-        };
-    }
-
-    public void launchBall() {
-        if (!ball.isLaunched()) {
-            ball.launch();
-        }
-    }
-
-    private void loadLevel(int[][] pattern) {
         bricks = new ArrayList<>();
 
         int rows = pattern.length;

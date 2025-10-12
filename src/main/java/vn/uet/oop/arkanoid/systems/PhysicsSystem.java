@@ -5,7 +5,12 @@ import vn.uet.oop.arkanoid.model.Ball;
 import vn.uet.oop.arkanoid.model.GameObject;
 import vn.uet.oop.arkanoid.model.Paddle;
 import vn.uet.oop.arkanoid.model.bricks.*;
+import vn.uet.oop.arkanoid.model.powerups.ExpandPaddlePowerUp;
+import vn.uet.oop.arkanoid.model.powerups.FastBallPowerUp;
+import vn.uet.oop.arkanoid.model.powerups.PowerUp;
+
 import java.util.List;
+import java.util.Random;
 
 /*
  * manage physic state
