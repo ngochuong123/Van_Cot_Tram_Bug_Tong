@@ -35,20 +35,26 @@ public class App extends Application {
 
         // --- Xử lý phím ---
         scene.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.LEFT) {
+            if (event.getCode() == KeyCode.LEFT || event.getCode() == KeyCode.A) {
                 leftPressed = true;
-            } else if (event.getCode() == KeyCode.RIGHT) {
+            } else if (event.getCode() == KeyCode.RIGHT  || event.getCode() == KeyCode.D) {
                 rightPressed = true;
+            } if (event.getCode() == KeyCode.SPACE) {
+                gameManager.launchBall();
             }
         });
 
         scene.setOnKeyReleased(event -> {
-            if (event.getCode() == KeyCode.LEFT) {
+            if (event.getCode() == KeyCode.LEFT   || event.getCode() == KeyCode.A) {
                 leftPressed = false;
-            } else if (event.getCode() == KeyCode.RIGHT) {
+            } else if (event.getCode() == KeyCode.RIGHT    || event.getCode() == KeyCode.D) {
                 rightPressed = false;
             }
         });
+
+
+
+
 
         // --- Game Loop ---
         AnimationTimer timer = new AnimationTimer() {

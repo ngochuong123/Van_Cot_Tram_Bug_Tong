@@ -33,14 +33,21 @@ public class GameManager {
                 GameConfig.SCREEN_WIDTH / 2,
                 GameConfig.SCREEN_HEIGHT / 2,
                 GameConfig.BALL_RADIUS,
-                GameConfig.BALL_SPEED,
-                -GameConfig.BALL_SPEED
+                0,
+                0
         );
 
         physicsSystem = new PhysicsSystem();
 
         bricks = new ArrayList<>();
         createBricks();
+        ball.stickTo(paddle);
+    }
+
+    public void launchBall() {
+        if (!ball.isLaunched()) {
+            ball.launch();
+        }
     }
 
     private void createBricks() {
@@ -58,6 +65,11 @@ public class GameManager {
     public void update(double deltaTime, boolean leftPressed, boolean rightPressed) {
 
         paddle.update(deltaTime, leftPressed, rightPressed);
+
+        if (!ball.isLaunched()) {
+            ball.stickTo(paddle);
+            return;
+        }
         physicsSystem.updateBall(ball, deltaTime);
         physicsSystem.bounceBallOnWalls(ball);
         physicsSystem.bounceBallOnPaddle(ball, paddle);

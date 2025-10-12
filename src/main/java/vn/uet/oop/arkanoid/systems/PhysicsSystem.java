@@ -16,6 +16,9 @@ public class PhysicsSystem {
      * update ball position
      */
     public void updateBall(Ball ball, double deltaTime) {
+        if (ball.isLaunched() == false) {
+            return;
+        }
         ball.setPosition(ball.getX() + ball.getDx() * deltaTime, ball.getY() + ball.getDy() * deltaTime);
     }
 
@@ -45,6 +48,11 @@ public class PhysicsSystem {
         ball.setDy(-Math.abs(ball.getDy()));
     }
 
+    /**
+     * check collision on left/right or under/above.
+     * @param ball ball
+     * @param bricks list bricks need to check
+     */
     public void bounceBallOnBricks(Ball ball, List<Brick> bricks) {
         Brick hitBrick = CollisionSystem.getCollidedBrick(ball, bricks);
         if (hitBrick != null) {
