@@ -25,7 +25,7 @@ public class PhysicsSystem {
     /*
      * check ball statement with wall
      */
-    public void bounceBallOnWalls(Ball ball) {
+    public void bounceBallOnWalls(Ball ball, Paddle paddle) {
         // xu ly va cham tuong trai phai
         if (ball.getX() <= 0 || ball.getX() + ball.getWidth() >= GameConfig.SCREEN_WIDTH) {
             ball.setDx(-ball.getDx());
@@ -34,6 +34,11 @@ public class PhysicsSystem {
         //va cham tran
         if (ball.getY() <= 0) {
             ball.setDy(-ball.getDy());
+        }
+
+        if (ball.getY() >= GameConfig.SCREEN_HEIGHT) {
+            ball.stickTo(paddle);
+            ball.setLaunched(false);
         }
     }
 

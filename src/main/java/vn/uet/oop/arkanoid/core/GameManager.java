@@ -71,7 +71,7 @@ public class GameManager {
             return;
         }
         physicsSystem.updateBall(ball, deltaTime);
-        physicsSystem.bounceBallOnWalls(ball);
+        physicsSystem.bounceBallOnWalls(ball, paddle);
         physicsSystem.bounceBallOnPaddle(ball, paddle);
         physicsSystem.bounceBallOnBricks(ball, bricks);
 

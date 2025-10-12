@@ -12,6 +12,9 @@ public class Ball extends MovableObject {
     public boolean isLaunched() {
         return launched;
     }
+    public void setLaunched(boolean launched) {
+        this.launched = launched;
+    }
 
     public void stickTo(Paddle paddle) {
         double cx = paddle.getX() + paddle.getWidth() / 2.0;
