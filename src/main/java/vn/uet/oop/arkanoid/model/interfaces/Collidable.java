@@ -1,17 +1,14 @@
 package vn.uet.oop.arkanoid.model.interfaces;
 
+import javafx.geometry.Rectangle2D;
+
 /**
  * mark the object that can be collision
  */
-public class Collidable {
+public interface Collidable {
 
     /**
      * check bounds
      */
-    Rectangle getBounds();
-
-    /**
-     * handle collision
-     */
-    void onCollision(Collidable other);
+    Rectangle2D getBounds();
 }
