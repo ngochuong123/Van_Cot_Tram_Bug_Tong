@@ -44,6 +44,35 @@ public class GameManager {
         powerUpSystem = new PowerUpSystem(powerUps, paddle, ball);
         physicsSystem = new PhysicsSystem();
 
+        loadLevel(vn.uet.oop.arkanoid.config.Levels.LEVEL_1);
+
+        ball.stickTo(paddle);
+    }
+        bricks = new ArrayList<>();
+
+        int rows = pattern.length;
+        int cols = pattern[0].length;
+    private BrickType.type toType(int code) {
+        return switch (code) {
+            case 1 -> BrickType.type.NORMAL;
+            case 2 -> BrickType.type.STRONG;
+            case 10 -> BrickType.type.UNBREAKABLE;
+            default -> BrickType.type.EMPTY;
+        };
+    }
+
+    public void launchBall() {
+        if (!ball.isLaunched()) {
+            ball.launch();
+        }
+    }
+
+        // calculate total width and height of the brick layout
+        double totalW = cols * GameConfig.BRICK_WIDTH + (cols - 1) * GameConfig.BRICK_SPACING;
+        double totalH = rows * GameConfig.BRICK_HEIGHT + (rows - 1) * GameConfig.BRICK_SPACING;
+
+        double startX = (GameConfig.SCREEN_WIDTH  - totalW) / 2.0;
+    private void loadLevel(int[][] pattern) {
         bricks = new ArrayList<>();
 
         int rows = pattern.length;
