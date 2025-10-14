@@ -16,7 +16,7 @@ public class GameConfig {
 
     // ----- Brick -----
     public static final int BRICK_ROWS = 6;
-    public static final int BRICK_COLUMNS = 10;
+    public static final int BRICK_COLUMNS = 9;
     public static final double BRICK_WIDTH = 70;
     public static final double BRICK_HEIGHT = 25;
     public static final double BRICK_SPACING = 5;
