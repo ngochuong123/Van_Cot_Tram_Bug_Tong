@@ -80,6 +80,8 @@ public class PhysicsSystem {
                 ball.setDy(-ball.getDy());
             }
 
+            bricks.remove(hitBrick);
+
             Random rand = new Random();
 
             // Xác suất rơi PowerUp
