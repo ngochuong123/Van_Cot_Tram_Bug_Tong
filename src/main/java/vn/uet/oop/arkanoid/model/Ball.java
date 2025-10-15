@@ -10,7 +10,6 @@ public class Ball extends MovableObject {
     private boolean launched = false;
 
     private boolean hasActiveEffect;
-    private boolean launched = false;
 
     public boolean isLaunched() {
         return launched;
