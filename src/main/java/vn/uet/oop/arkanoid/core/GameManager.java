@@ -14,7 +14,9 @@ public class GameManager {
     private Ball ball;
     private Paddle paddle;
     private List<Brick> bricks;
+    private  List<PowerUp> powerUps;
     private PhysicsSystem physicsSystem;
+    private PowerUpSystem powerUpSystem;
 
 
     public GameManager() {
@@ -38,6 +40,8 @@ public class GameManager {
                 0
         );
 
+        powerUps = new ArrayList<>();
+        powerUpSystem = new PowerUpSystem(powerUps, paddle, ball);
         physicsSystem = new PhysicsSystem();
 
         loadLevel(vn.uet.oop.arkanoid.config.Levels.LEVEL_1);
@@ -99,6 +103,9 @@ public class GameManager {
         physicsSystem.updateBall(ball, deltaTime);
         physicsSystem.bounceBallOnWalls(ball, paddle);
         physicsSystem.bounceBallOnPaddle(ball, paddle);
+        physicsSystem.bounceBallOnBricks(ball, bricks, powerUps);
+        powerUpSystem.updatePowerUps(deltaTime);
+        powerUpSystem.checkAndApply();
         physicsSystem.bounceBallOnBricks(ball, bricks);
 
         if (bricks.isEmpty()) {
@@ -115,6 +122,9 @@ public class GameManager {
         paddle.render(gc);
         for (Brick brick : bricks) {
             brick.render(gc);
+        }
+        for (PowerUp p : powerUps) {
+            p.render(gc);
         }
     }
 }

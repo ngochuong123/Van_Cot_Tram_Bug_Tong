@@ -59,6 +59,7 @@ public class PhysicsSystem {
      * @param bricks list bricks need to check
      */
     public void bounceBallOnBricks(Ball ball, List<Brick> bricks) {
+    public void bounceBallOnBricks(Ball ball, List<Brick> bricks, List<PowerUp> powerUps) {
         Brick hitBrick = CollisionSystem.getCollidedBrick(ball, bricks);
         if (hitBrick != null) {
             double ballCenterX = ball.getX() + ball.getWidth() / 2;
@@ -73,6 +74,32 @@ public class PhysicsSystem {
                 ball.setDx(-ball.getDx());
             } else {
                 ball.setDy(-ball.getDy());
+            }
+
+            Random rand = new Random();
+
+            // Xác suất rơi PowerUp
+            double dropChance = 0.3;
+            if (rand.nextDouble() < dropChance) {
+                // Nếu rơi ra PowerUp thì chọn loại
+                double typeChance = rand.nextDouble();
+                PowerUp newPowerUp;
+
+                if (typeChance < 0.6) {
+                    newPowerUp = new ExpandPaddlePowerUp(
+                            hitBrick.getX() + hitBrick.getWidth() / 2,
+                            hitBrick.getY() + hitBrick.getHeight() / 2,
+                            20, 20, 70
+                    );
+                } else {
+                    newPowerUp = new FastBallPowerUp(
+                            hitBrick.getX() + hitBrick.getWidth() / 2,
+                            hitBrick.getY() + hitBrick.getHeight() / 2,
+                            20, 20, 70
+                    );
+                }
+
+                powerUps.add(newPowerUp);
             }
         }
     }
