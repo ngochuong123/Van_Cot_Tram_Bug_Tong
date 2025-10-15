@@ -13,7 +13,9 @@ public class GameManager {
     private Ball ball;
     private Paddle paddle;
     private List<Brick> bricks;
+    private  List<PowerUp> powerUps;
     private PhysicsSystem physicsSystem;
+    private PowerUpSystem powerUpSystem;
 
 
     public GameManager() {
@@ -37,6 +39,8 @@ public class GameManager {
                 -GameConfig.BALL_SPEED
         );
 
+        powerUps = new ArrayList<>();
+        powerUpSystem = new PowerUpSystem(powerUps, paddle, ball);
         physicsSystem = new PhysicsSystem();
 
         bricks = new ArrayList<>();
@@ -61,8 +65,9 @@ public class GameManager {
         physicsSystem.updateBall(ball, deltaTime);
         physicsSystem.bounceBallOnWalls(ball);
         physicsSystem.bounceBallOnPaddle(ball, paddle);
-        physicsSystem.bounceBallOnBricks(ball, bricks);
-
+        physicsSystem.bounceBallOnBricks(ball, bricks, powerUps);
+        powerUpSystem.updatePowerUps(deltaTime);
+        powerUpSystem.checkAndApply();
 
     }
 
@@ -71,6 +76,9 @@ public class GameManager {
         paddle.render(gc);
         for (Brick brick : bricks) {
             brick.render(gc);
+        }
+        for (PowerUp p : powerUps) {
+            p.render(gc);
         }
     }
 }
