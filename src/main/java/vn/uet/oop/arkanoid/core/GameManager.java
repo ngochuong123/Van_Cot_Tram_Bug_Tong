@@ -1,3 +1,4 @@
+
 package vn.uet.oop.arkanoid.core;
 
 import javafx.scene.canvas.GraphicsContext;
@@ -11,16 +12,14 @@ import java.util.List;
 import vn.uet.oop.arkanoid.model.bricks.BrickType;
 import vn.uet.oop.arkanoid.systems.PowerUpSystem;
 
-
 public class GameManager {
 
     private Ball ball;
     private Paddle paddle;
     private List<Brick> bricks;
-    private  List<PowerUp> powerUps;
+    private List<PowerUp> powerUps;
     private PhysicsSystem physicsSystem;
     private PowerUpSystem powerUpSystem;
-
 
     public GameManager() {
         initGame();
@@ -51,45 +50,22 @@ public class GameManager {
 
         ball.stickTo(paddle);
     }
-     private void loadLevel(int[][] pattern) {
-        bricks = new ArrayList<>();
 
-        int rows = pattern.length;
-        int cols = pattern[0].length;
-
-        double totalW = cols * GameConfig.BRICK_WIDTH + (cols - 1) * GameConfig.BRICK_SPACING;
-        double totalH = rows * GameConfig.BRICK_HEIGHT + (rows - 1) * GameConfig.BRICK_SPACING;
-
-        double startX = (GameConfig.SCREEN_WIDTH  - totalW) / 2.0;
-        double startY = 50;
-
-        for (int r = 0; r < rows; r++) {
-            for (int c = 0; c < cols; c++) {
-                int code = pattern[r][c];
-                BrickType.type type = toType(code);
-                if (type == BrickType.type.EMPTY) continue;
-
-                double x = startX + c * (GameConfig.BRICK_WIDTH  + GameConfig.BRICK_SPACING);
-                double y = startY + r * (GameConfig.BRICK_HEIGHT + GameConfig.BRICK_SPACING);
-
-                Brick b = BrickFactory.createBrick(type, x, y, GameConfig.BRICK_WIDTH, GameConfig.BRICK_HEIGHT);
-                if (b != null) bricks.add(b);
-            }
-        }
+    private BrickType.type toType(int code) {
+        return switch (code) {
+            case 1 -> BrickType.type.NORMAL;
+            case 2 -> BrickType.type.STRONG;
+            case 10 -> BrickType.type.UNBREAKABLE;
+            default -> BrickType.type.EMPTY;
+        };
     }
 
-        // calculate total width and height of the brick layout
-        double totalW = cols * GameConfig.BRICK_WIDTH + (cols - 1) * GameConfig.BRICK_SPACING;
-        double totalH = rows * GameConfig.BRICK_HEIGHT + (rows - 1) * GameConfig.BRICK_SPACING;
-
-        double startX = (GameConfig.SCREEN_WIDTH  - totalW) / 2.0;
     private void loadLevel(int[][] pattern) {
         bricks = new ArrayList<>();
 
         int rows = pattern.length;
         int cols = pattern[0].length;
 
-        // calculate total width and height of the brick layout
         double totalW = cols * GameConfig.BRICK_WIDTH + (cols - 1) * GameConfig.BRICK_SPACING;
         double totalH = rows * GameConfig.BRICK_HEIGHT + (rows - 1) * GameConfig.BRICK_SPACING;
 
@@ -111,8 +87,13 @@ public class GameManager {
         }
     }
 
-    public void update(double deltaTime, boolean leftPressed, boolean rightPressed) {
+    public void launchBall() {
+        if (!ball.isLaunched()) {
+            ball.launch();
+        }
+    }
 
+    public void update(double deltaTime, boolean leftPressed, boolean rightPressed) {
         paddle.update(deltaTime, leftPressed, rightPressed);
 
         if (!ball.isLaunched()) {
@@ -125,15 +106,12 @@ public class GameManager {
         physicsSystem.bounceBallOnBricks(ball, bricks, powerUps);
         powerUpSystem.updatePowerUps(deltaTime);
         powerUpSystem.checkAndApply();
-        physicsSystem.bounceBallOnBricks(ball, bricks, powerUps);
 
         if (bricks.isEmpty()) {
             System.out.println("Level cleared! Loading next level...");
             loadLevel(vn.uet.oop.arkanoid.config.Levels.LEVEL_2);
             ball.stickTo(paddle);
         }
-
-
     }
 
     public void render(GraphicsContext gc) {
