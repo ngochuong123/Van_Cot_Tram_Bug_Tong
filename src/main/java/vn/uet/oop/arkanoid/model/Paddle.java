@@ -6,10 +6,20 @@ import vn.uet.oop.arkanoid.config.GameConfig;
 
 public class Paddle extends MovableObject {
     private final double speed;
+    private boolean hasActiveEffect ;
 
     public Paddle(double x, double y, double width, double height, double speed) {
         super(x, y, width, height, 0, 0);
         this.speed = speed;
+        this.hasActiveEffect = false;
+    }
+
+    public boolean isHasActiveEffect() {
+        return hasActiveEffect;
+    }
+
+    public void setHasActiveEffect(boolean hasActiveEffect) {
+        this.hasActiveEffect = hasActiveEffect;
     }
 
     @Override
