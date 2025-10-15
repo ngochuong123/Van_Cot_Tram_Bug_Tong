@@ -30,7 +30,7 @@ public class UnbreakableBrick extends Brick {
         gc.setFill(Color.GRAY);
         gc.fillRect(getX(), getY(), getWidth(), getHeight());
 
-        gc.setStroke(Color.BLACK);
+        gc.setStroke(Color.WHITE);
         gc.setLineWidth(2);
         gc.strokeRect(getX(), getY(), getWidth(), getHeight());
     }

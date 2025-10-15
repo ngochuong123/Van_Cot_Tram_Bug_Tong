@@ -80,7 +80,9 @@ public class PhysicsSystem {
                 ball.setDy(-ball.getDy());
             }
 
-            bricks.remove(hitBrick);
+            if (!(hitBrick instanceof UnbreakableBrick)) {
+                bricks.remove(hitBrick);
+            }
 
             Random rand = new Random();
 
