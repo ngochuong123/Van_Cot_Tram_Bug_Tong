@@ -51,22 +51,30 @@ public class GameManager {
 
         ball.stickTo(paddle);
     }
+     private void loadLevel(int[][] pattern) {
         bricks = new ArrayList<>();
 
         int rows = pattern.length;
         int cols = pattern[0].length;
-    private BrickType.type toType(int code) {
-        return switch (code) {
-            case 1 -> BrickType.type.NORMAL;
-            case 2 -> BrickType.type.STRONG;
-            case 10 -> BrickType.type.UNBREAKABLE;
-            default -> BrickType.type.EMPTY;
-        };
-    }
 
-    public void launchBall() {
-        if (!ball.isLaunched()) {
-            ball.launch();
+        double totalW = cols * GameConfig.BRICK_WIDTH + (cols - 1) * GameConfig.BRICK_SPACING;
+        double totalH = rows * GameConfig.BRICK_HEIGHT + (rows - 1) * GameConfig.BRICK_SPACING;
+
+        double startX = (GameConfig.SCREEN_WIDTH  - totalW) / 2.0;
+        double startY = 50;
+
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+                int code = pattern[r][c];
+                BrickType.type type = toType(code);
+                if (type == BrickType.type.EMPTY) continue;
+
+                double x = startX + c * (GameConfig.BRICK_WIDTH  + GameConfig.BRICK_SPACING);
+                double y = startY + r * (GameConfig.BRICK_HEIGHT + GameConfig.BRICK_SPACING);
+
+                Brick b = BrickFactory.createBrick(type, x, y, GameConfig.BRICK_WIDTH, GameConfig.BRICK_HEIGHT);
+                if (b != null) bricks.add(b);
+            }
         }
     }
 
