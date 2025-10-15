@@ -4,33 +4,21 @@ import javafx.scene.Scene;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.geometry.Pos;
-import javafx.geometry.Insets;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-// import javafx.scene.media.Media;
-// import javafx.scene.media.MediaPlayer;
 import javafx.animation.ScaleTransition;
 import javafx.util.Duration;
 import vn.uet.oop.arkanoid.config.GameConfig;
-import vn.uet.oop.arkanoid.core.GameManager;
+import vn.uet.oop.arkanoid.core.SceneRouter;
 import javafx.stage.Stage;
 
-/**
- * Controller cho màn hình menu chính - Xây dựng UI hoàn toàn bằng code
- * Xử lý các sự kiện: bắt đầu game, cài đặt, thoát, v.v.
- */
 public class MenuController {
     private Stage primaryStage;
     private Scene menuScene;
-    // private MediaPlayer backgroundMusic;
     // Các thành phần UI
     private BorderPane root;
     private HBox menuHBox;
@@ -39,11 +27,11 @@ public class MenuController {
     private Button startButton;
     private Button settingsButton;
     private Button exitButton;
-    private Runnable onStartGame;
+    private boolean onStartGame;
 
-    public MenuController(Stage stage, Runnable onStartGame) {
+    public MenuController(Stage stage) {
         this.primaryStage = stage;
-        this.onStartGame = onStartGame;
+        this.onStartGame = false;
         createMenu();
         eventMenu();
     }
@@ -73,6 +61,10 @@ public class MenuController {
         root.setTop(topBox);
 
         this.menuScene = new Scene(root, GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT);
+        this.menuScene.getRoot().setStyle(
+                "-fx-background-image: url('file:src/main/java/vn/uet/oop/arkanoid/config/image/menu.jpg');" +
+                        "-fx-background-size: cover;" +
+                        "-fx-background-position: center center;");
         this.primaryStage.setScene(menuScene);
         this.primaryStage.setTitle("ARKANOID");
         this.primaryStage.show();
@@ -120,9 +112,8 @@ public class MenuController {
         startButton.setOnAction(e -> {
             System.out.println("Người chơi bấm START");
             // ví dụ: chuyển sang màn chơi
-            if (onStartGame != null) {
-                onStartGame.run();
-            }
+            SceneRouter router = new SceneRouter();
+            router.playgame(primaryStage);
         });
 
         settingsButton.setOnAction(e -> {
@@ -162,5 +153,9 @@ public class MenuController {
 
     public Scene getScene() {
         return this.menuScene;
+    }
+
+    public boolean getOnStartGame() {
+        return this.onStartGame;
     }
 }

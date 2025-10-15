@@ -20,4 +20,12 @@ public class GameConfig {
     public static final double BRICK_WIDTH = 70;
     public static final double BRICK_HEIGHT = 25;
     public static final double BRICK_SPACING = 5;
+
+    // ----- GameState ----
+    public static final int pauseState = 1;
+    public static final int settingState = 2;
+    public static final int gameOverState = 3;
+
+    // ----- Score -----
+    public static final int addscore = 100;
 }

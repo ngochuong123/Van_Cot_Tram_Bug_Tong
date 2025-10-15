@@ -1,56 +1,116 @@
 package vn.uet.oop.arkanoid.ui;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
-import java.io.IOException;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import vn.uet.oop.arkanoid.config.GameConfig;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HUD {
+    private Stage HUDStage;
+    private Scene HUDScene;
+    private int heart;
     private int score;
-    private int lives;
-    private BufferedImage heartImage;
+    private Label scores;
+    private List<ImageView> hearts = new ArrayList<>();
+    private HBox heartsBox = new HBox(5);
+    private VBox heart_score = new VBox(10);
 
-    public HUD() {
-        this.score = 0;
-        this.lives = 5;
-        try {
-            heartImage = ImageIO.read(getClass().getResource("/com/example/image.png"));
-        } catch (IOException e) {
-            e.printStackTrace();
+    public HUD(Stage HUDStage, int score, Scene HUDScene) {
+        this.HUDStage = HUDStage;
+        this.HUDScene = HUDScene;
+        this.heart = 5;
+        this.score = score;
+        createScores();
+        createHeart();
+    }
+
+    /*
+     * ham tao diem so de in len man hinh.
+     */
+    public void createScores() {
+        this.scores = new Label("SCORE: " + this.score);
+        this.scores.setStyle(
+                "-fx-font-family: 'Impact';" +
+                        "-fx-font-size: 28px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: #ff33ddce;" +
+                        "-fx-effect: dropshadow(gaussian, #ff3377ff, 15, 0.7, 0, 0);");
+    }
+
+    /**
+     * ham tao hinh anh mang player.
+     */
+    public void createHeart() {
+        // Đường dẫn ảnh trái tim
+        Image heartImage = new Image("file:src/main/java/vn/uet/oop/arkanoid/config/image/heart.png");
+
+        // Xóa tim cũ (nếu có)
+        heartsBox.getChildren().clear();
+        hearts.clear();
+
+        // Tạo tim mới
+        for (int i = 0; i < heart; i++) {
+            ImageView heart = new ImageView(heartImage);
+            heart.setFitWidth(30);
+            heart.setFitHeight(30);
+            hearts.add(heart);
+            heartsBox.getChildren().add(heart);
+        }
+
+        if (!heart_score.getChildren().contains(heartsBox)) {
+            heart_score.getChildren().addAll(heartsBox, scores);
         }
     }
 
-    // getter
-    public int getScore() {
-        return score;
-    }
-
-    public int getLives() {
-        return lives;
-    }
-
-    public BufferedImage getHeartImage() {
-        return heartImage;
-    }
-
-    public void render(Graphics g) {
-        g.setColor(Color.WHITE);
-        g.setFont(new Font("Arial", Font.BOLD, 18));
-        g.drawString("Score: " + this.getScore(), 20, 30);
-
-        for (int i = 0; i < this.getLives(); i++) {
-            g.drawImage(heartImage, 20 + i * 40, 50, 32, 32, null);
+    /**
+     * ham xoa di trai tim khi bong roi xuong.
+     */
+    public void loseLife() {
+        if (!hearts.isEmpty()) {
+            ImageView lastHeart = hearts.remove(hearts.size() - 1);
+            heartsBox.getChildren().remove(lastHeart);
+            heart_score.getChildren().addAll(heartsBox, scores);
         }
     }
 
-    // public void updateScore() {
-    // this.score =
-    // }
+    /**
+     * ham cap nhat diem so.
+     */
+    public void updateScore() {
+        this.score += GameConfig.addscore;
+        this.scores.setText("SCORE: " + this.score);
+        heart_score.getChildren().addAll(heartsBox, scores);
+    }
 
-    // public void updatLives() {
-    // this.lives =
-    // }
+    /**
+     * ham kiem tra xem ban da het mang hay chua.
+     * 
+     * @param heart
+     * @return true or false
+     */
+    public boolean stateHeart(int heart) {
+        if (heart == 0) {
+            return true;
+        }
+        return false;
+    }
 
+    /**
+     * ham ve HUD len man hinh.
+     */
+    public void createHUD() {
+        BorderPane topleft = (BorderPane) HUDScene.getRoot();
+        heart_score.setAlignment(Pos.TOP_LEFT);
+        heart_score.setStyle("-fx-padding: 25;");
+        topleft.setTop(heart_score);
+        HUDStage.setScene(HUDScene);
+    }
 }
