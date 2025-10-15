@@ -47,7 +47,7 @@ public class Paddle extends MovableObject {
             setX(GameConfig.SCREEN_WIDTH - getWidth());
     }
 
-    @Override
+
     public void update(double deltaTime) {
         // update
     }

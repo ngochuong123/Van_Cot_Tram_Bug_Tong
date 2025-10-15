@@ -11,6 +11,8 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import vn.uet.oop.arkanoid.config.GameConfig;
 import vn.uet.oop.arkanoid.core.GameManager;
+import javafx.scene.image.Image;
+
 
 public class App extends Application {
 
@@ -25,6 +27,8 @@ public class App extends Application {
 
         // --- Tạo GameManager ---
         gameManager = new GameManager();
+        Image background = new Image("file:src/main/java/vn/uet/oop/arkanoid/resources/image/BACKGROUND.jpg");
+
 
         // --- Scene & Stage ---
         StackPane root = new StackPane(canvas);
@@ -74,8 +78,10 @@ public class App extends Application {
                 gameManager.update(deltaTime, leftPressed, rightPressed);
 
                 // Vẽ lại màn hình
-                gc.setFill(Color.BLACK);
-                gc.fillRect(0, 0, GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT);
+                gc.drawImage(background, 0, 0, GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT);
+
+//                gc.setFill(Color.BLACK);
+//                gc.fillRect(0, 0, GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT);
                 gameManager.render(gc);
             }
         };

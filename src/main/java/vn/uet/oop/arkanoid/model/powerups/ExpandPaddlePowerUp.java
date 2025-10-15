@@ -2,8 +2,10 @@ package vn.uet.oop.arkanoid.model.powerups;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import vn.uet.oop.arkanoid.config.GameConfig;
 import vn.uet.oop.arkanoid.model.Paddle;
 import vn.uet.oop.arkanoid.model.Ball;
+import javafx.scene.image.Image;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -37,9 +39,12 @@ public class ExpandPaddlePowerUp extends PowerUp {
         }
     }
 
+    Image expandPaddle = new Image("file:src/main/java/vn/uet/oop/arkanoid/resources/image/expand_paddle.png");
+
     @Override
     public void render(GraphicsContext gc) {
-        gc.setFill(Color.LIGHTGREEN);
-        gc.fillRect(getX(), getY(), getWidth(), getHeight());
+        gc.drawImage(expandPaddle, getX(), getY(), getWidth(), getHeight());
+//        gc.setFill(Color.LIGHTGREEN);
+//        gc.fillRect(getX(), getY(), getWidth(), getHeight());
     }
 }

@@ -4,6 +4,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import vn.uet.oop.arkanoid.model.Paddle;
 import vn.uet.oop.arkanoid.model.Ball;
+import javafx.scene.image.Image;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -35,10 +36,12 @@ public class FastBallPowerUp extends PowerUp {
             }, 5000);
         }
     }
+    Image BigBall = new Image("file:src/main/java/vn/uet/oop/arkanoid/resources/image/BigBall.png");
 
     @Override
     public void render(GraphicsContext gc) {
-        gc.setFill(Color.RED);
-        gc.fillRect(getX(), getY(), getWidth(), getHeight());
+        gc.drawImage(BigBall, getX(), getY(), getWidth(), getHeight());
+//        gc.setFill(Color.RED);
+//        gc.fillRect(getX(), getY(), getWidth(), getHeight());
     }
 }
