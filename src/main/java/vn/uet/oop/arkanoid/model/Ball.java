@@ -6,7 +6,7 @@ import javafx.scene.paint.Color;
 import vn.uet.oop.arkanoid.config.GameConfig;
 
 public class Ball extends MovableObject {
-    private final double radius;
+    private  double radius;
     private boolean launched = false;
 
     private boolean hasActiveEffect;

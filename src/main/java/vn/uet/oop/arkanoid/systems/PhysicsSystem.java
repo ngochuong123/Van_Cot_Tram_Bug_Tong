@@ -63,7 +63,6 @@ public class PhysicsSystem {
      * @param ball ball
      * @param bricks list bricks need to check
      */
-    public void bounceBallOnBricks(Ball ball, List<Brick> bricks) {
     public void bounceBallOnBricks(Ball ball, List<Brick> bricks, List<PowerUp> powerUps) {
         Brick hitBrick = CollisionSystem.getCollidedBrick(ball, bricks);
         if (hitBrick != null) {

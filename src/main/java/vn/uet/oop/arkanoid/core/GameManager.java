@@ -3,11 +3,14 @@ package vn.uet.oop.arkanoid.core;
 import javafx.scene.canvas.GraphicsContext;
 import vn.uet.oop.arkanoid.config.GameConfig;
 import vn.uet.oop.arkanoid.model.*;
+import vn.uet.oop.arkanoid.model.powerups.PowerUp;
 import vn.uet.oop.arkanoid.systems.PhysicsSystem;
 import vn.uet.oop.arkanoid.model.bricks.*;
 import java.util.ArrayList;
 import java.util.List;
 import vn.uet.oop.arkanoid.model.bricks.BrickType;
+import vn.uet.oop.arkanoid.systems.PowerUpSystem;
+
 
 public class GameManager {
 
@@ -114,7 +117,7 @@ public class GameManager {
         physicsSystem.bounceBallOnBricks(ball, bricks, powerUps);
         powerUpSystem.updatePowerUps(deltaTime);
         powerUpSystem.checkAndApply();
-        physicsSystem.bounceBallOnBricks(ball, bricks);
+        physicsSystem.bounceBallOnBricks(ball, bricks, powerUps);
 
         if (bricks.isEmpty()) {
             System.out.println("Level cleared! Loading next level...");
