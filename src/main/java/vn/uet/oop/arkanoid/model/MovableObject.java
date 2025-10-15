@@ -41,4 +41,6 @@ public abstract class MovableObject extends GameObject implements Collidable, Re
     public void setDy(double dy) {
         this.dy = dy;
     }
+
+
 }

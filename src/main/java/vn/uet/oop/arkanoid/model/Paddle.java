@@ -51,4 +51,5 @@ public class Paddle extends MovableObject {
     public void update(double deltaTime) {
         // update
     }
+
 }

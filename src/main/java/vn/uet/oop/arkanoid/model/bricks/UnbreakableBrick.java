@@ -3,51 +3,35 @@ package vn.uet.oop.arkanoid.model.bricks;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public class StrongBrick extends Brick {
-    private int durabilityPoints = 2;
+public class UnbreakableBrick extends Brick {
 
-    public StrongBrick(double x, double y, double width, double height) {
+    public UnbreakableBrick(double x, double y, double width, double height) {
         super(x, y, width, height);
     }
 
     @Override
     public int takeHit() {
-        if (durabilityPoints > 0) {
-            durabilityPoints--;
-        }
-        return durabilityPoints;
+        // Do nothing, unbreakable brick
+        return 10;
     }
 
     @Override
     public boolean isBroken() {
-        return durabilityPoints == 0;
+        return false;
     }
 
     @Override
     public void update(double deltaTime) {
         // not need update
-
     }
 
     @Override
     public void render(GraphicsContext gc) {
-        if (isBroken()) {
-            return;
-        }
-        if (durabilityPoints == 2) {
-            gc.setFill(Color.DARKRED);
-        } else if (durabilityPoints == 1) {
-            gc.setFill(Color.ORANGE);
-        }
-
+        gc.setFill(Color.GRAY);
         gc.fillRect(getX(), getY(), getWidth(), getHeight());
 
-
-        gc.setStroke(Color.WHITE);
+        gc.setStroke(Color.BLACK);
         gc.setLineWidth(2);
         gc.strokeRect(getX(), getY(), getWidth(), getHeight());
-
     }
-
-
 }
