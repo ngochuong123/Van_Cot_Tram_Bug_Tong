@@ -75,7 +75,6 @@ public class SceneRouter {
                 double deltaTime = (now - lastTime) / 1e9; // nano giây -> giây
                 lastTime = now;
 
-                // Cập nhật logic game
                 gameManager.update(deltaTime, leftPressed, rightPressed);
                 gc.clearRect(0, 0, GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT);
                 Image bg = new Image("file:src/main/java/vn/uet/oop/arkanoid/config/image/background.png");
