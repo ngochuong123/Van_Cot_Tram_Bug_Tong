@@ -11,14 +11,15 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import vn.uet.oop.arkanoid.config.GameConfig;
 import vn.uet.oop.arkanoid.core.GameManager;
+import vn.uet.oop.arkanoid.ui.HUD;
+import vn.uet.oop.arkanoid.ui.MenuController;
 
 public class App extends Application {
 
-    private GameManager gameManager;
-    private boolean leftPressed = false;
-    private boolean rightPressed = false;
     @Override
     public void start(Stage stage) {
+        MenuController menuController = new MenuController(stage);
+        menuController.eventMenu();
         // --- Tạo Canvas ---
         Canvas canvas = new Canvas(GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT);
         GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -84,6 +85,5 @@ public class App extends Application {
 
     public static void main(String[] args) {
         launch(args); // Khởi động JavaFX Application
-
     }
 }
