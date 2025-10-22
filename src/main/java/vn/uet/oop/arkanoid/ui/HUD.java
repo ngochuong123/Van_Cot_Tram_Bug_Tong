@@ -41,8 +41,9 @@ public class HUD {
                 "-fx-font-family: 'Impact';" +
                         "-fx-font-size: 28px;" +
                         "-fx-font-weight: bold;" +
-                        "-fx-text-fill: #ff33ddce;" +
-                        "-fx-effect: dropshadow(gaussian, #ff3377ff, 15, 0.7, 0, 0);");
+                        "-fx-text-fill: #7cfc00;" + // LawnGreen
+                        "-fx-effect: dropshadow(gaussian, #006400, 8, 0.8, 2, 2);" +
+                        "-fx-effect: innershadow(gaussian, #90ee90, 3, 0.5, 0, 0);");
     }
 
     /**

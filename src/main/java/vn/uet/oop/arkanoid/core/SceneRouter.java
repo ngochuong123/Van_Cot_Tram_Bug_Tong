@@ -1,6 +1,7 @@
 package vn.uet.oop.arkanoid.core;
 
 import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -22,10 +23,17 @@ public class SceneRouter {
     public GraphicsContext gc = canvas.getGraphicsContext2D();
 
     public void playgame(Stage stage) {
+        // --- Xử lý nút X (đóng cửa sổ) - THÊM NGAY TẠI ĐÂY ---
+        stage.setOnCloseRequest(event -> {
+            System.out.println("Người dùng nhấn nút X - Đóng game");
+            // Dừng game loop và thoát chương trình
+            Platform.exit();
+            System.exit(0);
+        });
         // --- Tạo layout chính ---
         gameManager = new GameManager();
 
-        Image image = new Image("file:src/main/java/vn/uet/oop/arkanoid/config/image/background.jpg");
+        Image image = new Image("file:src/main/java/vn/uet/oop/arkanoid/config/image/backgroudgame.png");
         ImageView imageView = new ImageView(image);
         imageView.setFitWidth(GameConfig.SCREEN_WIDTH);
         imageView.setFitHeight(GameConfig.SCREEN_HEIGHT);
@@ -77,7 +85,7 @@ public class SceneRouter {
 
                 gameManager.update(deltaTime, leftPressed, rightPressed);
                 gc.clearRect(0, 0, GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT);
-                Image bg = new Image("file:src/main/java/vn/uet/oop/arkanoid/config/image/background.png");
+                Image bg = new Image("file:src/main/java/vn/uet/oop/arkanoid/config/image/backgroudgame.png");
                 gc.drawImage(bg, 0, 0, GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT);
                 gameManager.render(gc);
             }

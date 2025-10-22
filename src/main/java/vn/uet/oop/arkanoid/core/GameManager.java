@@ -31,16 +31,14 @@ public class GameManager {
                 GameConfig.SCREEN_HEIGHT - 40,
                 GameConfig.PADDLE_WIDTH,
                 GameConfig.PADDLE_HEIGHT,
-                GameConfig.PADDLE_SPEED
-        );
+                GameConfig.PADDLE_SPEED);
 
         ball = new Ball(
                 GameConfig.SCREEN_WIDTH / 2,
                 GameConfig.SCREEN_HEIGHT / 2,
                 GameConfig.BALL_RADIUS,
                 0,
-                0
-        );
+                0);
 
         powerUps = new ArrayList<>();
         powerUpSystem = new PowerUpSystem(powerUps, paddle, ball);
@@ -69,20 +67,22 @@ public class GameManager {
         double totalW = cols * GameConfig.BRICK_WIDTH + (cols - 1) * GameConfig.BRICK_SPACING;
         double totalH = rows * GameConfig.BRICK_HEIGHT + (rows - 1) * GameConfig.BRICK_SPACING;
 
-        double startX = (GameConfig.SCREEN_WIDTH  - totalW) / 2.0;
+        double startX = (GameConfig.SCREEN_WIDTH - totalW) / 2.0;
         double startY = 50;
 
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
                 int code = pattern[r][c];
                 BrickType.type type = toType(code);
-                if (type == BrickType.type.EMPTY) continue;
+                if (type == BrickType.type.EMPTY)
+                    continue;
 
-                double x = startX + c * (GameConfig.BRICK_WIDTH  + GameConfig.BRICK_SPACING);
+                double x = startX + c * (GameConfig.BRICK_WIDTH + GameConfig.BRICK_SPACING);
                 double y = startY + r * (GameConfig.BRICK_HEIGHT + GameConfig.BRICK_SPACING);
 
                 Brick b = BrickFactory.createBrick(type, x, y, GameConfig.BRICK_WIDTH, GameConfig.BRICK_HEIGHT);
-                if (b != null) bricks.add(b);
+                if (b != null)
+                    bricks.add(b);
             }
         }
     }

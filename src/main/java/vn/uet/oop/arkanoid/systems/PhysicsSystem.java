@@ -36,7 +36,7 @@ public class PhysicsSystem {
             ball.setDx(-ball.getDx());
         }
 
-        //va cham tran
+        // va cham tran
         if (ball.getY() <= 0) {
             ball.setDy(-ball.getDy());
         }
@@ -60,7 +60,8 @@ public class PhysicsSystem {
 
     /**
      * check collision on left/right or under/above.
-     * @param ball ball
+     * 
+     * @param ball   ball
      * @param bricks list bricks need to check
      */
     public void bounceBallOnBricks(Ball ball, List<Brick> bricks, List<PowerUp> powerUps) {
@@ -79,6 +80,12 @@ public class PhysicsSystem {
             } else {
                 ball.setDy(-ball.getDy());
             }
+            // doi level
+            if (!(hitBrick instanceof UnbreakableBrick)) {
+                if (hitBrick.isBroken()) {
+                    bricks.remove(hitBrick);
+                }
+            }
 
             Random rand = new Random();
 
@@ -93,14 +100,12 @@ public class PhysicsSystem {
                     newPowerUp = new ExpandPaddlePowerUp(
                             hitBrick.getX() + hitBrick.getWidth() / 2,
                             hitBrick.getY() + hitBrick.getHeight() / 2,
-                            20, 20, 70
-                    );
+                            20, 20, 70);
                 } else {
                     newPowerUp = new FastBallPowerUp(
                             hitBrick.getX() + hitBrick.getWidth() / 2,
                             hitBrick.getY() + hitBrick.getHeight() / 2,
-                            20, 20, 70
-                    );
+                            20, 20, 70);
                 }
 
                 powerUps.add(newPowerUp);

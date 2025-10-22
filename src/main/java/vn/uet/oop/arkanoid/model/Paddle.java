@@ -6,7 +6,7 @@ import vn.uet.oop.arkanoid.config.GameConfig;
 
 public class Paddle extends MovableObject {
     private final double speed;
-    private boolean hasActiveEffect ;
+    private boolean hasActiveEffect;
 
     public Paddle(double x, double y, double width, double height, double speed) {
         super(x, y, width, height, 0, 0);
@@ -24,8 +24,8 @@ public class Paddle extends MovableObject {
 
     @Override
     public void render(GraphicsContext gc) {
-        gc.setFill(Color.WHITE);
-        gc.fillRect(getX(),getY(), getWidth(), getHeight());
+        gc.setFill(Color.PINK);
+        gc.fillRect(getX(), getY(), getWidth(), getHeight());
     }
 
     public void update(double deltaTime, boolean leftPressed, boolean rightPressed) {
@@ -42,7 +42,8 @@ public class Paddle extends MovableObject {
         setX(getX() + dx);
 
         // Giới hạn trong màn hình
-        if (getX() < 0) setX(0);
+        if (getX() < 0)
+            setX(0);
         if (getX() + getWidth() > GameConfig.SCREEN_WIDTH)
             setX(GameConfig.SCREEN_WIDTH - getWidth());
     }

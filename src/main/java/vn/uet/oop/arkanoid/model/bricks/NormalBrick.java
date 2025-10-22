@@ -1,6 +1,7 @@
 package vn.uet.oop.arkanoid.model.bricks;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import vn.uet.oop.arkanoid.model.GameObject;
 
@@ -9,6 +10,12 @@ public class NormalBrick extends Brick {
 
     public NormalBrick(double x, double y, double width, double height) {
         super(x, y, width, height);
+        try {
+            BrickType.brick1Image = new Image("file:src/main/java/vn/uet/oop/arkanoid/config/image/brick1.png");
+        } catch (Exception e) {
+            System.err.println("Không thể tải hình ảnh brick");
+            // Có thể set hình mặc định ở đây
+        }
     }
 
     @Override
@@ -18,6 +25,7 @@ public class NormalBrick extends Brick {
         }
         return durabilityPoints;
     }
+
     @Override
     public boolean isBroken() {
         return durabilityPoints == 0;
@@ -30,16 +38,10 @@ public class NormalBrick extends Brick {
 
     @Override
     public void render(GraphicsContext gc) {
-        //render
+        // render
         if (!isBroken()) {
-            gc.setFill(javafx.scene.paint.Color.ORANGE);
-            gc.fillRect(getX(), getY(), getWidth(), getHeight());
-
-            gc.setStroke(javafx.scene.paint.Color.WHITE);
-            gc.setLineWidth(2);
-            gc.strokeRect(getX(), getY(), getWidth(), getHeight());
+            gc.drawImage(BrickType.brick1Image, getX(), getY(), getWidth(), getHeight());
         }
     }
-
 
 }
