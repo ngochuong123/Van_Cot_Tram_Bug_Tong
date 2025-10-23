@@ -41,7 +41,5 @@ public class FastBallPowerUp extends PowerUp {
     @Override
     public void render(GraphicsContext gc) {
         gc.drawImage(BigBall, getX(), getY(), getWidth(), getHeight());
-//        gc.setFill(Color.RED);
-//        gc.fillRect(getX(), getY(), getWidth(), getHeight());
     }
 }

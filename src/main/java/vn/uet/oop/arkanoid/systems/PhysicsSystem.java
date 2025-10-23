@@ -31,14 +31,20 @@ public class PhysicsSystem {
      * check ball statement with wall
      */
     public void bounceBallOnWalls(Ball ball, Paddle paddle) {
-        // xu ly va cham tuong trai phai
-        if (ball.getX() <= 0 || ball.getX() + ball.getWidth() >= GameConfig.SCREEN_WIDTH) {
-            ball.setDx(-ball.getDx());
+        //va cham trai phai
+        if (ball.getX() <= 0) {
+            ball.setX(0);
+            ball.setDx(Math.abs(ball.getDx()));
+        } else if (ball.getX() + ball.getWidth() >= GameConfig.SCREEN_WIDTH) {
+            ball.setX(GameConfig.SCREEN_WIDTH - ball.getWidth());
+            ball.setDx(-Math.abs(ball.getDx()));
         }
+
 
         //va cham tran
         if (ball.getY() <= 0) {
-            ball.setDy(-ball.getDy());
+            ball.setY(0);
+            ball.setDy(Math.abs(ball.getDy()));
         }
 
         if (ball.getY() >= GameConfig.SCREEN_HEIGHT) {
@@ -55,7 +61,14 @@ public class PhysicsSystem {
             return;
         }
 
+        // Tính điểm va chạm trên paddle
+        double hitPos = (ball.getX() + ball.getWidth() / 2 - paddle.getX()) / paddle.getWidth() - 0.5;
+
+        // Bóng bật lên
         ball.setDy(-Math.abs(ball.getDy()));
+
+        // Thay đổi hướng X theo vị trí va chạm (lệch trái/phải)
+        ball.setDx(hitPos * 400); // 400 là độ mạnh, có thể chỉnh
     }
 
     /**
@@ -80,7 +93,11 @@ public class PhysicsSystem {
                 ball.setDy(-ball.getDy());
             }
 
-            bricks.remove(hitBrick);
+            if (!(hitBrick instanceof UnbreakableBrick)) {
+                if (hitBrick.isBroken()) {
+                    bricks.remove(hitBrick);
+                }
+            }
 
             Random rand = new Random();
 
