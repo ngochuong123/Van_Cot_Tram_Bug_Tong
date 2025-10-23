@@ -2,6 +2,7 @@
 package vn.uet.oop.arkanoid.core;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 import vn.uet.oop.arkanoid.config.GameConfig;
 import vn.uet.oop.arkanoid.model.*;
 import vn.uet.oop.arkanoid.model.powerups.PowerUp;
@@ -122,6 +123,10 @@ public class GameManager {
         }
         for (PowerUp p : powerUps) {
             p.render(gc);
+        }
+        if (paddle.isHasShield()) {
+            gc.setFill(Color.CYAN);
+            gc.fillRect(0, GameConfig.SCREEN_HEIGHT - 5, GameConfig.SCREEN_WIDTH, 5);
         }
     }
 }

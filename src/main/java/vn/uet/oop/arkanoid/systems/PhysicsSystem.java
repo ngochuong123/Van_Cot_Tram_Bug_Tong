@@ -8,6 +8,7 @@ import vn.uet.oop.arkanoid.model.bricks.*;
 import vn.uet.oop.arkanoid.model.powerups.ExpandPaddlePowerUp;
 import vn.uet.oop.arkanoid.model.powerups.FastBallPowerUp;
 import vn.uet.oop.arkanoid.model.powerups.PowerUp;
+import vn.uet.oop.arkanoid.model.powerups.ShieldPowerUp;
 
 import java.util.List;
 import java.util.Random;
@@ -48,8 +49,17 @@ public class PhysicsSystem {
         }
 
         if (ball.getY() >= GameConfig.SCREEN_HEIGHT) {
-            ball.stickTo(paddle);
-            ball.setLaunched(false);
+            if (ball.getY() >= GameConfig.SCREEN_HEIGHT) {
+                // Nếu paddle có shield thì bóng nảy lại, không reset
+                if (paddle.isHasShield()) {
+                    ball.setDy(-Math.abs(ball.getDy())); // Bật lên
+                    ball.setY(GameConfig.SCREEN_HEIGHT - ball.getHeight() - 5);
+                    paddle.setHasShield(false); // Shield chỉ dùng 1 lần
+                } else {
+                    ball.stickTo(paddle);
+                    ball.setLaunched(false);
+                }
+            }
         }
     }
 
@@ -89,8 +99,20 @@ public class PhysicsSystem {
 
             if (Math.abs(dx) > Math.abs(dy)) {
                 ball.setDx(-ball.getDx());
+                //Đẩy bóng ra khỏi gạch 1 chút để tránh kẹt
+                if (dx > 0) {
+                    ball.setX(hitBrick.getX() + hitBrick.getWidth());
+                } else {
+                    ball.setX(hitBrick.getX() - ball.getWidth());
+                }
             } else {
                 ball.setDy(-ball.getDy());
+                //Đẩy bóng ra khỏi gạch 1 chút
+                if (dy > 0) {
+                    ball.setY(hitBrick.getY() + hitBrick.getHeight());
+                } else {
+                    ball.setY(hitBrick.getY() - ball.getHeight());
+                }
             }
 
             if (!(hitBrick instanceof UnbreakableBrick)) {
@@ -108,14 +130,20 @@ public class PhysicsSystem {
                 double typeChance = rand.nextDouble();
                 PowerUp newPowerUp;
 
-                if (typeChance < 0.6) {
+                if (typeChance < 0.5) {
                     newPowerUp = new ExpandPaddlePowerUp(
                             hitBrick.getX() + hitBrick.getWidth() / 2,
                             hitBrick.getY() + hitBrick.getHeight() / 2,
                             20, 20, 70
                     );
-                } else {
+                } else if (typeChance < 0.6) {
                     newPowerUp = new FastBallPowerUp(
+                            hitBrick.getX() + hitBrick.getWidth() / 2,
+                            hitBrick.getY() + hitBrick.getHeight() / 2,
+                            20, 20, 70
+                    );
+                } else {
+                    newPowerUp = new ShieldPowerUp(
                             hitBrick.getX() + hitBrick.getWidth() / 2,
                             hitBrick.getY() + hitBrick.getHeight() / 2,
                             20, 20, 70

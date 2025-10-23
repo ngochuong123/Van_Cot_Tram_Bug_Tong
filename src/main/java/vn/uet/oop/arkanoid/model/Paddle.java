@@ -7,6 +7,7 @@ import vn.uet.oop.arkanoid.config.GameConfig;
 public class Paddle extends MovableObject {
     private final double speed;
     private boolean hasActiveEffect ;
+    private boolean hasShield = false;
 
     public Paddle(double x, double y, double width, double height, double speed) {
         super(x, y, width, height, 0, 0);
@@ -20,6 +21,14 @@ public class Paddle extends MovableObject {
 
     public void setHasActiveEffect(boolean hasActiveEffect) {
         this.hasActiveEffect = hasActiveEffect;
+    }
+
+    public boolean isHasShield() {
+        return hasShield;
+    }
+
+    public void setHasShield(boolean hasShield) {
+        this.hasShield = hasShield;
     }
 
     @Override

@@ -7,6 +7,8 @@ import vn.uet.oop.arkanoid.model.interfaces.Collidable;
 import vn.uet.oop.arkanoid.model.powerups.ExpandPaddlePowerUp;
 import vn.uet.oop.arkanoid.model.powerups.FastBallPowerUp;
 import vn.uet.oop.arkanoid.model.powerups.PowerUp;
+import vn.uet.oop.arkanoid.model.powerups.ShieldPowerUp;
+
 import java.util.List;
 
 import static vn.uet.oop.arkanoid.systems.CollisionSystem.checkRectCollision;
@@ -55,6 +57,10 @@ public class PowerUpSystem {
                 // Nếu powerup tác động lên Ball
                 if (p instanceof FastBallPowerUp) {
                     p.applyEffect(ball);
+                }
+
+                if (p instanceof ShieldPowerUp) {
+                    p.applyEffect(paddle);
                 }
                 powerUps.remove(i);
                 i--;
