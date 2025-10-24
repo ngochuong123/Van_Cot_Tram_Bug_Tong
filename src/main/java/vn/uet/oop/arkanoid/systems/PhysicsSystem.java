@@ -7,6 +7,7 @@ import vn.uet.oop.arkanoid.model.Paddle;
 import vn.uet.oop.arkanoid.model.bricks.*;
 import vn.uet.oop.arkanoid.model.powerups.ExpandPaddlePowerUp;
 import vn.uet.oop.arkanoid.model.powerups.FastBallPowerUp;
+import vn.uet.oop.arkanoid.model.powerups.MultiBallPowerUp;
 import vn.uet.oop.arkanoid.model.powerups.PowerUp;
 
 import java.util.List;
@@ -31,19 +32,19 @@ public class PhysicsSystem {
      * check ball statement with wall
      */
     public void bounceBallOnWalls(Ball ball, Paddle paddle) {
-        // xu ly va cham tuong trai phai
-        if (ball.getX() <= 0 || ball.getX() + ball.getWidth() >= GameConfig.SCREEN_WIDTH) {
-            ball.setDx(-ball.getDx());
+        if (ball.getX() <= 0) {
+            ball.setX(0);
+            ball.setDx(Math.abs(ball.getDx()));
         }
 
-        //va cham tran
+        if (ball.getX() + ball.getWidth() >= GameConfig.SCREEN_WIDTH) {
+            ball.setX(GameConfig.SCREEN_WIDTH - ball.getWidth());
+            ball.setDx(-Math.abs(ball.getDx()));
+        }
+
         if (ball.getY() <= 0) {
-            ball.setDy(-ball.getDy());
-        }
-
-        if (ball.getY() >= GameConfig.SCREEN_HEIGHT) {
-            ball.stickTo(paddle);
-            ball.setLaunched(false);
+            ball.setY(0);
+            ball.setDy(Math.abs(ball.getDy())); // phản xạ xuống
         }
     }
 
@@ -55,8 +56,26 @@ public class PhysicsSystem {
             return;
         }
 
-        ball.setDy(-Math.abs(ball.getDy()));
+        // Tính vị trí chạm tương đối
+        double paddleCenter = paddle.getX() + paddle.getWidth() / 2.0;
+        double ballCenter = ball.getX() + ball.getWidth() / 2.0;
+        double hitOffset = (ballCenter - paddleCenter) / (paddle.getWidth() / 2.0);
+        // hitOffset ∈ [-1, 1] → -1 là rìa trái, 1 là rìa phải
+
+        // Tốc độ tổng hiện tại của bóng (để giữ đà bay đều)
+        double speed = Math.sqrt(ball.getDx() * ball.getDx() + ball.getDy() * ball.getDy());
+
+        // Giới hạn góc phản xạ: không bay ngang hoàn toàn
+        double maxAngle = Math.toRadians(60); // 60 độ lệch tối đa
+
+        // Góc phản xạ (so với trục dọc)
+        double angle = hitOffset * maxAngle;
+
+        // Cập nhật vector vận tốc
+        ball.setDx(speed * Math.sin(angle));
+        ball.setDy(-Math.abs(speed * Math.cos(angle))); // luôn bay lên
     }
+
 
     /**
      * check collision on left/right or under/above.
@@ -80,30 +99,38 @@ public class PhysicsSystem {
                 ball.setDy(-ball.getDy());
             }
 
-            Random rand = new Random();
+            if(hitBrick.isBroken()) {
+                Random rand = new Random();
 
-            // Xác suất rơi PowerUp
-            double dropChance = 0.3;
-            if (rand.nextDouble() < dropChance) {
-                // Nếu rơi ra PowerUp thì chọn loại
-                double typeChance = rand.nextDouble();
-                PowerUp newPowerUp;
+                double dropChance = 0.5;
+                if (rand.nextDouble() < dropChance) {
+                    // Nếu rơi ra PowerUp thì chọn loại
+                    double typeChance = rand.nextDouble();
+                    PowerUp newPowerUp;
 
-                if (typeChance < 0.6) {
-                    newPowerUp = new ExpandPaddlePowerUp(
-                            hitBrick.getX() + hitBrick.getWidth() / 2,
-                            hitBrick.getY() + hitBrick.getHeight() / 2,
-                            20, 20, 70
-                    );
-                } else {
-                    newPowerUp = new FastBallPowerUp(
-                            hitBrick.getX() + hitBrick.getWidth() / 2,
-                            hitBrick.getY() + hitBrick.getHeight() / 2,
-                            20, 20, 70
-                    );
+                    if (typeChance < 0.5) {
+                        newPowerUp = new ExpandPaddlePowerUp(
+                                hitBrick.getX() + hitBrick.getWidth() / 2,
+                                hitBrick.getY() + hitBrick.getHeight() / 2,
+                                20, 20, 70
+                        );
+                    } else if (typeChance < 0.1) {
+                        newPowerUp = new FastBallPowerUp(
+                                hitBrick.getX() + hitBrick.getWidth() / 2,
+                                hitBrick.getY() + hitBrick.getHeight() / 2,
+                                20, 20, 70
+                        );
+                    } else {
+                        newPowerUp = new MultiBallPowerUp(
+                                hitBrick.getX() + hitBrick.getWidth() / 2,
+                                hitBrick.getY() + hitBrick.getHeight() / 2,
+                                20, 20, 70
+                        );
+                    }
+
+                    powerUps.add(newPowerUp);
                 }
 
-                powerUps.add(newPowerUp);
             }
         }
     }
