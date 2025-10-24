@@ -80,7 +80,7 @@ public class PhysicsSystem {
                 ball.setDy(-ball.getDy());
             }
 
-            if (!(hitBrick instanceof UnbreakableBrick)) {
+            if (!(hitBrick instanceof UnbreakableBrick) && hitBrick.isBroken() == true) {
                 bricks.remove(hitBrick);
             }
 

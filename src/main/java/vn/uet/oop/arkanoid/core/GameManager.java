@@ -6,14 +6,16 @@ import vn.uet.oop.arkanoid.config.GameConfig;
 import vn.uet.oop.arkanoid.model.*;
 import vn.uet.oop.arkanoid.model.powerups.PowerUp;
 import vn.uet.oop.arkanoid.systems.PhysicsSystem;
+import vn.uet.oop.arkanoid.model.bricks.ResourceLevelLoader;
 import vn.uet.oop.arkanoid.model.bricks.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import vn.uet.oop.arkanoid.model.bricks.BrickType;
 import vn.uet.oop.arkanoid.systems.PowerUpSystem;
 
 public class GameManager {
-
+    private static GameManager instance;
     private Ball ball;
     private Paddle paddle;
     private List<Brick> bricks;
@@ -23,6 +25,13 @@ public class GameManager {
 
     public GameManager() {
         initGame();
+    }
+
+    public static GameManager getInstance() {
+        if (instance == null) {
+            instance = new GameManager();
+        }
+        return instance;
     }
 
     private void initGame() {
@@ -41,55 +50,28 @@ public class GameManager {
                 0,
                 0
         );
-
+        bricks = new ArrayList<>();
         powerUps = new ArrayList<>();
         powerUpSystem = new PowerUpSystem(powerUps, paddle, ball);
         physicsSystem = new PhysicsSystem();
 
-        loadLevel(vn.uet.oop.arkanoid.config.Levels.LEVEL_1);
+        // Load level from classpath resource (place your file at `src/main/resources/levels/level1.txt`)
+        loadLevelFromClasspath("/levels/level1.txt");
 
         ball.stickTo(paddle);
-    }
-
-    private BrickType.type toType(int code) {
-        return switch (code) {
-            case 1 -> BrickType.type.NORMAL;
-            case 2 -> BrickType.type.STRONG;
-            case 10 -> BrickType.type.UNBREAKABLE;
-            default -> BrickType.type.EMPTY;
-        };
-    }
-
-    private void loadLevel(int[][] pattern) {
-        bricks = new ArrayList<>();
-
-        int rows = pattern.length;
-        int cols = pattern[0].length;
-
-        double totalW = cols * GameConfig.BRICK_WIDTH + (cols - 1) * GameConfig.BRICK_SPACING;
-        double totalH = rows * GameConfig.BRICK_HEIGHT + (rows - 1) * GameConfig.BRICK_SPACING;
-
-        double startX = (GameConfig.SCREEN_WIDTH  - totalW) / 2.0;
-        double startY = 50;
-
-        for (int r = 0; r < rows; r++) {
-            for (int c = 0; c < cols; c++) {
-                int code = pattern[r][c];
-                BrickType.type type = toType(code);
-                if (type == BrickType.type.EMPTY) continue;
-
-                double x = startX + c * (GameConfig.BRICK_WIDTH  + GameConfig.BRICK_SPACING);
-                double y = startY + r * (GameConfig.BRICK_HEIGHT + GameConfig.BRICK_SPACING);
-
-                Brick b = BrickFactory.createBrick(type, x, y, GameConfig.BRICK_WIDTH, GameConfig.BRICK_HEIGHT);
-                if (b != null) bricks.add(b);
-            }
-        }
     }
 
     public void launchBall() {
         if (!ball.isLaunched()) {
             ball.launch();
+        }
+    }
+
+    public void loadLevelFromClasspath(String resourcePath) {
+        try {
+            bricks = ResourceLevelLoader.loadFromResource(resourcePath);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -109,7 +91,7 @@ public class GameManager {
 
         if (bricks.isEmpty()) {
             System.out.println("Level cleared! Loading next level...");
-            loadLevel(vn.uet.oop.arkanoid.config.Levels.LEVEL_2);
+            loadLevelFromClasspath("/levels/level2.txt");
             ball.stickTo(paddle);
         }
     }
@@ -117,11 +99,21 @@ public class GameManager {
     public void render(GraphicsContext gc) {
         ball.render(gc);
         paddle.render(gc);
-        for (Brick brick : bricks) {
-            brick.render(gc);
+        if (bricks != null) {
+            for (Brick brick : bricks) {
+                if (brick != null) brick.render(gc);
+            }
         }
-        for (PowerUp p : powerUps) {
-            p.render(gc);
+        if (powerUps != null) {
+            for (PowerUp p : powerUps) {
+                if (p != null) p.render(gc);
+            }
         }
     }
+
+    public List<Brick> getBricks() {
+        return bricks;
+    }
+
+
 }
