@@ -15,7 +15,7 @@ public class GameConfig {
     public static final double PADDLE_SPEED = 400;
 
     // ----- Brick -----
-    public static final int BRICK_ROWS = 6;
+    public static final int BRICK_ROWS = 7;
     public static final int BRICK_COLUMNS = 9;
     public static final double BRICK_WIDTH = 64;
     public static final double BRICK_HEIGHT = 24;

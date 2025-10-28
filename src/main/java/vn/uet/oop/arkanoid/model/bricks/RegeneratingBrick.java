@@ -104,7 +104,7 @@ public class RegeneratingBrick extends Brick {
     @Override
     public void render(GraphicsContext gc) {
         if (!destroyed) {
-            gc.setFill(Color.BROWN);
+            gc.setFill(Color.RED);
             gc.fillRect(getX(), getY(), getWidth(), getHeight());
         }
     }

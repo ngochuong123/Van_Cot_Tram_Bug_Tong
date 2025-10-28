@@ -7,7 +7,7 @@ public final class BrickFactory {
     private BrickFactory() {}
 
     /**
-     * reader line in level file
+     * reader line in level file.
      *
      * @param t tokenized line
      * @return Brick instance
@@ -109,7 +109,7 @@ public final class BrickFactory {
     }
 
     /**
-     * ensure token length
+     * ensure token length.
      *
      * @param t token array
      * @param need needed length
