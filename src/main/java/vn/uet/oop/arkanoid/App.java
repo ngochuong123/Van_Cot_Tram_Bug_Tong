@@ -13,6 +13,8 @@ import vn.uet.oop.arkanoid.config.GameConfig;
 import vn.uet.oop.arkanoid.core.GameManager;
 import vn.uet.oop.arkanoid.ui.HUD;
 import vn.uet.oop.arkanoid.ui.MenuController;
+import javafx.scene.image.Image;
+
 
 public class App extends Application {
 
@@ -24,5 +26,6 @@ public class App extends Application {
 
     public static void main(String[] args) {
         launch(args); // Khởi động JavaFX Application
+
     }
 }

@@ -9,6 +9,7 @@ import vn.uet.oop.arkanoid.model.powerups.ExpandPaddlePowerUp;
 import vn.uet.oop.arkanoid.model.powerups.FastBallPowerUp;
 import vn.uet.oop.arkanoid.model.powerups.MultiBallPowerUp;
 import vn.uet.oop.arkanoid.model.powerups.PowerUp;
+import vn.uet.oop.arkanoid.model.powerups.ShieldPowerUp;
 
 import java.util.List;
 import java.util.Random;
@@ -32,19 +33,34 @@ public class PhysicsSystem {
      * check ball statement with wall
      */
     public void bounceBallOnWalls(Ball ball, Paddle paddle) {
+        //va cham trai phai
         if (ball.getX() <= 0) {
             ball.setX(0);
             ball.setDx(Math.abs(ball.getDx()));
-        }
-
-        if (ball.getX() + ball.getWidth() >= GameConfig.SCREEN_WIDTH) {
+        } else if (ball.getX() + ball.getWidth() >= GameConfig.SCREEN_WIDTH) {
             ball.setX(GameConfig.SCREEN_WIDTH - ball.getWidth());
             ball.setDx(-Math.abs(ball.getDx()));
         }
 
+
+        //va cham tran
         if (ball.getY() <= 0) {
             ball.setY(0);
-            ball.setDy(Math.abs(ball.getDy())); // phản xạ xuống
+            ball.setDy(Math.abs(ball.getDy()));
+        }
+
+        if (ball.getY() >= GameConfig.SCREEN_HEIGHT) {
+            if (ball.getY() >= GameConfig.SCREEN_HEIGHT) {
+                // Nếu paddle có shield thì bóng nảy lại, không reset
+                if (paddle.isHasShield()) {
+                    ball.setDy(-Math.abs(ball.getDy())); // Bật lên
+                    ball.setY(GameConfig.SCREEN_HEIGHT - ball.getHeight() - 5);
+                    paddle.setHasShield(false); // Shield chỉ dùng 1 lần
+                } else {
+                    ball.stickTo(paddle);
+                    ball.setLaunched(false);
+                }
+            }
         }
     }
 
@@ -95,45 +111,57 @@ public class PhysicsSystem {
 
             if (Math.abs(dx) > Math.abs(dy)) {
                 ball.setDx(-ball.getDx());
+                //Đẩy bóng ra khỏi gạch 1 chút để tránh kẹt
+                if (dx > 0) {
+                    ball.setX(hitBrick.getX() + hitBrick.getWidth());
+                } else {
+                    ball.setX(hitBrick.getX() - ball.getWidth());
+                }
             } else {
                 ball.setDy(-ball.getDy());
-            }
-          
-            if (!(hitBrick instanceof UnbreakableBrick) && hitBrick.isBroken() == true) {
-                bricks.remove(hitBrick);
-            }
-          
-            if(hitBrick.isBroken()) {
-                Random rand = new Random();
-
-                double dropChance = 0.5;
-                if (rand.nextDouble() < dropChance) {
-                    // Nếu rơi ra PowerUp thì chọn loại
-                    double typeChance = rand.nextDouble();
-                    PowerUp newPowerUp;
-
-                    if (typeChance < 0.5) {
-                        newPowerUp = new ExpandPaddlePowerUp(
-                                hitBrick.getX() + hitBrick.getWidth() / 2,
-                                hitBrick.getY() + hitBrick.getHeight() / 2,
-                                20, 20, 70
-                        );
-                    } else if (typeChance < 0.1) {
-                        newPowerUp = new FastBallPowerUp(
-                                hitBrick.getX() + hitBrick.getWidth() / 2,
-                                hitBrick.getY() + hitBrick.getHeight() / 2,
-                                20, 20, 70
-                        );
-                    } else {
-                        newPowerUp = new MultiBallPowerUp(
-                                hitBrick.getX() + hitBrick.getWidth() / 2,
-                                hitBrick.getY() + hitBrick.getHeight() / 2,
-                                20, 20, 70
-                        );
-                    }
-
-                    powerUps.add(newPowerUp);
+                //Đẩy bóng ra khỏi gạch 1 chút
+                if (dy > 0) {
+                    ball.setY(hitBrick.getY() + hitBrick.getHeight());
+                } else {
+                    ball.setY(hitBrick.getY() - ball.getHeight());
                 }
+            }
+
+            if (!(hitBrick instanceof UnbreakableBrick)) {
+                if (hitBrick.isBroken()) {
+                    bricks.remove(hitBrick);
+                }
+            }
+
+            Random rand = new Random();
+
+            // Xác suất rơi PowerUp
+            double dropChance = 0.3;
+            if (rand.nextDouble() < dropChance) {
+                // Nếu rơi ra PowerUp thì chọn loại
+                double typeChance = rand.nextDouble();
+                PowerUp newPowerUp;
+
+                if (typeChance < 0.5) {
+                    newPowerUp = new ExpandPaddlePowerUp(
+                            hitBrick.getX() + hitBrick.getWidth() / 2,
+                            hitBrick.getY() + hitBrick.getHeight() / 2,
+                            20, 20, 70
+                    );
+                } else if (typeChance < 0.6) {
+                    newPowerUp = new FastBallPowerUp(
+                            hitBrick.getX() + hitBrick.getWidth() / 2,
+                            hitBrick.getY() + hitBrick.getHeight() / 2,
+                            20, 20, 70
+                    );
+                } else {
+                    newPowerUp = new ShieldPowerUp(
+                            hitBrick.getX() + hitBrick.getWidth() / 2,
+                            hitBrick.getY() + hitBrick.getHeight() / 2,
+                            20, 20, 70
+                    );
+                }
+              powerUps.add(newPowerUp);
 
             }
         }
