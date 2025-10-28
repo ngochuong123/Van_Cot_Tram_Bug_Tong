@@ -7,6 +7,7 @@ import vn.uet.oop.arkanoid.model.Paddle;
 import vn.uet.oop.arkanoid.model.bricks.*;
 import vn.uet.oop.arkanoid.model.powerups.ExpandPaddlePowerUp;
 import vn.uet.oop.arkanoid.model.powerups.FastBallPowerUp;
+import vn.uet.oop.arkanoid.model.powerups.MultiBallPowerUp;
 import vn.uet.oop.arkanoid.model.powerups.PowerUp;
 import vn.uet.oop.arkanoid.model.powerups.ShieldPowerUp;
 
@@ -71,15 +72,26 @@ public class PhysicsSystem {
             return;
         }
 
-        // Tính điểm va chạm trên paddle
-        double hitPos = (ball.getX() + ball.getWidth() / 2 - paddle.getX()) / paddle.getWidth() - 0.5;
+        // Tính vị trí chạm tương đối
+        double paddleCenter = paddle.getX() + paddle.getWidth() / 2.0;
+        double ballCenter = ball.getX() + ball.getWidth() / 2.0;
+        double hitOffset = (ballCenter - paddleCenter) / (paddle.getWidth() / 2.0);
+        // hitOffset ∈ [-1, 1] → -1 là rìa trái, 1 là rìa phải
 
-        // Bóng bật lên
-        ball.setDy(-Math.abs(ball.getDy()));
+        // Tốc độ tổng hiện tại của bóng (để giữ đà bay đều)
+        double speed = Math.sqrt(ball.getDx() * ball.getDx() + ball.getDy() * ball.getDy());
 
-        // Thay đổi hướng X theo vị trí va chạm (lệch trái/phải)
-        ball.setDx(hitPos * 400); // 400 là độ mạnh, có thể chỉnh
+        // Giới hạn góc phản xạ: không bay ngang hoàn toàn
+        double maxAngle = Math.toRadians(60); // 60 độ lệch tối đa
+
+        // Góc phản xạ (so với trục dọc)
+        double angle = hitOffset * maxAngle;
+
+        // Cập nhật vector vận tốc
+        ball.setDx(speed * Math.sin(angle));
+        ball.setDy(-Math.abs(speed * Math.cos(angle))); // luôn bay lên
     }
+
 
     /**
      * check collision on left/right or under/above.
@@ -149,8 +161,8 @@ public class PhysicsSystem {
                             20, 20, 70
                     );
                 }
+              powerUps.add(newPowerUp);
 
-                powerUps.add(newPowerUp);
             }
         }
     }

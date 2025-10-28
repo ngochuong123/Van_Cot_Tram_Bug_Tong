@@ -6,6 +6,7 @@ import vn.uet.oop.arkanoid.model.Ball;
 import vn.uet.oop.arkanoid.model.interfaces.Collidable;
 import vn.uet.oop.arkanoid.model.powerups.ExpandPaddlePowerUp;
 import vn.uet.oop.arkanoid.model.powerups.FastBallPowerUp;
+import vn.uet.oop.arkanoid.model.powerups.MultiBallPowerUp;
 import vn.uet.oop.arkanoid.model.powerups.PowerUp;
 import vn.uet.oop.arkanoid.model.powerups.ShieldPowerUp;
 
@@ -16,12 +17,12 @@ import static vn.uet.oop.arkanoid.systems.CollisionSystem.checkRectCollision;
 public class PowerUpSystem {
     private List<PowerUp> powerUps;
     private Paddle paddle;
-    private Ball ball;
+    private List<Ball> balls;
 
-    public PowerUpSystem(List<PowerUp> powerUps, Paddle paddle, Ball ball) {
+    public PowerUpSystem(List<PowerUp> powerUps, Paddle paddle, List<Ball> balls) {
         this.powerUps = powerUps;
         this.paddle = paddle;
-        this.ball = ball;
+        this.balls = balls;
     }
 
     /*
@@ -49,14 +50,18 @@ public class PowerUpSystem {
 
             if (checkRectCollision(paddle, p)) {
 
-                // Nếu powerup tác động lên Paddle
+
                 if (p instanceof ExpandPaddlePowerUp) {
                     p.applyEffect(paddle);
                 }
-
-                // Nếu powerup tác động lên Ball
-                if (p instanceof FastBallPowerUp) {
-                    p.applyEffect(ball);
+                else if (p instanceof FastBallPowerUp) {
+                    for (Ball ball : balls) {
+                        p.applyEffect(ball);
+                    }
+                }
+                else if (p instanceof MultiBallPowerUp) {
+                    // truyền nguyên danh sách bóng vào
+                    p.applyEffect(balls);
                 }
 
                 if (p instanceof ShieldPowerUp) {
