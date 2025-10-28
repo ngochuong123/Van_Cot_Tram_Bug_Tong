@@ -15,7 +15,7 @@ import vn.uet.oop.arkanoid.systems.PowerUpSystem;
 
 public class GameManager {
     private static GameManager instance;
-    private Ball ball;
+    private List<Ball> balls;
     private Paddle paddle;
     private List<Brick> bricks;
     private List<PowerUp> powerUps;
@@ -50,6 +50,7 @@ public class GameManager {
                 0,
                 0
         );
+        balls.add(mainBall);
         bricks = new ArrayList<>();
         powerUps = new ArrayList<>();
         powerUpSystem = new PowerUpSystem(powerUps, paddle, balls);
@@ -58,7 +59,7 @@ public class GameManager {
         // Load level from classpath resource (place your file at `src/main/resources/levels/level1.txt`)
         loadLevelFromClasspath("/levels/level1.txt");
 
-        ball.stickTo(paddle);
+        mainBall.stickTo(paddle);
     }
 
     public void launchBall() {
