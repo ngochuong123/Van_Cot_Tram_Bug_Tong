@@ -40,7 +40,7 @@ public class InvisibleBrick extends Brick {
     @Override
     public void render(GraphicsContext gc) {
         if (revealed) {
-            gc.setFill(Color.ORANGE);
+            gc.setFill(Color.GREEN);
             gc.fillRect(getX(), getY(), getWidth(), getHeight());
 
             gc.setStroke(Color.WHITE);
