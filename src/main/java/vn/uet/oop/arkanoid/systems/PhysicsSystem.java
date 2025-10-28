@@ -87,6 +87,8 @@ public class PhysicsSystem {
                 }
             }
 
+            bricks.remove(hitBrick);
+
             Random rand = new Random();
 
             // Xác suất rơi PowerUp
