@@ -5,10 +5,11 @@ import javafx.scene.paint.Color;
 import vn.uet.oop.arkanoid.model.GameObject;
 
 public class NormalBrick extends Brick {
-    private int durabilityPoints = 1;
 
-    public NormalBrick(double x, double y, double width, double height) {
-        super(x, y, width, height);
+
+    public NormalBrick(double x, double y, double width, double height, int durabilityPoints) {
+        super(x, y, width, height, durabilityPoints);
+
     }
 
     @Override

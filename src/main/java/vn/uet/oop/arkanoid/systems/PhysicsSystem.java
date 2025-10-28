@@ -98,7 +98,11 @@ public class PhysicsSystem {
             } else {
                 ball.setDy(-ball.getDy());
             }
-
+          
+            if (!(hitBrick instanceof UnbreakableBrick) && hitBrick.isBroken() == true) {
+                bricks.remove(hitBrick);
+            }
+          
             if(hitBrick.isBroken()) {
                 Random rand = new Random();
 

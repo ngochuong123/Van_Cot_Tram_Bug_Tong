@@ -19,6 +19,7 @@ public class Ball extends MovableObject {
     }
 
     public void stickTo(Paddle paddle) {
+        launched = false;
         double cx = paddle.getX() + paddle.getWidth() / 2.0;
         setX(cx - getWidth() / 2.0);
         setY(paddle.getY() - getHeight());

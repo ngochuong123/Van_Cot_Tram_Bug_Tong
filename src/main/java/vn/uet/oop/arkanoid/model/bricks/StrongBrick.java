@@ -4,10 +4,10 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 public class StrongBrick extends Brick {
-    private int durabilityPoints = 2;
 
-    public StrongBrick(double x, double y, double width, double height) {
-        super(x, y, width, height);
+    public StrongBrick(double x, double y, double width, double height, int durabilityPoints) {
+        super(x, y, width, height, durabilityPoints);
+
     }
 
     @Override
