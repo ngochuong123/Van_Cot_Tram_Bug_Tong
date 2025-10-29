@@ -50,16 +50,13 @@ public class PowerUpSystem {
 
             if (checkRectCollision(paddle, p)) {
 
-
                 if (p instanceof ExpandPaddlePowerUp) {
                     p.applyEffect(paddle);
-                }
-                else if (p instanceof FastBallPowerUp) {
+                } else if (p instanceof FastBallPowerUp) {
                     for (Ball ball : balls) {
                         p.applyEffect(ball);
                     }
-                }
-                else if (p instanceof MultiBallPowerUp) {
+                } else if (p instanceof MultiBallPowerUp) {
                     // truyền nguyên danh sách bóng vào
                     p.applyEffect(balls);
                 }

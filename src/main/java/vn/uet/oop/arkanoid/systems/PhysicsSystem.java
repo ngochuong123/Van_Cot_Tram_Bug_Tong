@@ -33,7 +33,7 @@ public class PhysicsSystem {
      * check ball statement with wall
      */
     public void bounceBallOnWalls(Ball ball, Paddle paddle) {
-        //va cham trai phai
+        // va cham trai phai
         if (ball.getX() <= 0) {
             ball.setX(0);
             ball.setDx(Math.abs(ball.getDx()));
@@ -42,8 +42,7 @@ public class PhysicsSystem {
             ball.setDx(-Math.abs(ball.getDx()));
         }
 
-
-        //va cham tran
+        // va cham tran
         if (ball.getY() <= 0) {
             ball.setY(0);
             ball.setDy(Math.abs(ball.getDy()));
@@ -95,11 +94,14 @@ public class PhysicsSystem {
 
     /**
      * check collision on left/right or under/above.
-     * @param ball ball
+     * 
+     * @param ball   ball
      * @param bricks list bricks need to check
      */
-    public void bounceBallOnBricks(Ball ball, List<Brick> bricks, List<PowerUp> powerUps) {
+    public int bounceBallOnBricks(Ball ball, List<Brick> bricks, List<PowerUp> powerUps) {
         Brick hitBrick = CollisionSystem.getCollidedBrick(ball, bricks);
+        int bricksHit = 0;
+
         if (hitBrick != null) {
             double ballCenterX = ball.getX() + ball.getWidth() / 2;
             double ballCenterY = ball.getY() + ball.getHeight() / 2;
@@ -127,43 +129,37 @@ public class PhysicsSystem {
                 }
             }
 
-            if (!(hitBrick instanceof UnbreakableBrick)) {
-                if (hitBrick.isBroken()) {
-                    bricks.remove(hitBrick);
+            // Kiểm tra nếu gạch bị phá sau khi takeHit()
+            if (hitBrick.isBroken()) {
+                bricks.remove(hitBrick);
+                bricksHit = 1; // Đếm 1 gạch bị phá
+
+                Random rand = new Random();
+
+                // Xác suất rơi PowerUp
+                double dropChance = 0.3;
+                if (rand.nextDouble() < dropChance) {
+                    // Nếu rơi ra PowerUp thì chọn loại
+                    double typeChance = rand.nextDouble();
+                    PowerUp newPowerUp;
+
+                    if (typeChance < 0.6) {
+                        newPowerUp = new ExpandPaddlePowerUp(
+                                hitBrick.getX() + hitBrick.getWidth() / 2,
+                                hitBrick.getY() + hitBrick.getHeight() / 2,
+                                20, 20, 70);
+                    } else {
+                        newPowerUp = new FastBallPowerUp(
+                                hitBrick.getX() + hitBrick.getWidth() / 2,
+                                hitBrick.getY() + hitBrick.getHeight() / 2,
+                                20, 20, 70);
+                    }
+
+                    powerUps.add(newPowerUp);
                 }
-            }
-
-            Random rand = new Random();
-
-            // Xác suất rơi PowerUp
-            double dropChance = 0.3;
-            if (rand.nextDouble() < dropChance) {
-                // Nếu rơi ra PowerUp thì chọn loại
-                double typeChance = rand.nextDouble();
-                PowerUp newPowerUp;
-
-                if (typeChance < 0.5) {
-                    newPowerUp = new ExpandPaddlePowerUp(
-                            hitBrick.getX() + hitBrick.getWidth() / 2,
-                            hitBrick.getY() + hitBrick.getHeight() / 2,
-                            20, 20, 70
-                    );
-                } else if (typeChance < 0.6) {
-                    newPowerUp = new FastBallPowerUp(
-                            hitBrick.getX() + hitBrick.getWidth() / 2,
-                            hitBrick.getY() + hitBrick.getHeight() / 2,
-                            20, 20, 70
-                    );
-                } else {
-                    newPowerUp = new ShieldPowerUp(
-                            hitBrick.getX() + hitBrick.getWidth() / 2,
-                            hitBrick.getY() + hitBrick.getHeight() / 2,
-                            20, 20, 70
-                    );
-                }
-              powerUps.add(newPowerUp);
-
             }
         }
+
+        return bricksHit;
     }
 }
