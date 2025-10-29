@@ -76,7 +76,7 @@ public class GameManager {
         balls.add(mainBall);
 
         // Load first level
-        loadLevel(vn.uet.oop.arkanoid.config.Levels.LEVEL_1);
+        loadLevelFromClasspath("/resoures/levels/level2.txt");
         mainBall.stickTo(paddle);
     }
 
@@ -90,64 +90,6 @@ public class GameManager {
         }
     }
 
-    private void loadLevel(int[][] pattern) {
-        bricks = new ArrayList<>();
-        levelCompleted = false;
-
-        int rows = pattern.length;
-        int cols = pattern[0].length;
-
-        double totalWidth = cols * GameConfig.BRICK_WIDTH + (cols - 1) * GameConfig.BRICK_SPACING;
-        double totalHeight = rows * GameConfig.BRICK_HEIGHT + (rows - 1) * GameConfig.BRICK_SPACING;
-
-        double startX = (GameConfig.SCREEN_WIDTH - totalWidth) / 2.0;
-        double startY = 50;
-
-        // Pre-calculate positions to avoid repeated calculations
-        double brickStepX = GameConfig.BRICK_WIDTH + GameConfig.BRICK_SPACING;
-        double brickStepY = GameConfig.BRICK_HEIGHT + GameConfig.BRICK_SPACING;
-
-        for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < cols; col++) {
-                int code = pattern[row][col];
-                BrickType type = toBrickType(code);
-                if (type == null)
-                    continue;
-
-                double x = startX + col * brickStepX;
-                double y = startY + row * brickStepY;
-
-                int durability = switch (type) {
-                    case NORMAL -> 1;
-                    case STRONG -> 2;
-                    case UNBREAKABLE -> -1; // Không thể phá hủy
-                    case REGENERATING -> 2;
-                    case INVISIBLE -> 1;
-                    case EXPLOSIVE -> 1;
-                    case CHAIN -> 1;
-                    default -> 1;
-                };
-
-                Brick brick = BrickFactory.create(type, x, y,
-                        GameConfig.BRICK_WIDTH, GameConfig.BRICK_HEIGHT, durability, null);
-                if (brick != null) {
-                    bricks.add(brick);
-                }
-            }
-        }
-
-        System.out.println("Level " + currentLevel + " loaded with " + bricks.size() + " bricks");
-    }
-
-    private BrickType toBrickType(int code) {
-        return switch (code) {
-            case 1 -> BrickType.NORMAL;
-            case 2 -> BrickType.STRONG;
-            case 10 -> BrickType.UNBREAKABLE;
-            // Thêm các code khác nếu cần
-            default -> null;
-        };
-    }
 
     public void update(double deltaTime, boolean leftPressed, boolean rightPressed) {
         if (gameOver)
@@ -276,12 +218,20 @@ public class GameManager {
         resetBall();
     }
 
+    public void loadLevelFromClasspath(String resourcePath) {
+        try {
+            bricks = ResourceLevelLoader.loadFromResource(resourcePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void loadNextLevel() {
         if (currentLevel == 2) {
-            loadLevel(vn.uet.oop.arkanoid.config.Levels.LEVEL_2);
+            loadLevelFromClasspath("/resoures/levels/level2.txt");
         } else {
             currentLevel = 1;
-            loadLevel(vn.uet.oop.arkanoid.config.Levels.LEVEL_1);
+            loadLevelFromClasspath("/resoures/levels/level1.txt");
         }
     }
 
