@@ -4,7 +4,8 @@ import java.util.Locale;
 
 public final class BrickFactory {
 
-    private BrickFactory() {}
+    private BrickFactory() {
+    }
 
     /**
      * reader line in level file.
@@ -13,19 +14,20 @@ public final class BrickFactory {
      * @return Brick instance
      */
     public static Brick createFromTokens(String[] t) {
-        if (t == null || t.length < 1) throw new IllegalArgumentException("Empty line");
+        if (t == null || t.length < 1)
+            throw new IllegalArgumentException("Empty line");
 
         BrickType type = BrickType.from(t[0]);
 
         // an toàn chỉ mục
-        double x     = getD(t, 1, "x");
-        double y     = getD(t, 2, "y");
-        double w     = getD(t, 3, "width");
-        double h     = getD(t, 4, "height");
+        double x = getD(t, 1, "x");
+        double y = getD(t, 2, "y");
+        double w = getD(t, 3, "width");
+        double h = getD(t, 4, "height");
 
         switch (type) {
             case UNBREAKABLE: {
-                //  UNBREAKABLE x y w h
+                // UNBREAKABLE x y w h
                 ensureLenAtLeast(t, 5, type);
                 return new UnbreakableBrick(x, y, w, h);
             }
@@ -44,7 +46,7 @@ public final class BrickFactory {
                 ensureLenAtLeast(t, 6, type);
                 int dp = getI(t, 5, "durability");
                 // nếu sau này bạn thêm respawnSec, có thể đọc ở vị trí 6
-                return new RegeneratingBrick(x, y, w, h, dp /*, respawnSecDefault*/);
+                return new RegeneratingBrick(x, y, w, h, dp /* , respawnSecDefault */);
             }
             case INVISIBLE: {
                 ensureLenAtLeast(t, 6, type);
@@ -83,9 +85,9 @@ public final class BrickFactory {
      * @return Brick instance
      */
     public static Brick create(BrickType type,
-                               double x, double y, double w, double h,
-                               int durability,
-                               Integer extra) {
+            double x, double y, double w, double h,
+            int durability,
+            Integer extra) {
         switch (type) {
             case UNBREAKABLE:
                 return new UnbreakableBrick(x, y, w, h);
@@ -111,7 +113,7 @@ public final class BrickFactory {
     /**
      * ensure token length.
      *
-     * @param t token array
+     * @param t    token array
      * @param need needed length
      * @param type brick type
      */
@@ -121,12 +123,20 @@ public final class BrickFactory {
                     " must have at least " + need + " tokens");
         }
     }
+
     private static int getI(String[] t, int idx, String name) {
-        try { return Integer.parseInt(t[idx]); }
-        catch (Exception e) { throw new IllegalArgumentException("Invalid int for " + name + " at #" + idx); }
+        try {
+            return Integer.parseInt(t[idx]);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid int for " + name + " at #" + idx);
+        }
     }
+
     private static double getD(String[] t, int idx, String name) {
-        try { return Double.parseDouble(t[idx]); }
-        catch (Exception e) { throw new IllegalArgumentException("Invalid double for " + name + " at #" + idx); }
+        try {
+            return Double.parseDouble(t[idx]);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid double for " + name + " at #" + idx);
+        }
     }
 }

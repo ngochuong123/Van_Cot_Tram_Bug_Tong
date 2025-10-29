@@ -14,12 +14,12 @@ import static vn.uet.oop.arkanoid.systems.CollisionSystem.checkRectCollision;
 public class PowerUpSystem {
     private List<PowerUp> powerUps;
     private Paddle paddle;
-    private Ball ball;
+    private List<Ball> ball;
 
-    public PowerUpSystem(List<PowerUp> powerUps, Paddle paddle, Ball ball) {
+    public PowerUpSystem(List<PowerUp> powerUps, Paddle paddle, List<Ball> balls) {
         this.powerUps = powerUps;
         this.paddle = paddle;
-        this.ball = ball;
+        this.ball = balls;
     }
 
     /*

@@ -26,10 +26,20 @@ public class HUD {
     public HUD(Stage HUDStage, int score, Scene HUDScene) {
         this.HUDStage = HUDStage;
         this.HUDScene = HUDScene;
-        this.heart = 5;
+        this.heart = 5; // Số mạng ban đầu
         this.score = score;
         createScores();
         createHeart();
+    }
+
+    // Thêm getter cho số mạng hiện tại
+    public int getHeartCount() {
+        return heart;
+    }
+
+    // Thêm getter cho điểm số
+    public int getScore() {
+        return score;
     }
 
     /*
@@ -59,11 +69,11 @@ public class HUD {
 
         // Tạo tim mới
         for (int i = 0; i < heart; i++) {
-            ImageView heart = new ImageView(heartImage);
-            heart.setFitWidth(30);
-            heart.setFitHeight(30);
-            hearts.add(heart);
-            heartsBox.getChildren().add(heart);
+            ImageView heartView = new ImageView(heartImage);
+            heartView.setFitWidth(30);
+            heartView.setFitHeight(30);
+            hearts.add(heartView);
+            heartsBox.getChildren().add(heartView);
         }
 
         if (!heart_score.getChildren().contains(heartsBox)) {
@@ -75,11 +85,38 @@ public class HUD {
      * ham xoa di trai tim khi bong roi xuong.
      */
     public void loseLife() {
-        if (!hearts.isEmpty()) {
-            ImageView lastHeart = hearts.remove(hearts.size() - 1);
-            heartsBox.getChildren().remove(lastHeart);
-            heart_score.getChildren().addAll(heartsBox, scores);
+        if (heart > 0) {
+            heart--; // Giảm số mạng
+
+            System.out.println("Mất 1 mạng! Mạng còn lại: " + heart);
+
+            // Cập nhật giao diện
+            updateHeartDisplay();
         }
+    }
+
+    /**
+     * Cập nhật hiển thị trái tim
+     */
+    private void updateHeartDisplay() {
+        // Đường dẫn ảnh trái tim
+        Image heartImage = new Image("file:src/main/java/vn/uet/oop/arkanoid/config/image/heart.png");
+
+        // Xóa tim cũ
+        heartsBox.getChildren().clear();
+        hearts.clear();
+
+        // Tạo tim mới theo số mạng hiện tại
+        for (int i = 0; i < heart; i++) {
+            ImageView heartView = new ImageView(heartImage);
+            heartView.setFitWidth(30);
+            heartView.setFitHeight(30);
+            hearts.add(heartView);
+            heartsBox.getChildren().add(heartView);
+        }
+
+        // Đảm bảo HUD được cập nhật
+        heart_score.getChildren().setAll(heartsBox, scores);
     }
 
     /**
@@ -88,20 +125,14 @@ public class HUD {
     public void updateScore() {
         this.score += GameConfig.addscore;
         this.scores.setText("SCORE: " + this.score);
-        heart_score.getChildren().addAll(heartsBox, scores);
+        System.out.println("Điểm: " + this.score);
     }
 
     /**
      * ham kiem tra xem ban da het mang hay chua.
-     * 
-     * @param heart
-     * @return true or false
      */
     public boolean stateHeart(int heart) {
-        if (heart == 0) {
-            return true;
-        }
-        return false;
+        return heart == 0;
     }
 
     /**
