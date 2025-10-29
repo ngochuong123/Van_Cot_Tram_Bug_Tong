@@ -55,9 +55,6 @@ public class PhysicsSystem {
                     ball.setDy(-Math.abs(ball.getDy())); // Bật lên
                     ball.setY(GameConfig.SCREEN_HEIGHT - ball.getHeight() - 5);
                     paddle.setHasShield(false); // Shield chỉ dùng 1 lần
-                } else {
-                    ball.stickTo(paddle);
-                    ball.setLaunched(false);
                 }
             }
         }
@@ -129,11 +126,12 @@ public class PhysicsSystem {
                 }
             }
 
-            // Kiểm tra nếu gạch bị phá sau khi takeHit()
-            if (hitBrick.isBroken()) {
-                bricks.remove(hitBrick);
-                bricksHit = 1; // Đếm 1 gạch bị phá
-
+            if (!(hitBrick instanceof UnbreakableBrick)) {
+                if (hitBrick.isBroken()) {
+                    bricks.remove(hitBrick);
+                }
+            }
+            if(hitBrick.isBroken()) {
                 Random rand = new Random();
 
                 // Xác suất rơi PowerUp
@@ -143,18 +141,29 @@ public class PhysicsSystem {
                     double typeChance = rand.nextDouble();
                     PowerUp newPowerUp;
 
-                    if (typeChance < 0.6) {
+                    if (typeChance < 0.5) {
                         newPowerUp = new ExpandPaddlePowerUp(
                                 hitBrick.getX() + hitBrick.getWidth() / 2,
                                 hitBrick.getY() + hitBrick.getHeight() / 2,
-                                20, 20, 70);
-                    } else {
+                                20, 20, 70
+                        );
+                    } else if (typeChance < 0.75) {
                         newPowerUp = new FastBallPowerUp(
                                 hitBrick.getX() + hitBrick.getWidth() / 2,
                                 hitBrick.getY() + hitBrick.getHeight() / 2,
+                                20, 20, 70
+                        );
+                    } else if (typeChance < 0.9) {
+                        newPowerUp = new MultiBallPowerUp(hitBrick.getX() + hitBrick.getWidth() / 2,
+                                hitBrick.getY() + hitBrick.getHeight() / 2,
                                 20, 20, 70);
+                    } else {
+                        newPowerUp = new ShieldPowerUp(
+                                hitBrick.getX() + hitBrick.getWidth() / 2,
+                                hitBrick.getY() + hitBrick.getHeight() / 2,
+                                20, 20, 70
+                        );
                     }
-
                     powerUps.add(newPowerUp);
                 }
             }
