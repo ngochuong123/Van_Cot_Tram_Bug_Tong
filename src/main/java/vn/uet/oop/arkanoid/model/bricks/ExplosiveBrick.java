@@ -56,8 +56,13 @@ public class ExplosiveBrick extends Brick {
     @Override
     public void render(GraphicsContext gc) {
         if (!isBroken()) {
-            gc.setFill(Color.PINK);
+            gc.setFill(javafx.scene.paint.Color.RED);
             gc.fillRect(getX(), getY(), getWidth(), getHeight());
+
+            gc.setStroke(javafx.scene.paint.Color.WHITE);
+            gc.setLineWidth(2);
+            gc.strokeRect(getX(), getY(), getWidth(), getHeight());
+        }
 
             gc.setStroke(javafx.scene.paint.Color.WHITE);
             gc.setLineWidth(2);
