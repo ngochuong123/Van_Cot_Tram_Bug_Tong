@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Arkanoid Level Map Designer</title>
+    <style>
+        :root {
+            /* --- GameConfig (you can tweak to match your Java constants) --- */
+            --screen-w: 720px;
+            --screen-h: 540px;
+            --brick-w: 64px;
+            --brick-h: 24px;
+            --brick-spacing: 6px;
+            --brick-rows: 6;
+            --brick-cols: 9;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+            color: #111827;
+            background: #0b1220;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            background: #0f172a;
+            color: #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 3;
+            border-bottom: 1px solid #1f2937;
+        }
+
+        .logo {
+            font-weight: 800;
+            letter-spacing: 0.4px;
+            font-size: 18px;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .tag {
+            padding: 6px 10px;
+            border-radius: 10px;
+            background: #1f2937;
+            color: #e5e7eb;
+            font-size: 12px;
+            user-select: none;
+            border: 1px solid #334155;
+        }
+
+        .type-btn {
+            border: 1px solid #334155;
+            background: #0b1220;
+            color: #e5e7eb;
+            padding: 8px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            cursor: grab;
+            user-select: none;
+        }
+        .type-btn:active { cursor: grabbing; }
+
+        .btn {
+            border: 1px solid #334155;
+            background: #111827;
+            color: #e5e7eb;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .btn:hover { background: #0b1220; }
+
+        main {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 14px;
+            padding: 14px;
+        }
+
+        /* Stage area */
+        .stage-wrap {
+            display: grid;
+            place-items: start center;
+            height: calc(100vh - 68px - 14px);
+            min-height: 620px;
+            overflow: auto;
+        }
+
+        .stage {
+            position: relative;
+            width: var(--screen-w);
+            height: var(--screen-h);
+            background: radial-gradient(1200px 500px at 50% -40%, rgba(59,130,246,0.12), rgba(17,24,39,0.6)), #0b1220;
+            border: 2px solid #1f2937;
+            border-radius: 16px;
+            box-shadow: 0 0 0 1px #0b1220, inset 0 0 0 1px #0b1220;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* Grid visual */
+        .grid-overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                    linear-gradient(to right, rgba(148,163,184,.18) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(148,163,184,.18) 1px, transparent 1px);
+            background-size: calc(var(--brick-w) + var(--brick-spacing)) calc(var(--brick-h) + var(--brick-spacing));
+            background-position: var(--grid-offset-x) var(--grid-offset-y);
+        }
+
+        /* Playfield margins */
+        .field-area {
+            position: absolute;
+            left: var(--grid-offset-x);
+            top: var(--grid-offset-y);
+            width: calc(var(--brick-cols) * (var(--brick-w) + var(--brick-spacing)) - var(--brick-spacing));
+            height: calc(var(--brick-rows) * (var(--brick-h) + var(--brick-spacing)) - var(--brick-spacing));
+            border: 1px dashed rgba(148,163,184,.35);
+            border-radius: 12px;
+            pointer-events: none;
+        }
+
+        /* Brick block */
+        .block {
+            position: absolute;
+            width: var(--brick-w);
+            height: var(--brick-h);
+            border-radius: 6px;
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            font-size: 11px;
+            letter-spacing: .3px;
+            cursor: grab;
+            border: 2px solid transparent;
+            box-shadow: 0 2px 6px rgba(0,0,0,.25);
+            transition: transform .05s ease;
+        }
+        .block:active { cursor: grabbing; }
+        .block.selected { outline: 2px solid #a78bfa; border-color: #a78bfa; z-index: 2; }
+
+        /* Color per type */
+        .NORMAL { background: #22c55e; color: #07331b; }
+        .STRONG { background: #f59e0b; color: #3b2500; }
+        .UNBREAKABLE { background: #64748b; color: #0b1220; }
+        .REGENERATING { background: #06b6d4; color: #022a31; }
+        .INVISIBLE { background: #94a3b8; color: #0b1220; opacity: 0.6; }
+        .EXPLOSIVE { background: #ef4444; color: #3f0202; }
+        .CHAIN { background: #a78bfa; color: #1e0b3a; }
+
+        aside {
+            background: #0f172a;
+            border: 1px solid #1f2937;
+            border-radius: 16px;
+            padding: 14px;
+            color: #e5e7eb;
+            height: calc(100vh - 68px - 28px);
+            min-height: 620px;
+            overflow: auto;
+        }
+
+        .panel h3 { margin: 8px 0 8px; font-size: 14px; color: #cbd5e1; }
+        .panel .section { border-top: 1px solid #1f2937; padding-top: 10px; margin-top: 10px; }
+
+        .field { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 8px; margin-bottom: 8px; }
+        .field label { font-size: 12px; color: #94a3b8; grid-column: 1 / span 2; }
+        .field input, .field select, .field textarea {
+            background: #0b1220;
+            color: #e5e7eb;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 8px 10px;
+            font-size: 13px;
+            width: 100%;
+        }
+
+        .row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+
+        .hint { font-size: 11px; color: #94a3b8; margin-top: 6px; }
+
+        .hr { height: 1px; background: #1f2937; margin: 10px 0; }
+        .muted { color: #94a3b8; }
+
+        footer {
+            position: sticky;
+            bottom: 0;
+            background: #0f172a;
+            padding: 10px 14px;
+            border-top: 1px solid #1f2937;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="logo">Arkanoid Level Map Designer</div>
+    <div class="toolbar" id="palette">
+        <span class="tag">Drag a type ↓</span>
+        <button class="type-btn" data-type="NORMAL">NORMAL</button>
+        <button class="type-btn" data-type="STRONG">STRONG</button>
+        <button class="type-btn" data-type="UNBREAKABLE">UNBREAKABLE</button>
+        <button class="type-btn" data-type="REGENERATING">REGENERATING</button>
+        <button class="type-btn" data-type="INVISIBLE">INVISIBLE</button>
+        <button class="type-btn" data-type="EXPLOSIVE">EXPLOSIVE</button>
+        <button class="type-btn" data-type="CHAIN">CHAIN</button>
+        <span class="tag">Snap: grid (auto)</span>
+        <button class="btn" id="btn-fit">Fit to Config</button>
+        <button class="btn" id="btn-clear">Clear</button>
+    </div>
+</header>
+
+<main>
+    <section class="stage-wrap">
+        <div class="stage" id="stage">
+            <div class="field-area" id="field"></div>
+            <div class="grid-overlay"></div>
+        </div>
+    </section>
+
+    <aside>
+        <div class="panel">
+            <h3>Selected Block</h3>
+            <div class="muted" id="no-selection">No block selected. Click one on the stage.</div>
+            <div id="editor" style="display:none;">
+                <div class="field">
+                    <label>Type</label>
+                    <select id="prop-type">
+                        <option>NORMAL</option>
+                        <option>STRONG</option>
+                        <option>UNBREAKABLE</option>
+                        <option>REGENERATING</option>
+                        <option>INVISIBLE</option>
+                        <option>EXPLOSIVE</option>
+                        <option>CHAIN</option>
+                    </select>
+                </div>
+                <div class="row">
+                    <div class="field">
+                        <label>X</label>
+                        <input type="number" id="prop-x" />
+                    </div>
+                    <div class="field">
+                        <label>Y</label>
+                        <input type="number" id="prop-y" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="field">
+                        <label>Width</label>
+                        <input type="number" id="prop-w" />
+                    </div>
+                    <div class="field">
+                        <label>Height</label>
+                        <input type="number" id="prop-h" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="field" id="field-dp">
+                        <label>Durability (dp)</label>
+                        <input type="number" id="prop-dp" />
+                    </div>
+                    <div class="field" id="field-radius" style="display:none;">
+                        <label>Radius (EXPLOSIVE)</label>
+                        <input type="number" id="prop-radius" />
+                    </div>
+                </div>
+                <div class="field" id="field-chain" style="display:none;">
+                    <label>Chain ID (CHAIN)</label>
+                    <input type="number" id="prop-chain" />
+                </div>
+                <div class="row">
+                    <button class="btn" id="btn-dup">Duplicate</button>
+                    <button class="btn" id="btn-delete">Delete</button>
+                </div>
+                <div class="hint">Tip: Click–hold and drag the block to move it (snaps to the grid). You can also use Arrow keys to nudge (hold Shift for x5).</div>
+            </div>
+
+            <div class="section">
+                <h3>Export / Import</h3>
+                <div class="row">
+                    <button class="btn" id="btn-export">Export .txt</button>
+                    <button class="btn" id="btn-import">Import .txt</button>
+                </div>
+                <input type="file" id="file-input" accept=".txt" style="display:none;" />
+                <div class="hint">Format per line:<br>
+                    <code>TYPE x y w h dp</code> | <code>EXPLOSIVE x y w h dp radius</code> | <code>CHAIN x y w h dp chainId</code><br>
+                    UNBREAKABLE ignores <code>dp</code> in export.
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Config</h3>
+                <div class="row">
+                    <div class="field">
+                        <label>Screen W</label>
+                        <input type="number" id="cfg-sw" value="720" />
+                    </div>
+                    <div class="field">
+                        <label>Screen H</label>
+                        <input type="number" id="cfg-sh" value="540" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="field">
+                        <label>Brick W</label>
+                        <input type="number" id="cfg-bw" value="64" />
+                    </div>
+                    <div class="field">
+                        <label>Brick H</label>
+                        <input type="number" id="cfg-bh" value="24" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="field">
+                        <label>Spacing</label>
+                        <input type="number" id="cfg-sp" value="6" />
+                    </div>
+                    <div class="field">
+                        <label>Rows</label>
+                        <input type="number" id="cfg-rows" value="6" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="field">
+                        <label>Cols</label>
+                        <input type="number" id="cfg-cols" value="9" />
+                    </div>
+                    <div class="field">
+                        <label>Center Grid</label>
+                        <select id="cfg-center">
+                            <option value="1" selected>Yes</option>
+                            <option value="0">No (top-left)</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn" id="btn-apply">Apply Config</button>
+                <div class="hint">The visible dashed box is the snap area (grid). Blocks snap to its cells.</div>
+            </div>
+
+        </div>
+    </aside>
+</main>
+
+<footer>
+    <button class="btn" id="btn-share">Copy Layout JSON (debug)</button>
+</footer>
+
+<script>
+    // ------------------------------
+    // Utility helpers
+    // ------------------------------
+    const $ = (q) => document.querySelector(q);
+    const $$ = (q) => Array.from(document.querySelectorAll(q));
+
+    function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+    function download(filename, text) {
+        const a = document.createElement('a');
+        a.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        a.setAttribute('download', filename);
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    // ------------------------------
+    // Config & Grid math
+    // ------------------------------
+    const stage = $('#stage');
+    const field = $('#field');
+
+    const cfg = {
+        screenW: 720,
+        screenH: 540,
+        brickW: 64,
+        brickH: 24,
+        spacing: 6,
+        rows: 6,
+        cols: 9,
+        center: true,
+    };
+
+    function updateCSSVars() {
+        document.documentElement.style.setProperty('--screen-w', cfg.screenW + 'px');
+        document.documentElement.style.setProperty('--screen-h', cfg.screenH + 'px');
+        document.documentElement.style.setProperty('--brick-w', cfg.brickW + 'px');
+        document.documentElement.style.setProperty('--brick-h', cfg.brickH + 'px');
+        document.documentElement.style.setProperty('--brick-spacing', cfg.spacing + 'px');
+        document.documentElement.style.setProperty('--brick-rows', cfg.rows);
+        document.documentElement.style.setProperty('--brick-cols', cfg.cols);
+
+        const gridW = cfg.cols * (cfg.brickW + cfg.spacing) - cfg.spacing;
+        const gridH = cfg.rows * (cfg.brickH + cfg.spacing) - cfg.spacing;
+        let offsetX = cfg.center ? Math.round((cfg.screenW - gridW) / 2) : 0;
+        let offsetY = cfg.center ? Math.round((cfg.screenH - gridH) / 3) : 0; // push grid a bit downward
+        document.documentElement.style.setProperty('--grid-offset-x', offsetX + 'px');
+        document.documentElement.style.setProperty('--grid-offset-y', offsetY + 'px');
+    }
+
+    // Initial CSS variables
+    updateCSSVars();
+
+    // ------------------------------
+    // Data Model
+    // ------------------------------
+    /** @typedef {Object} Block */
+    /** @type {Block[]} */
+    let blocks = [];
+    let idSeq = 1;
+    let selectedId = null;
+
+    const TYPES = ['NORMAL','STRONG','UNBREAKABLE','REGENERATING','INVISIBLE','EXPLOSIVE','CHAIN'];
+
+    function makeBlock(type, gridCol, gridRow) {
+        const x = gridToX(gridCol);
+        const y = gridToY(gridRow);
+        const b = { id: idSeq++, type, x, y, w: cfg.brickW, h: cfg.brickH, dp: 1, radius: 40, chainId: 0 };
+        if (type === 'STRONG') b.dp = 2;
+        if (type === 'UNBREAKABLE') delete b.dp;
+        return b;
+    }
+
+    function getById(id) { return blocks.find(b => b.id === id) || null; }
+
+    function selectBlock(id) {
+        selectedId = id;
+        renderBlocks();
+        populateEditor();
+    }
+
+    function deleteSelected() {
+        if (!selectedId) return;
+        blocks = blocks.filter(b => b.id !== selectedId);
+        selectedId = null;
+        renderBlocks();
+        populateEditor();
+        persist();
+    }
+
+    // ------------------------------
+    // Grid conversion
+    // ------------------------------
+    function gridOffset() {
+        const gridW = cfg.cols * (cfg.brickW + cfg.spacing) - cfg.spacing;
+        const gridH = cfg.rows * (cfg.brickH + cfg.spacing) - cfg.spacing;
+        const offsetX = cfg.center ? Math.round((cfg.screenW - gridW) / 2) : 0;
+        const offsetY = cfg.center ? Math.round((cfg.screenH - gridH) / 3) : 0;
+        return { offsetX, offsetY };
+    }
+
+    function xToGrid(x) {
+        const { offsetX } = gridOffset();
+        const rx = x - offsetX;
+        return Math.round(rx / (cfg.brickW + cfg.spacing));
+    }
+    function yToGrid(y) {
+        const { offsetY } = gridOffset();
+        const ry = y - offsetY;
+        return Math.round(ry / (cfg.brickH + cfg.spacing));
+    }
+    function gridToX(gc) {
+        const { offsetX } = gridOffset();
+        return offsetX + gc * (cfg.brickW + cfg.spacing);
+    }
+    function gridToY(gr) {
+        const { offsetY } = gridOffset();
+        return offsetY + gr * (cfg.brickH + cfg.spacing);
+    }
+
+    function snap(x, y) {
+        const gc = clamp(xToGrid(x), 0, cfg.cols - 1);
+        const gr = clamp(yToGrid(y), 0, cfg.rows - 1);
+        return { x: gridToX(gc), y: gridToY(gr), gc, gr };
+    }
+
+    // ------------------------------
+    // Rendering
+    // ------------------------------
+    function renderBlocks() {
+        // Clear stage existing rendered blocks
+        $$('.block').forEach(el => el.remove());
+
+        for (const b of blocks) {
+            const div = document.createElement('div');
+            div.className = `block ${b.type}` + (selectedId === b.id ? ' selected' : '');
+            div.style.left = Math.round(b.x) + 'px';
+            div.style.top = Math.round(b.y) + 'px';
+            div.style.width = b.w + 'px';
+            div.style.height = b.h + 'px';
+            div.textContent = b.type;
+            div.dataset.id = String(b.id);
+
+            // Drag handling
+            let drag = null;
+            div.addEventListener('pointerdown', (e) => {
+                e.preventDefault();
+                selectBlock(b.id);
+                drag = { startX: e.clientX, startY: e.clientY, baseX: b.x, baseY: b.y };
+                div.setPointerCapture(e.pointerId);
+            });
+            div.addEventListener('pointermove', (e) => {
+                if (!drag) return;
+                const dx = e.clientX - drag.startX;
+                const dy = e.clientY - drag.startY;
+                const nx = drag.baseX + dx;
+                const ny = drag.baseY + dy;
+                const sn = snap(nx, ny);
+                b.x = sn.x; b.y = sn.y;
+                div.style.left = b.x + 'px';
+                div.style.top = b.y + 'px';
+                updateEditorXY(b);
+            });
+            div.addEventListener('pointerup', (e) => {
+                drag = null; persist();
+            });
+            div.addEventListener('dblclick', () => {
+                selectBlock(b.id);
+            });
+
+            // Select on click
+            div.addEventListener('click', (e) => { e.stopPropagation(); selectBlock(b.id); });
+
+            stage.appendChild(div);
+        }
+    }
+
+    // ------------------------------
+    // Palette drag-to-create
+    // ------------------------------
+    let ghost = null;
+    $$('#palette .type-btn').forEach(btn => {
+        btn.addEventListener('pointerdown', (e) => {
+            const type = btn.dataset.type;
+            ghost = document.createElement('div');
+            ghost.className = `block ${type}`;
+            ghost.style.position = 'fixed';
+            ghost.style.pointerEvents = 'none';
+            ghost.style.opacity = '0.7';
+            ghost.style.width = cfg.brickW + 'px';
+            ghost.style.height = cfg.brickH + 'px';
+            ghost.textContent = type;
+            document.body.appendChild(ghost);
+
+            const move = (ev) => {
+                ghost.style.left = (ev.clientX - cfg.brickW/2) + 'px';
+                ghost.style.top = (ev.clientY - cfg.brickH/2) + 'px';
+            };
+            const up = (ev) => {
+                document.removeEventListener('pointermove', move);
+                document.removeEventListener('pointerup', up);
+                if (ghost) ghost.remove();
+                ghost = null;
+
+                // If dropped inside stage → create
+                const rect = stage.getBoundingClientRect();
+                if (ev.clientX >= rect.left && ev.clientX <= rect.right && ev.clientY >= rect.top && ev.clientY <= rect.bottom) {
+                    const dropX = ev.clientX - rect.left;
+                    const dropY = ev.clientY - rect.top;
+                    const sn = snap(dropX, dropY);
+                    const b = makeBlock(type, sn.gc, sn.gr);
+                    blocks.push(b);
+                    selectBlock(b.id);
+                    renderBlocks();
+                    persist();
+                }
+            };
+            document.addEventListener('pointermove', move);
+            document.addEventListener('pointerup', up, { once: true });
+        });
+    });
+
+    // Click empty stage → deselect
+    stage.addEventListener('click', () => { selectedId = null; renderBlocks(); populateEditor(); });
+
+    // ------------------------------
+    // Editor bindings
+    // ------------------------------
+    const noSelection = $('#no-selection');
+    const editor = $('#editor');
+    const propType = $('#prop-type');
+    const propX = $('#prop-x');
+    const propY = $('#prop-y');
+    const propW = $('#prop-w');
+    const propH = $('#prop-h');
+    const propDP = $('#prop-dp');
+    const propRadius = $('#prop-radius');
+    const propChain = $('#prop-chain');
+    const fieldDP = $('#field-dp');
+    const fieldRadius = $('#field-radius');
+    const fieldChain = $('#field-chain');
+
+    function populateEditor() {
+        if (!selectedId) {
+            editor.style.display = 'none';
+            noSelection.style.display = 'block';
+            return;
+        }
+        const b = getById(selectedId);
+        editor.style.display = 'block';
+        noSelection.style.display = 'none';
+        propType.value = b.type;
+        propX.value = Math.round(b.x);
+        propY.value = Math.round(b.y);
+        propW.value = b.w;
+        propH.value = b.h;
+        propDP.value = b.dp ?? 1;
+        propRadius.value = b.radius ?? 40;
+        propChain.value = b.chainId ?? 0;
+        toggleTypeFields(b.type);
+    }
+
+    function toggleTypeFields(type) {
+        // UNBREAKABLE → hide dp
+        fieldDP.style.display = (type === 'UNBREAKABLE') ? 'none' : 'grid';
+        // EXPLOSIVE → show radius
+        fieldRadius.style.display = (type === 'EXPLOSIVE') ? 'grid' : 'none';
+        // CHAIN → show chainId
+        fieldChain.style.display = (type === 'CHAIN') ? 'grid' : 'none';
+    }
+
+    function updateEditorXY(b) {
+        if (selectedId === b.id) {
+            propX.value = Math.round(b.x); propY.value = Math.round(b.y);
+        }
+    }
+
+    propType.addEventListener('change', () => {
+        const b = getById(selectedId); if (!b) return;
+        b.type = propType.value;
+        if (b.type === 'UNBREAKABLE') delete b.dp; else b.dp ??= 1;
+        toggleTypeFields(b.type);
+        renderBlocks();
+        persist();
+    });
+
+    propX.addEventListener('change', () => {
+        const b = getById(selectedId); if (!b) return;
+        const sn = snap(Number(propX.value), b.y);
+        b.x = sn.x; propX.value = Math.round(b.x);
+        renderBlocks(); persist();
+    });
+    propY.addEventListener('change', () => {
+        const b = getById(selectedId); if (!b) return;
+        const sn = snap(b.x, Number(propY.value));
+        b.y = sn.y; propY.value = Math.round(b.y);
+        renderBlocks(); persist();
+    });
+    propW.addEventListener('change', () => { const b = getById(selectedId); if (!b) return; b.w = Number(propW.value); renderBlocks(); persist(); });
+    propH.addEventListener('change', () => { const b = getById(selectedId); if (!b) return; b.h = Number(propH.value); renderBlocks(); persist(); });
+    propDP.addEventListener('change', () => { const b = getById(selectedId); if (!b) return; b.dp = Number(propDP.value); persist(); });
+    propRadius.addEventListener('change', () => { const b = getById(selectedId); if (!b) return; b.radius = Number(propRadius.value); persist(); });
+    propChain.addEventListener('change', () => { const b = getById(selectedId); if (!b) return; b.chainId = Number(propChain.value); persist(); });
+
+    $('#btn-delete').addEventListener('click', deleteSelected);
+    $('#btn-dup').addEventListener('click', () => {
+        if (!selectedId) return;
+        const b = getById(selectedId);
+        const clone = { ...b, id: idSeq++, x: clamp(b.x + cfg.brickW + cfg.spacing, 0, cfg.screenW - b.w) };
+        blocks.push(clone);
+        selectBlock(clone.id);
+        renderBlocks();
+        persist();
+    });
+
+    // ------------------------------
+    // Export / Import
+    // ------------------------------
+    function toTxtLine(b) {
+        const x = Math.round(b.x); const y = Math.round(b.y);
+        const w = Math.round(b.w); const h = Math.round(b.h);
+        if (b.type === 'EXPLOSIVE') return `${b.type} ${x} ${y} ${w} ${h} ${b.dp ?? 1} ${b.radius ?? 40}`;
+        if (b.type === 'CHAIN') return `${b.type} ${x} ${y} ${w} ${h} ${b.dp ?? 1} ${b.chainId ?? 0}`;
+        if (b.type === 'UNBREAKABLE') return `${b.type} ${x} ${y} ${w} ${h}`; // dp ignored
+        return `${b.type} ${x} ${y} ${w} ${h} ${b.dp ?? 1}`;
+    }
+
+    function exportTxt() {
+        const lines = blocks.map(toTxtLine).join('\n');
+        download('level.txt', lines + '\n');
+    }
+
+    function importTxt(text) {
+        blocks = [];
+        const lines = text.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+        for (const line of lines) {
+            const parts = line.split(/\s+/);
+            const type = parts[0];
+            if (!TYPES.includes(type)) continue;
+            const [x,y,w,h] = parts.slice(1).map(Number);
+            const b = { id: idSeq++, type, x, y, w, h };
+            if (type === 'EXPLOSIVE') { b.dp = Number(parts[5]); b.radius = Number(parts[6]); }
+            else if (type === 'CHAIN') { b.dp = Number(parts[5]); b.chainId = Number(parts[6]); }
+            else if (type === 'UNBREAKABLE') { /* no dp */ }
+            else { b.dp = Number(parts[5] ?? 1); }
+            blocks.push(b);
+        }
+        // Snap everything to current grid
+        for (const b of blocks) {
+            const sn = snap(b.x, b.y);
+            b.x = sn.x; b.y = sn.y;
+            b.w = cfg.brickW; b.h = cfg.brickH; // normalize
+        }
+        renderBlocks();
+        persist();
+    }
+
+    $('#btn-export').addEventListener('click', exportTxt);
+    $('#btn-import').addEventListener('click', () => $('#file-input').click());
+    $('#file-input').addEventListener('change', (e) => {
+        const file = e.target.files[0]; if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => importTxt(String(reader.result));
+        reader.readAsText(file);
+        e.target.value = '';
+    });
+
+    // ------------------------------
+    // Config panel
+    // ------------------------------
+    function applyConfig() {
+        cfg.screenW = Number($('#cfg-sw').value);
+        cfg.screenH = Number($('#cfg-sh').value);
+        cfg.brickW = Number($('#cfg-bw').value);
+        cfg.brickH = Number($('#cfg-bh').value);
+        cfg.spacing = Number($('#cfg-sp').value);
+        cfg.rows = Math.max(1, Number($('#cfg-rows').value));
+        cfg.cols = Math.max(1, Number($('#cfg-cols').value));
+        cfg.center = $('#cfg-center').value === '1';
+        updateCSSVars();
+        // Normalize block sizes and re-snap
+        for (const b of blocks) {
+            b.w = cfg.brickW; b.h = cfg.brickH;
+            const sn = snap(b.x, b.y);
+            b.x = sn.x; b.y = sn.y;
+        }
+        renderBlocks();
+        persist();
+    }
+
+    $('#btn-apply').addEventListener('click', applyConfig);
+    $('#btn-fit').addEventListener('click', () => {
+        // Fit grid to GameConfig defaults (already set); just re-center
+        applyConfig();
+    });
+
+    $('#btn-clear').addEventListener('click', () => { if (confirm('Clear all blocks?')) { blocks = []; selectedId = null; renderBlocks(); populateEditor(); persist(); } });
+
+    // ------------------------------
+    // Persistence (localStorage)
+    // ------------------------------
+    const KEY = 'arkanoid_level_designer_v1';
+
+    function persist() {
+        const payload = { cfg, blocks };
+        localStorage.setItem(KEY, JSON.stringify(payload));
+    }
+
+    function restore() {
+        try {
+            const raw = localStorage.getItem(KEY);
+            if (!raw) return;
+            const payload = JSON.parse(raw);
+            Object.assign(cfg, payload.cfg || {});
+            blocks = (payload.blocks || []).map(b => ({...b}));
+            updateCSSVars();
+            renderBlocks();
+        } catch (e) { console.warn('Restore failed:', e); }
+    }
+
+    restore();
+
+    // ------------------------------
+    // Debug share
+    // ------------------------------
+    $('#btn-share').addEventListener('click', async () => {
+        const data = JSON.stringify({ cfg, blocks }, null, 2);
+        try {
+            await navigator.clipboard.writeText(data);
+            alert('Copied JSON to clipboard!');
+        } catch {
+            alert('Copy failed.');
+        }
+    });
+
+    // Keyboard delete / arrow-nudge
+    function moveSelectedBy(dxCells, dyCells) {
+        if (!selectedId) return;
+        const b = getById(selectedId); if (!b) return;
+        // current grid
+        const gc = xToGrid(b.x);
+        const gr = yToGrid(b.y);
+        const ngc = clamp(gc + dxCells, 0, cfg.cols - 1);
+        const ngr = clamp(gr + dyCells, 0, cfg.rows - 1);
+        b.x = gridToX(ngc);
+        b.y = gridToY(ngr);
+        updateEditorXY(b);
+        renderBlocks();
+        persist();
+    }
+
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Delete') { deleteSelected(); return; }
+        if (!selectedId) return;
+        const step = e.shiftKey ? 5 : 1;
+        if (e.key === 'ArrowLeft') { e.preventDefault(); moveSelectedBy(-step, 0); }
+        else if (e.key === 'ArrowRight') { e.preventDefault(); moveSelectedBy(step, 0); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); moveSelectedBy(0, -step); }
+        else if (e.key === 'ArrowDown') { e.preventDefault(); moveSelectedBy(0, step); }
+    });
+</script>
+</body>
+</html>
