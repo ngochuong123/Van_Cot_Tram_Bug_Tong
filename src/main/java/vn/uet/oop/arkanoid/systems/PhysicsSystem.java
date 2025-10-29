@@ -55,9 +55,6 @@ public class PhysicsSystem {
                     ball.setDy(-Math.abs(ball.getDy())); // Bật lên
                     ball.setY(GameConfig.SCREEN_HEIGHT - ball.getHeight() - 5);
                     paddle.setHasShield(false); // Shield chỉ dùng 1 lần
-                } else {
-                    ball.stickTo(paddle);
-                    ball.setLaunched(false);
                 }
             }
         }
@@ -129,10 +126,12 @@ public class PhysicsSystem {
                 }
             }
 
-            // Kiểm tra nếu gạch bị phá sau khi takeHit()
-            if (hitBrick.isBroken()) {
-                bricks.remove(hitBrick);
-
+            if (!(hitBrick instanceof UnbreakableBrick)) {
+                if (hitBrick.isBroken()) {
+                    bricks.remove(hitBrick);
+                }
+            }
+            if(hitBrick.isBroken()) {
                 Random rand = new Random();
 
                 // Xác suất rơi PowerUp

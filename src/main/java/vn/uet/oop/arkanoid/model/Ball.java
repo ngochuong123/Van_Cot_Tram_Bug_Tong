@@ -21,7 +21,6 @@ public class Ball extends MovableObject {
     }
 
     public void stickTo(Paddle paddle) {
-        launched = false;
         double cx = paddle.getX() + paddle.getWidth() / 2.0;
         setX(cx - getWidth() / 2.0);
         setY(paddle.getY() - getHeight());
@@ -37,6 +36,7 @@ public class Ball extends MovableObject {
         super(x, y, radius * 2, radius * 2, dx, dy);
         this.radius = radius;
         this.hasActiveEffect = false;
+        this.launched = false;
     }
 
     public boolean isHasActiveEffect() {
