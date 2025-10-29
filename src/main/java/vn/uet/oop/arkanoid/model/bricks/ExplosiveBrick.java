@@ -64,9 +64,5 @@ public class ExplosiveBrick extends Brick {
             gc.strokeRect(getX(), getY(), getWidth(), getHeight());
         }
 
-            gc.setStroke(javafx.scene.paint.Color.WHITE);
-            gc.setLineWidth(2);
-            gc.strokeRect(getX(), getY(), getWidth(), getHeight());
-        }
     }
 }
