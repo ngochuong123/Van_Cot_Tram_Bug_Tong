@@ -39,12 +39,12 @@ public class ExpandPaddlePowerUp extends PowerUp {
         }
     }
 
-    Image expandPaddle = new Image("file:src/main/java/vn/uet/oop/arkanoid/resources/image/expand_paddle.png");
+    Image expandPaddle = new Image("file:src/main/java/vn/uet/oop/arkanoid/config/image/expand_paddle.png");
 
     @Override
     public void render(GraphicsContext gc) {
         gc.drawImage(expandPaddle, getX(), getY(), getWidth(), getHeight());
-//        gc.setFill(Color.LIGHTGREEN);
-//        gc.fillRect(getX(), getY(), getWidth(), getHeight());
+        // gc.setFill(Color.LIGHTGREEN);
+        // gc.fillRect(getX(), getY(), getWidth(), getHeight());
     }
 }

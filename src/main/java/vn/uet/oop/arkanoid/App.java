@@ -22,6 +22,7 @@ public class App extends Application {
     public void start(Stage stage) {
         MenuController menuController = new MenuController(stage);
         menuController.eventMenu();
+
     }
 
     public static void main(String[] args) {

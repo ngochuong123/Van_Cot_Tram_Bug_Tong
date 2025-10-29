@@ -33,7 +33,7 @@ public class PhysicsSystem {
      * check ball statement with wall
      */
     public void bounceBallOnWalls(Ball ball, Paddle paddle) {
-        //va cham trai phai
+        // va cham trai phai
         if (ball.getX() <= 0) {
             ball.setX(0);
             ball.setDx(Math.abs(ball.getDx()));
@@ -42,8 +42,7 @@ public class PhysicsSystem {
             ball.setDx(-Math.abs(ball.getDx()));
         }
 
-
-        //va cham tran
+        // va cham tran
         if (ball.getY() <= 0) {
             ball.setY(0);
             ball.setDy(Math.abs(ball.getDy()));
@@ -92,11 +91,14 @@ public class PhysicsSystem {
 
     /**
      * check collision on left/right or under/above.
-     * @param ball ball
+     * 
+     * @param ball   ball
      * @param bricks list bricks need to check
      */
-    public void bounceBallOnBricks(Ball ball, List<Brick> bricks, List<PowerUp> powerUps) {
+    public int bounceBallOnBricks(Ball ball, List<Brick> bricks, List<PowerUp> powerUps) {
         Brick hitBrick = CollisionSystem.getCollidedBrick(ball, bricks);
+        int bricksHit = 0;
+
         if (hitBrick != null) {
             double ballCenterX = ball.getX() + ball.getWidth() / 2;
             double ballCenterY = ball.getY() + ball.getHeight() / 2;
@@ -166,5 +168,7 @@ public class PhysicsSystem {
                 }
             }
         }
+
+        return bricksHit;
     }
 }
