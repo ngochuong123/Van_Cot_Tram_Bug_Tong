@@ -7,7 +7,7 @@ package vn.uet.oop.arkanoid.systems;
 public class ScoringSystem {
 
     /**
-     * add score when braek a brick
+     * add score when break a brick
      */
     public void addScoreForBrick() {
 
