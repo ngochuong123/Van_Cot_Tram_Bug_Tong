@@ -56,9 +56,6 @@ public class PhysicsSystem {
                     ball.setDy(-Math.abs(ball.getDy())); // Bật lên
                     ball.setY(GameConfig.SCREEN_HEIGHT - ball.getHeight() - 5);
                     paddle.setHasShield(false); // Shield chỉ dùng 1 lần
-                } else {
-                    ball.stickTo(paddle);
-                    ball.setLaunched(false);
                 }
             }
         }
@@ -132,37 +129,41 @@ public class PhysicsSystem {
                     bricks.remove(hitBrick);
                 }
             }
+            if(hitBrick.isBroken()) {
+                Random rand = new Random();
 
-            Random rand = new Random();
+                // Xác suất rơi PowerUp
+                double dropChance = 0.3;
+                if (rand.nextDouble() < dropChance) {
+                    // Nếu rơi ra PowerUp thì chọn loại
+                    double typeChance = rand.nextDouble();
+                    PowerUp newPowerUp;
 
-            // Xác suất rơi PowerUp
-            double dropChance = 0.3;
-            if (rand.nextDouble() < dropChance) {
-                // Nếu rơi ra PowerUp thì chọn loại
-                double typeChance = rand.nextDouble();
-                PowerUp newPowerUp;
-
-                if (typeChance < 0.5) {
-                    newPowerUp = new ExpandPaddlePowerUp(
-                            hitBrick.getX() + hitBrick.getWidth() / 2,
-                            hitBrick.getY() + hitBrick.getHeight() / 2,
-                            20, 20, 70
-                    );
-                } else if (typeChance < 0.6) {
-                    newPowerUp = new FastBallPowerUp(
-                            hitBrick.getX() + hitBrick.getWidth() / 2,
-                            hitBrick.getY() + hitBrick.getHeight() / 2,
-                            20, 20, 70
-                    );
-                } else {
-                    newPowerUp = new ShieldPowerUp(
-                            hitBrick.getX() + hitBrick.getWidth() / 2,
-                            hitBrick.getY() + hitBrick.getHeight() / 2,
-                            20, 20, 70
-                    );
+                    if (typeChance < 0.5) {
+                        newPowerUp = new ExpandPaddlePowerUp(
+                                hitBrick.getX() + hitBrick.getWidth() / 2,
+                                hitBrick.getY() + hitBrick.getHeight() / 2,
+                                20, 20, 70
+                        );
+                    } else if (typeChance < 0.75) {
+                        newPowerUp = new FastBallPowerUp(
+                                hitBrick.getX() + hitBrick.getWidth() / 2,
+                                hitBrick.getY() + hitBrick.getHeight() / 2,
+                                20, 20, 70
+                        );
+                    } else if (typeChance < 0.9) {
+                        newPowerUp = new MultiBallPowerUp(hitBrick.getX() + hitBrick.getWidth() / 2,
+                                hitBrick.getY() + hitBrick.getHeight() / 2,
+                                20, 20, 70);
+                    } else {
+                        newPowerUp = new ShieldPowerUp(
+                                hitBrick.getX() + hitBrick.getWidth() / 2,
+                                hitBrick.getY() + hitBrick.getHeight() / 2,
+                                20, 20, 70
+                        );
+                    }
+                    powerUps.add(newPowerUp);
                 }
-              powerUps.add(newPowerUp);
-
             }
         }
     }
