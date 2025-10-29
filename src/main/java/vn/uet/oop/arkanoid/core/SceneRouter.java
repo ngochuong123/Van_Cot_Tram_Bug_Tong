@@ -98,7 +98,12 @@ public class SceneRouter {
             } else if (code == KeyCode.RIGHT || code == KeyCode.D) {
                 rightPressed = true;
             } else if (code == KeyCode.SPACE) {
-                gameManager.launchBall();
+                // THÊM ĐOẠN NÀY: Xử lý cả khi game over và khi chơi bình thường
+                if (gameManager.isGameOver()) {
+                    gameManager.handleKeyPress("SPACE"); // Chơi lại khi game over
+                } else {
+                    gameManager.launchBall(); // Phóng bóng khi đang chơi
+                }
             }
             // Ngăn xử lý sự kiện tiếp theo nếu là phím điều khiển
             if (code == KeyCode.LEFT || code == KeyCode.RIGHT ||

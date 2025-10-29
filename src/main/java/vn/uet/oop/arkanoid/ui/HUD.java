@@ -145,4 +145,10 @@ public class HUD {
         topleft.setTop(heart_score);
         HUDStage.setScene(HUDScene);
     }
+
+    public void reset() {
+        this.score = 0;
+        this.heart = 3; // hoặc số mạng mặc định
+        // Reset các trạng thái khác nếu có
+    }
 }

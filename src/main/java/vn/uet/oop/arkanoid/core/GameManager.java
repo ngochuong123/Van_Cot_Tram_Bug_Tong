@@ -32,6 +32,7 @@ public class GameManager {
     private int currentLevel = 1;
     private boolean gameOver = false;
     private boolean levelCompleted = false;
+    private boolean showRestartMessage = false; // Thêm flag hiển thị thông báo chơi lại
 
     // Optimization: reuse collections to avoid GC
     private final List<Ball> ballsToRemove = new ArrayList<>();
@@ -88,6 +89,45 @@ public class GameManager {
         if (!balls.isEmpty() && !balls.get(0).isLaunched()) {
             balls.get(0).launch();
         }
+    }
+
+    /**
+     * Xử lý sự kiện phím - THÊM PHƯƠNG THỨC MỚI
+     * Khi game over, ấn phím cách để chơi lại
+     */
+    public void handleKeyPress(String keyCode) {
+        if (gameOver && "SPACE".equals(keyCode)) {
+            restartGame();
+        }
+    }
+
+    /**
+     * Chơi lại game - THÊM PHƯƠNG THỨC MỚI
+     */
+    public void restartGame() {
+        // Reset game state
+        gameOver = false;
+        levelCompleted = false;
+        showRestartMessage = false;
+        currentLevel = 1;
+        score = 0;
+
+        // Clear all game objects
+        balls.clear();
+        bricks.clear();
+        powerUps.clear();
+        ballsToRemove.clear();
+        bricksToRemove.clear();
+        powerUpsToRemove.clear();
+
+        // Reset paddle position
+        paddle.setX((GameConfig.SCREEN_WIDTH - GameConfig.PADDLE_WIDTH) / 2);
+        paddle.setY(GameConfig.SCREEN_HEIGHT - 40);
+
+        // Reinitialize game
+        initGame();
+
+        System.out.println("Game restarted by SPACE key!");
     }
 
     private void loadLevel(int[][] pattern) {
@@ -287,7 +327,15 @@ public class GameManager {
 
     private void handleGameOver() {
         gameOver = true;
+        showRestartMessage = true; // Hiển thị thông báo chơi lại
         System.out.println("GAME OVER! Final Score: " + score);
+        System.out.println("Press SPACE to play again!");
+
+        // Reset HUD
+        if (hud != null) {
+            hud.reset();
+        }
+
     }
 
     private void resetBall() {
@@ -355,6 +403,14 @@ public class GameManager {
 
             gc.setFont(new javafx.scene.text.Font(24));
             gc.fillText("Final Score: " + score, GameConfig.SCREEN_WIDTH / 2 - 80, GameConfig.SCREEN_HEIGHT / 2 + 40);
+
+            // THÊM THÔNG BÁO ẤN PHÍM CÁCH ĐỂ CHƠI LẠI
+            if (showRestartMessage) {
+                gc.setFill(javafx.scene.paint.Color.BLACK);
+                gc.setFont(new javafx.scene.text.Font(20));
+                gc.fillText("Press SPACE to play again", GameConfig.SCREEN_WIDTH / 2 - 100,
+                        GameConfig.SCREEN_HEIGHT / 2 + 80);
+            }
         }
     }
 
