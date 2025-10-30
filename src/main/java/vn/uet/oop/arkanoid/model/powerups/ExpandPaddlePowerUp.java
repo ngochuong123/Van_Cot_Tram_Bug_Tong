@@ -39,7 +39,7 @@ public class ExpandPaddlePowerUp extends PowerUp {
         }
     }
 
-    Image expandPaddle = new Image("file:src/main/java/vn/uet/oop/arkanoid/config/image/expand_paddle.png");
+    Image expandPaddle = new Image(getClass().getResourceAsStream("/image/expand_paddle.png"));
 
     @Override
     public void render(GraphicsContext gc) {

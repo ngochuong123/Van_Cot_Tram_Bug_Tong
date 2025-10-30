@@ -2,15 +2,14 @@ package vn.uet.oop.arkanoid.model.bricks;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.paint.Color;
 
 public class StrongBrick extends Brick {
 
     public StrongBrick(double x, double y, double width, double height, int durabilityPoints) {
         super(x, y, width, height, durabilityPoints);
         try {
-            BrickType.brick2_1Image = new Image("file:src/main/java/vn/uet/oop/arkanoid/config/image/brick2_1.png");
-            BrickType.brick2_2Image = new Image("file:src/main/java/vn/uet/oop/arkanoid/config/image/brick2_2.png");
+            BrickType.brick2_1Image = new Image(getClass().getResourceAsStream("/image/StrongBrick1.png"));
+            BrickType.brick2_2Image = new Image(getClass().getResourceAsStream("/image/StrongBrick2.png"));
         } catch (Exception e) {
             System.err.println("Không thể tải hình ảnh brick");
             // Có thể set hình mặc định ở đây

@@ -63,9 +63,10 @@ public class MenuController {
 
         this.menuScene = new Scene(root, GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT);
         this.menuScene.getRoot().setStyle(
-                "-fx-background-image: url('file:src/main/java/vn/uet/oop/arkanoid/config/image/menu.jpg');" +
+                "-fx-background-image: url('" + getClass().getResource("/image/menu.jpg") + "');" +
                         "-fx-background-size: cover;" +
                         "-fx-background-position: center center;");
+
         this.primaryStage.setScene(menuScene);
         this.primaryStage.setTitle("ARKANOID");
         this.primaryStage.show();

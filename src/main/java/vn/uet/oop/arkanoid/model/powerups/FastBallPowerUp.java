@@ -38,7 +38,7 @@ public class FastBallPowerUp extends PowerUp {
         }
     }
 
-    Image BigBall = new Image("file:src/main/java/vn/uet/oop/arkanoid/config/image/BigBall.png");
+    Image BigBall = new Image(getClass().getResourceAsStream("/image/BigBall.png"));
 
     @Override
     public void render(GraphicsContext gc) {

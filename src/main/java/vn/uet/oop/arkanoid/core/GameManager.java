@@ -76,7 +76,7 @@ public class GameManager {
         balls.add(mainBall);
 
         // Load first level
-        loadLevelFromClasspath("/resoures/levels/level2.txt");
+        loadLevelFromClasspath("/resources/levels/level2.txt");
         mainBall.stickTo(paddle);
     }
 
@@ -198,9 +198,15 @@ public class GameManager {
     }
 
     private void checkLevelCompletion() {
-        if (!levelCompleted && bricks.isEmpty()) {
-            handleLevelComplete();
+        if (!levelCompleted && balls.get(0).isLaunched()) {
+            long breakableBricks = bricks.stream()
+                    .filter(brick -> !(brick instanceof UnbreakableBrick))
+                    .count();
+            if (breakableBricks == 0) {
+                handleLevelComplete();
+            }
         }
+
     }
 
     private void handleLevelComplete() {
@@ -218,20 +224,16 @@ public class GameManager {
         resetBall();
     }
 
+    private void loadNextLevel() {
+        String levelPath = "/resources/levels/level" + currentLevel + ".txt";
+        loadLevelFromClasspath(levelPath);
+    }
+
     public void loadLevelFromClasspath(String resourcePath) {
         try {
             bricks = ResourceLevelLoader.loadFromResource(resourcePath);
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    private void loadNextLevel() {
-        if (currentLevel == 2) {
-            loadLevelFromClasspath("/resoures/levels/level2.txt");
-        } else {
-            currentLevel = 1;
-            loadLevelFromClasspath("/resoures/levels/level1.txt");
         }
     }
 

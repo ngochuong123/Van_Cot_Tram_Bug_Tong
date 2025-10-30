@@ -11,6 +11,7 @@ import vn.uet.oop.arkanoid.model.powerups.MultiBallPowerUp;
 import vn.uet.oop.arkanoid.model.powerups.PowerUp;
 import vn.uet.oop.arkanoid.model.powerups.ShieldPowerUp;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -98,78 +99,94 @@ public class PhysicsSystem {
      * @param ball   ball
      * @param bricks list bricks need to check
      */
-    public int bounceBallOnBricks(Ball ball, List<Brick> bricks, List<PowerUp> powerUps) {
+    public void bounceBallOnBricks(Ball ball, List<Brick> bricks, List<PowerUp> powerUps) {
+
         Brick hitBrick = CollisionSystem.getCollidedBrick(ball, bricks);
-        int bricksHit = 0;
+        if (hitBrick == null) return;
 
-        if (hitBrick != null) {
-            double ballCenterX = ball.getX() + ball.getWidth() / 2;
-            double ballCenterY = ball.getY() + ball.getHeight() / 2;
-            double brickCenterX = hitBrick.getX() + hitBrick.getWidth() / 2;
-            double brickCenterY = hitBrick.getY() + hitBrick.getHeight() / 2;
+        double ballCenterX = ball.getX() + ball.getWidth() / 2;
+        double ballCenterY = ball.getY() + ball.getHeight() / 2;
+        double brickCenterX = hitBrick.getX() + hitBrick.getWidth() / 2;
+        double brickCenterY = hitBrick.getY() + hitBrick.getHeight() / 2;
 
-            double dx = (ballCenterX - brickCenterX) / hitBrick.getWidth();
-            double dy = (ballCenterY - brickCenterY) / hitBrick.getHeight();
+        double dx = (ballCenterX - brickCenterX) / hitBrick.getWidth();
+        double dy = (ballCenterY - brickCenterY) / hitBrick.getHeight();
 
-            if (Math.abs(dx) > Math.abs(dy)) {
-                ball.setDx(-ball.getDx());
-                //Đẩy bóng ra khỏi gạch 1 chút để tránh kẹt
-                if (dx > 0) {
-                    ball.setX(hitBrick.getX() + hitBrick.getWidth());
-                } else {
-                    ball.setX(hitBrick.getX() - ball.getWidth());
-                }
+        if (Math.abs(dx) > Math.abs(dy)) {
+            ball.setDx(-ball.getDx());
+            if (dx > 0) {
+                ball.setX(hitBrick.getX() + hitBrick.getWidth());
             } else {
-                ball.setDy(-ball.getDy());
-                //Đẩy bóng ra khỏi gạch 1 chút
-                if (dy > 0) {
-                    ball.setY(hitBrick.getY() + hitBrick.getHeight());
-                } else {
-                    ball.setY(hitBrick.getY() - ball.getHeight());
-                }
+                ball.setX(hitBrick.getX() - ball.getWidth());
             }
+        } else {
+            ball.setDy(-ball.getDy());
+            if (dy > 0) {
+                ball.setY(hitBrick.getY() + hitBrick.getHeight());
+            } else {
+                ball.setY(hitBrick.getY() - ball.getHeight());
+            }
+        }
 
-            // Kiểm tra nếu gạch bị phá sau khi takeHit()
-            if (hitBrick.isBroken()) {
-                bricks.remove(hitBrick);
+        hitBrick.takeHit();
+        List<Brick> bricksToRemove = new ArrayList<>();
 
-                Random rand = new Random();
+        if (hitBrick.isBroken() && !(hitBrick instanceof RegeneratingBrick)) {
+            bricksToRemove.add(hitBrick);
 
-                // Xác suất rơi PowerUp
-                double dropChance = 0.3;
-                if (rand.nextDouble() < dropChance) {
-                    // Nếu rơi ra PowerUp thì chọn loại
-                    double typeChance = rand.nextDouble();
-                    PowerUp newPowerUp;
 
-                    if (typeChance < 0.5) {
-                        newPowerUp = new ExpandPaddlePowerUp(
-                                hitBrick.getX() + hitBrick.getWidth() / 2,
-                                hitBrick.getY() + hitBrick.getHeight() / 2,
-                                20, 20, 70
-                        );
-                    } else if (typeChance < 0.75) {
-                        newPowerUp = new FastBallPowerUp(
-                                hitBrick.getX() + hitBrick.getWidth() / 2,
-                                hitBrick.getY() + hitBrick.getHeight() / 2,
-                                20, 20, 70
-                        );
-                    } else if (typeChance < 0.9) {
-                        newPowerUp = new MultiBallPowerUp(hitBrick.getX() + hitBrick.getWidth() / 2,
-                                hitBrick.getY() + hitBrick.getHeight() / 2,
-                                20, 20, 70);
-                    } else {
-                        newPowerUp = new ShieldPowerUp(
-                                hitBrick.getX() + hitBrick.getWidth() / 2,
-                                hitBrick.getY() + hitBrick.getHeight() / 2,
-                                20, 20, 70
-                        );
+            if (hitBrick instanceof ChainBrick) {
+                ChainBrick chain = (ChainBrick) hitBrick;
+                int cid = chain.getChainId();
+
+                for (Brick b : bricks) {
+                    if (b == hitBrick) continue;
+                    if (b instanceof ChainBrick) {
+                        ChainBrick other = (ChainBrick) b;
+                        if (other.getChainId() == cid) {
+                            bricksToRemove.add(other);
+                        }
                     }
-                    powerUps.add(newPowerUp);
                 }
             }
         }
 
-        return bricksHit;
+        if (!bricksToRemove.isEmpty()) {
+            Random rand = new Random();
+
+            for (Brick dead : bricksToRemove) {
+                double dropChance = 0.3;
+                if (rand.nextDouble() < dropChance) {
+                    PowerUp newPowerUp = createRandomPowerUpAt(dead);
+                    if (newPowerUp != null) {
+                        powerUps.add(newPowerUp);
+                    }
+                }
+
+                bricks.remove(dead);
+            }
+        }
     }
+
+
+    private PowerUp createRandomPowerUpAt(Brick brick) {
+        Random rand = new Random();
+        double typeChance = rand.nextDouble();
+        double spawnX = brick.getX() + brick.getWidth() / 2;
+        double spawnY = brick.getY() + brick.getHeight() / 2;
+        double w = 20;
+        double h = 20;
+        double fallSpeed = 70;
+
+        if (typeChance < 0.5) {
+            return new ExpandPaddlePowerUp(spawnX, spawnY, w, h, fallSpeed);
+        } else if (typeChance < 0.75) {
+            return new FastBallPowerUp(spawnX, spawnY, w, h, fallSpeed);
+        } else if (typeChance < 0.9) {
+            return new MultiBallPowerUp(spawnX, spawnY, w, h, fallSpeed);
+        } else {
+            return new ShieldPowerUp(spawnX, spawnY, w, h, fallSpeed);
+        }
+    }
+
 }

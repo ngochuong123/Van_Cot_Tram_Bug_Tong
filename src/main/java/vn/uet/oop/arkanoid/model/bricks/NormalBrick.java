@@ -2,15 +2,13 @@ package vn.uet.oop.arkanoid.model.bricks;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.paint.Color;
-import vn.uet.oop.arkanoid.model.GameObject;
 
 public class NormalBrick extends Brick {
 
     public NormalBrick(double x, double y, double width, double height, int durabilityPoints) {
         super(x, y, width, height, durabilityPoints);
         try {
-            BrickType.brick1Image = new Image("file:src/main/java/vn/uet/oop/arkanoid/config/image/brick1.png");
+            BrickType.brick1Image = new Image(getClass().getResourceAsStream("/image/NormalBrick.png"));
         } catch (Exception e) {
             System.err.println("Không thể tải hình ảnh brick");
             // Có thể set hình mặc định ở đây

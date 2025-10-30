@@ -61,7 +61,7 @@ public class HUD {
      */
     public void createHeart() {
         // Đường dẫn ảnh trái tim
-        Image heartImage = new Image("file:src/main/java/vn/uet/oop/arkanoid/config/image/heart.png");
+        Image heartImage = new Image(getClass().getResourceAsStream("/image/heart.png"));
 
         // Xóa tim cũ (nếu có)
         heartsBox.getChildren().clear();
@@ -100,7 +100,7 @@ public class HUD {
      */
     private void updateHeartDisplay() {
         // Đường dẫn ảnh trái tim
-        Image heartImage = new Image("file:src/main/java/vn/uet/oop/arkanoid/config/image/heart.png");
+        Image heartImage = new Image(getClass().getResourceAsStream("/image/heart.png"));
 
         // Xóa tim cũ
         heartsBox.getChildren().clear();

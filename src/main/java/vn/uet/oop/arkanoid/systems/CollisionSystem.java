@@ -3,6 +3,7 @@ package vn.uet.oop.arkanoid.systems;
 import javafx.geometry.Rectangle2D;
 import vn.uet.oop.arkanoid.model.Ball;
 import vn.uet.oop.arkanoid.model.bricks.Brick;
+import vn.uet.oop.arkanoid.model.bricks.RegeneratingBrick;
 import vn.uet.oop.arkanoid.model.powerups.PowerUp;
 import vn.uet.oop.arkanoid.model.interfaces.Collidable;
 import vn.uet.oop.arkanoid.model.Paddle;
@@ -32,8 +33,15 @@ public class CollisionSystem {
      */
     public static Brick getCollidedBrick(Ball ball, List<Brick> bricks) {
         for (Brick brick : bricks) {
-            if (!brick.isBroken() && checkRectCollision(ball, brick)) {
-                brick.takeHit(); // giảm độ bền hoặc xử lý logic trúng đạn ở đây
+            // skip regenerating brick that is currently regenerating
+            if (brick instanceof RegeneratingBrick) {
+                RegeneratingBrick rb = (RegeneratingBrick) brick;
+                if (rb.isRegenerating()) {
+                    continue;
+                }
+            }
+
+            if (checkRectCollision(ball, brick)) {
                 return brick;
             }
         }

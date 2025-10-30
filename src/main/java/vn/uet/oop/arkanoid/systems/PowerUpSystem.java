@@ -59,9 +59,7 @@ public class PowerUpSystem {
                 } else if (p instanceof MultiBallPowerUp) {
                     // truyền nguyên danh sách bóng vào
                     p.applyEffect(balls);
-                }
-
-                if (p instanceof ShieldPowerUp) {
+                } else if (p instanceof ShieldPowerUp) {
                     p.applyEffect(paddle);
                 }
                 powerUps.remove(i);

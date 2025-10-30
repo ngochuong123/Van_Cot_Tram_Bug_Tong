@@ -38,7 +38,7 @@ public class SceneRouter {
 
         // --- Tạo layout chính ---
         // Tối ưu: Load background once
-        backgroundImage = new Image("file:src/main/java/vn/uet/oop/arkanoid/config/image/backgroudgame.png");
+        backgroundImage = new Image(getClass().getResourceAsStream("/image/backgroudgame.png"));
         ImageView imageView = new ImageView(backgroundImage);
         imageView.setFitWidth(GameConfig.SCREEN_WIDTH);
         imageView.setFitHeight(GameConfig.SCREEN_HEIGHT);

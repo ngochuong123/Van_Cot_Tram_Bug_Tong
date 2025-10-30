@@ -14,19 +14,10 @@ public class ChainBrick extends Brick {
     @Override
     public int takeHit() {
         durabilityPoints--;
-        if (isBroken()) triggerChain();
         return durabilityPoints;
     }
 
-    private void triggerChain() {
-        List<Brick> bricks = GameManager.getInstance().getBricks();
-        for (Brick b : bricks) {
-            if (b instanceof ChainBrick cb && cb.chainId == this.chainId && !cb.isBroken()) {
-                cb.durabilityPoints = 0;
-            }
-        }
-        // TODO: add chain reaction effect if needed
-    }
+
 
     @Override
     public boolean isBroken() {

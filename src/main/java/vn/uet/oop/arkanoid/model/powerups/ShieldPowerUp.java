@@ -19,7 +19,7 @@ public class ShieldPowerUp extends PowerUp {
         }
     }
 
-    Image ShieldPowerUp = new Image("file:src/main/java/vn/uet/oop/arkanoid/config/image/ShieldPowerUp.png");
+    Image ShieldPowerUp = new Image(getClass().getResourceAsStream("/image/ShieldPowerUp.png"));
 
     @Override
     public void render(GraphicsContext gc) {
