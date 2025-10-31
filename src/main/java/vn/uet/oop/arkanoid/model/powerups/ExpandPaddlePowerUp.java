@@ -7,6 +7,7 @@ import vn.uet.oop.arkanoid.model.Paddle;
 import vn.uet.oop.arkanoid.model.Ball;
 import javafx.scene.image.Image;
 
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -25,10 +26,13 @@ public class ExpandPaddlePowerUp extends PowerUp {
             if (paddle.isHasActiveEffect()) {
                 return;
             }
+
             paddle.setHasActiveEffect(true);
             double originalWidth = paddle.getWidth();
-            paddle.setWidth(paddle.getWidth() * 1.5);
-
+            // random 30% thu nhỏ paddle, 70% phóng to paddle
+            double chance = new Random().nextDouble();
+            double scaleFactor = (chance < 0.4) ? 0.5 : 1.5;
+            paddle.setWidth(originalWidth * scaleFactor);
             new Timer().schedule(new TimerTask() {
                 @Override
                 public void run() {
