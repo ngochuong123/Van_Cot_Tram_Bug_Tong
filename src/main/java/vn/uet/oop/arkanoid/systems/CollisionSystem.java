@@ -14,7 +14,7 @@ import java.util.List;
 public class CollisionSystem {
 
     /*
-     * check if 2 rectango collision
+     * check if 2 rectangle collision
      */
     public static boolean checkRectCollision(Collidable a, Collidable b) {
         return a.getBounds().intersects(b.getBounds());
@@ -40,10 +40,4 @@ public class CollisionSystem {
         return null;
     }
 
-    /*
-     * find the powerup be touched by paddle
-     */
-    // public static PowerUp getCollidedPowerUp() {
-    //
-    // }
 }
