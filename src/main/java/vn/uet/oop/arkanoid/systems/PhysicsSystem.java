@@ -5,10 +5,7 @@ import vn.uet.oop.arkanoid.model.Ball;
 import vn.uet.oop.arkanoid.model.GameObject;
 import vn.uet.oop.arkanoid.model.Paddle;
 import vn.uet.oop.arkanoid.model.bricks.*;
-import vn.uet.oop.arkanoid.model.powerups.ExpandPaddlePowerUp;
-import vn.uet.oop.arkanoid.model.powerups.FastBallPowerUp;
-import vn.uet.oop.arkanoid.model.powerups.PowerUp;
-import vn.uet.oop.arkanoid.model.powerups.ShieldPowerUp;
+import vn.uet.oop.arkanoid.model.powerups.*;
 
 import java.util.List;
 import java.util.Random;
@@ -88,7 +85,34 @@ public class PhysicsSystem {
      */
     public void bounceBallOnBricks(Ball ball, List<Brick> bricks, List<PowerUp> powerUps) {
         Brick hitBrick = CollisionSystem.getCollidedBrick(ball, bricks);
-        if (hitBrick != null) {
+        if (hitBrick == null) return;
+
+        if (ball.isFireMode()) {
+            // 🔥 FireBall mode
+            if (hitBrick instanceof UnbreakableBrick) {
+                // Không phá được → vẫn nảy lại
+                double ballCenterX = ball.getX() + ball.getWidth() / 2;
+                double ballCenterY = ball.getY() + ball.getHeight() / 2;
+                double brickCenterX = hitBrick.getX() + hitBrick.getWidth() / 2;
+                double brickCenterY = hitBrick.getY() + hitBrick.getHeight() / 2;
+
+                double dx = (ballCenterX - brickCenterX) / hitBrick.getWidth();
+                double dy = (ballCenterY - brickCenterY) / hitBrick.getHeight();
+
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    ball.setDx(-ball.getDx());
+                } else {
+                    ball.setDy(-ball.getDy());
+                }
+            } else {
+                // 🔥 Phá gạch thường ngay lập tức
+                if (hitBrick.isBroken()) {
+                    bricks.remove(hitBrick);
+                }
+                spawnPowerUp(hitBrick, powerUps);
+            }
+        } else {
+            // ⚪ Bình thường: bật lại như vật lý
             double ballCenterX = ball.getX() + ball.getWidth() / 2;
             double ballCenterY = ball.getY() + ball.getHeight() / 2;
             double brickCenterX = hitBrick.getX() + hitBrick.getWidth() / 2;
@@ -99,59 +123,56 @@ public class PhysicsSystem {
 
             if (Math.abs(dx) > Math.abs(dy)) {
                 ball.setDx(-ball.getDx());
-                //Đẩy bóng ra khỏi gạch 1 chút để tránh kẹt
-                if (dx > 0) {
+                if (dx > 0)
                     ball.setX(hitBrick.getX() + hitBrick.getWidth());
-                } else {
+                else
                     ball.setX(hitBrick.getX() - ball.getWidth());
-                }
             } else {
                 ball.setDy(-ball.getDy());
-                //Đẩy bóng ra khỏi gạch 1 chút
-                if (dy > 0) {
+                if (dy > 0)
                     ball.setY(hitBrick.getY() + hitBrick.getHeight());
-                } else {
+                else
                     ball.setY(hitBrick.getY() - ball.getHeight());
-                }
             }
 
             if (!(hitBrick instanceof UnbreakableBrick)) {
                 if (hitBrick.isBroken()) {
                     bricks.remove(hitBrick);
+                    spawnPowerUp(hitBrick, powerUps);
                 }
-            }
-
-            Random rand = new Random();
-
-            // Xác suất rơi PowerUp
-            double dropChance = 0.3;
-            if (rand.nextDouble() < dropChance) {
-                // Nếu rơi ra PowerUp thì chọn loại
-                double typeChance = rand.nextDouble();
-                PowerUp newPowerUp;
-
-                if (typeChance < 0.5) {
-                    newPowerUp = new ExpandPaddlePowerUp(
-                            hitBrick.getX() + hitBrick.getWidth() / 2,
-                            hitBrick.getY() + hitBrick.getHeight() / 2,
-                            20, 20, 70
-                    );
-                } else if (typeChance < 0.6) {
-                    newPowerUp = new FastBallPowerUp(
-                            hitBrick.getX() + hitBrick.getWidth() / 2,
-                            hitBrick.getY() + hitBrick.getHeight() / 2,
-                            20, 20, 70
-                    );
-                } else {
-                    newPowerUp = new ShieldPowerUp(
-                            hitBrick.getX() + hitBrick.getWidth() / 2,
-                            hitBrick.getY() + hitBrick.getHeight() / 2,
-                            20, 20, 70
-                    );
-                }
-
-                powerUps.add(newPowerUp);
             }
         }
     }
+
+
+    private void spawnPowerUp(Brick hitBrick, List<PowerUp> powerUps) {
+        Random rand = new Random();
+
+        double dropChance = 0.3; // Xác suất tổng: 30%
+        if (rand.nextDouble() >= dropChance) return;
+
+        // 🎲 Xác suất riêng từng loại (tổng = 1.0)
+        double expandChance = 0.35; // Dễ rơi
+        double fastChance = 0.25;
+        double shieldChance = 0.25;
+        double fireChance = 0.15;   // Hiếm hơn
+
+        double roll = rand.nextDouble();
+        PowerUp newPowerUp;
+        double px = hitBrick.getX() + hitBrick.getWidth() / 2;
+        double py = hitBrick.getY() + hitBrick.getHeight() / 2;
+
+        if (roll < expandChance) {
+            newPowerUp = new ExpandPaddlePowerUp(px, py, 20, 20, 70);
+        } else if (roll < expandChance + fastChance) {
+            newPowerUp = new FastBallPowerUp(px, py, 20, 20, 70);
+        } else if (roll < expandChance + fastChance + shieldChance) {
+            newPowerUp = new ShieldPowerUp(px, py, 20, 20, 70);
+        } else {
+            newPowerUp = new FireBallPowerUp(px, py, 20, 20, 70);
+        }
+
+        powerUps.add(newPowerUp);
+    }
+
 }

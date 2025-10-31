@@ -4,10 +4,7 @@ import vn.uet.oop.arkanoid.config.GameConfig;
 import vn.uet.oop.arkanoid.model.Paddle;
 import vn.uet.oop.arkanoid.model.Ball;
 import vn.uet.oop.arkanoid.model.interfaces.Collidable;
-import vn.uet.oop.arkanoid.model.powerups.ExpandPaddlePowerUp;
-import vn.uet.oop.arkanoid.model.powerups.FastBallPowerUp;
-import vn.uet.oop.arkanoid.model.powerups.PowerUp;
-import vn.uet.oop.arkanoid.model.powerups.ShieldPowerUp;
+import vn.uet.oop.arkanoid.model.powerups.*;
 
 import java.util.List;
 
@@ -62,6 +59,13 @@ public class PowerUpSystem {
                 if (p instanceof ShieldPowerUp) {
                     p.applyEffect(paddle);
                 }
+
+                if (p instanceof FireBallPowerUp) {
+                    p.applyEffect(ball);
+                    System.out.println("🔥 FireBallPowerUp activated!");
+                }
+
+
                 powerUps.remove(i);
                 i--;
             }
