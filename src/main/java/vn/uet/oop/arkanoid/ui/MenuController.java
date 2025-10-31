@@ -11,6 +11,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.geometry.Pos;
 import javafx.animation.ScaleTransition;
+import javafx.application.Platform;
 import javafx.util.Duration;
 import vn.uet.oop.arkanoid.config.GameConfig;
 import vn.uet.oop.arkanoid.core.SceneRouter;
@@ -125,7 +126,8 @@ public class MenuController {
         exitButton.setOnAction(e -> {
             System.out.println("Người chơi bấm EXIT");
             // thoát game
-            primaryStage.close();
+            Platform.exit();
+            System.exit(0);
         });
     }
 

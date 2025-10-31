@@ -13,12 +13,12 @@ import static vn.uet.oop.arkanoid.systems.CollisionSystem.checkRectCollision;
 public class PowerUpSystem {
     private List<PowerUp> powerUps;
     private Paddle paddle;
-    private Ball ball;
+    private List<Ball> balls;
 
-    public PowerUpSystem(List<PowerUp> powerUps, Paddle paddle, Ball ball) {
+    public PowerUpSystem(List<PowerUp> powerUps, Paddle paddle, List<Ball> balls) {
         this.powerUps = powerUps;
         this.paddle = paddle;
-        this.ball = ball;
+        this.balls = balls;
     }
 
     /*
@@ -49,11 +49,13 @@ public class PowerUpSystem {
                 // Nếu powerup tác động lên Paddle
                 if (p instanceof ExpandPaddlePowerUp) {
                     p.applyEffect(paddle);
-                }
-
-                // Nếu powerup tác động lên Ball
-                if (p instanceof FastBallPowerUp) {
-                    p.applyEffect(ball);
+                } else if (p instanceof FastBallPowerUp) {
+                    for (Ball ball : balls) {
+                        p.applyEffect(ball);
+                    }
+                } else if (p instanceof MultiBallPowerUp) {
+                    // truyền nguyên danh sách bóng vào
+                    p.applyEffect(balls);
                 }
 
                 if (p instanceof ShieldPowerUp) {
@@ -61,8 +63,7 @@ public class PowerUpSystem {
                 }
 
                 if (p instanceof FireBallPowerUp) {
-                    p.applyEffect(ball);
-                    System.out.println("🔥 FireBallPowerUp activated!");
+                    p.applyEffect(balls);
                 }
 
 

@@ -6,6 +6,7 @@ import vn.uet.oop.arkanoid.model.Ball;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import javafx.scene.image.Image;
 
 public class FireBallPowerUp extends PowerUp {
 
@@ -17,19 +18,25 @@ public class FireBallPowerUp extends PowerUp {
 
     @Override
     public void applyEffect(Object obj) {
-        Ball ball = (Ball) obj;
-        ball.setFireMode(true);
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                ball.setFireMode(false);
+        if (obj instanceof java.util.List<?>) {
+            for (Object o : (java.util.List<?>) obj) {
+                if (o instanceof Ball) {
+                    Ball ball = (Ball) o;
+                    ball.setFireMode(true);
+                    new Timer().schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            ball.setFireMode(false);
+                        }
+                    }, 5000);
+                }
             }
-        }, 5000);
+        }
     }
 
+    Image FireBall = new Image("file:src/main/java/vn/uet/oop/arkanoid/resources/image/FireBallPowerUp.png");
     @Override
     public void render(GraphicsContext gc) {
-        gc.setFill(Color.ORANGE);
-        gc.fillOval(getX(), getY(), getWidth(), getHeight());
+        gc.drawImage(FireBall, getX(), getY(), getWidth(), getHeight());
     }
 }
