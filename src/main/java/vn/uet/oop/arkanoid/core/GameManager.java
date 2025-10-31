@@ -15,6 +15,7 @@ import java.util.List;
 import vn.uet.oop.arkanoid.systems.PowerUpSystem;
 import vn.uet.oop.arkanoid.ui.HUD;
 
+
 public class GameManager {
     private static GameManager instance;
 
@@ -38,9 +39,10 @@ public class GameManager {
     private final List<Brick> bricksToRemove = new ArrayList<>();
     private final List<PowerUp> powerUpsToRemove = new ArrayList<>();
 
+    // Khởi tạo GameManager
     public GameManager() {
         this.balls = new ArrayList<>();
-        this.paddle = createPaddle();
+        this.paddle = Paddle.createPaddle();
         this.bricks = new ArrayList<>();
         this.powerUps = new ArrayList<>();
         this.physicsSystem = new PhysicsSystem();
@@ -60,29 +62,19 @@ public class GameManager {
         this.hud = hud;
         this.score = 0;
     }
-
-    private Paddle createPaddle() {
-        return new Paddle(
-                (GameConfig.SCREEN_WIDTH - GameConfig.PADDLE_WIDTH) / 2,
-                GameConfig.SCREEN_HEIGHT - 40,
-                GameConfig.PADDLE_WIDTH,
-                GameConfig.PADDLE_HEIGHT,
-                GameConfig.PADDLE_SPEED);
-    }
-
     private void initGame() {
         // Create main ball
-        Ball mainBall = createBall(GameConfig.SCREEN_WIDTH / 2, GameConfig.SCREEN_HEIGHT / 2);
+        Ball mainBall = Ball.createBall(GameConfig.SCREEN_WIDTH / 2, GameConfig.SCREEN_HEIGHT / 2);
         balls.add(mainBall);
+        mainBall.stickTo(paddle);
 
         // Load first level
         loadLevelFromClasspath("/resoures/levels/level2.txt");
-        mainBall.stickTo(paddle);
     }
 
-    private Ball createBall(double x, double y) {
-        return new Ball(x, y, GameConfig.BALL_RADIUS, 0, 0);
-    }
+
+
+    // xử lí bóng
 
     public void launchBall() {
         if (!balls.isEmpty() && !balls.get(0).isLaunched()) {
@@ -92,12 +84,13 @@ public class GameManager {
 
 
     public void update(double deltaTime, boolean leftPressed, boolean rightPressed) {
-        if (gameOver)
+        if (gameOver) {
             return;
+        }
 
-        updatePaddle(deltaTime, leftPressed, rightPressed);
+        paddle.update(deltaTime, leftPressed, rightPressed);
 
-        if (isAllBallsStuck()) {
+        if (balls.size() == 1 && !balls.get(0).isLaunched()) {
             balls.get(0).stickTo(paddle);
             return;
         }
@@ -114,21 +107,7 @@ public class GameManager {
         checkLevelCompletion();
     }
 
-    private void updatePaddle(double deltaTime, boolean leftPressed, boolean rightPressed) {
-        paddle.update(deltaTime, leftPressed, rightPressed);
-    }
 
-    private boolean isAllBallsStuck() {
-        if (balls.isEmpty())
-            return false;
-
-        for (Ball ball : balls) {
-            if (ball.isLaunched()) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     private void updateBalls(double deltaTime) {
         ballsToRemove.clear();
@@ -159,11 +138,13 @@ public class GameManager {
     }
 
     private void updateSingleBall(Ball ball, double deltaTime) {
-        physicsSystem.updateBall(ball, deltaTime);
+        ball.update(deltaTime);
         physicsSystem.bounceBallOnWalls(ball, paddle);
         physicsSystem.bounceBallOnPaddle(ball, paddle);
-        physicsSystem.bounceBallOnBricks(ball, bricks, powerUps);
+        Brick hitBrick = physicsSystem.bounceBallOnBricks(ball, bricks);
+        powerUpSystem.spawnPowerUps(hitBrick);
     }
+
 
     private void updatePowerUps(double deltaTime) {
         powerUpSystem.updatePowerUps(deltaTime);
@@ -208,14 +189,10 @@ public class GameManager {
         currentLevel++;
         System.out.println("Level " + (currentLevel - 1) + " completed! Loading level " + currentLevel);
 
-        // Stop current ball
-        if (!balls.isEmpty()) {
-            balls.get(0).setLaunched(false);
-        }
-
         // Load next level
         loadNextLevel();
         resetBall();
+        resetPowerUp();
     }
 
     public void loadLevelFromClasspath(String resourcePath) {
@@ -242,12 +219,15 @@ public class GameManager {
 
     private void resetBall() {
         balls.clear();
-        Ball newBall = createBall(
+        Ball newBall = Ball.createBall(
                 paddle.getX() + paddle.getWidth() / 2 - GameConfig.BALL_RADIUS,
                 paddle.getY() - GameConfig.BALL_RADIUS * 2);
         newBall.stickTo(paddle);
         balls.add(newBall);
         System.out.println("Ball reset to paddle");
+    }
+    private void resetPowerUp() {
+        powerUps.clear();
     }
 
     private void cleanupObjects() {

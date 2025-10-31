@@ -20,6 +20,18 @@ public class Paddle extends MovableObject {
         this.hasShield = false;
     }
 
+    // tạo paddle
+    public static Paddle createPaddle() {
+        return new Paddle(
+                (GameConfig.SCREEN_WIDTH - GameConfig.PADDLE_WIDTH) / 2,
+                GameConfig.SCREEN_HEIGHT - 40,
+                GameConfig.PADDLE_WIDTH,
+                GameConfig.PADDLE_HEIGHT,
+                GameConfig.PADDLE_SPEED
+        );
+    }
+
+
     public boolean isHasActiveEffect() { return hasActiveEffect; }
     public void setHasActiveEffect(boolean hasActiveEffect) { this.hasActiveEffect = hasActiveEffect; }
 

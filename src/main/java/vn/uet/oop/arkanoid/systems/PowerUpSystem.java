@@ -5,7 +5,6 @@ import vn.uet.oop.arkanoid.model.Paddle;
 import vn.uet.oop.arkanoid.model.Ball;
 import vn.uet.oop.arkanoid.model.bricks.Brick;
 import vn.uet.oop.arkanoid.model.bricks.UnbreakableBrick;
-import vn.uet.oop.arkanoid.model.interfaces.Collidable;
 import vn.uet.oop.arkanoid.model.powerups.ExpandPaddlePowerUp;
 import vn.uet.oop.arkanoid.model.powerups.FastBallPowerUp;
 import vn.uet.oop.arkanoid.model.powerups.MultiBallPowerUp;
@@ -17,13 +16,13 @@ import java.util.Random;
 
 import static vn.uet.oop.arkanoid.systems.CollisionSystem.checkRectCollision;
 
-public class PowerUpSystem {
+public class PowerUpManager {
     private List<PowerUp> powerUps;
     private Paddle paddle;
     private List<Ball> balls;
 
 
-    public PowerUpSystem(List<PowerUp> powerUps, Paddle paddle, List<Ball> balls) {
+    public PowerUpManager(List<PowerUp> powerUps, Paddle paddle, List<Ball> balls) {
         this.powerUps = powerUps;
         this.paddle = paddle;
         this.balls = balls;
@@ -87,19 +86,19 @@ public class PowerUpSystem {
                 PowerUp newPowerUp;
                 double typeChance = rand.nextDouble();
 
-                if (typeChance < 0.05) {
+                if (typeChance < 0.3) {
                     newPowerUp = new ExpandPaddlePowerUp(
                             hitBrick.getX() + hitBrick.getWidth() / 2,
                             hitBrick.getY() + hitBrick.getHeight() / 2,
                             20, 20, 70
                     );
-                } else if (typeChance < 0.45) {
+                } else if (typeChance < 0.5) {
                     newPowerUp = new FastBallPowerUp(
                             hitBrick.getX() + hitBrick.getWidth() / 2,
                             hitBrick.getY() + hitBrick.getHeight() / 2,
                             20, 20, 70
                     );
-                } else if (typeChance < 0.95) {
+                } else if (typeChance < 0.7) {
                     newPowerUp = new MultiBallPowerUp(
                             hitBrick.getX() + hitBrick.getWidth() / 2,
                             hitBrick.getY() + hitBrick.getHeight() / 2,

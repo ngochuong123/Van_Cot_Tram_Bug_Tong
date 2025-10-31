@@ -7,7 +7,7 @@ import vn.uet.oop.arkanoid.config.GameConfig;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Timer;
+
 
 public class Ball extends MovableObject {
     private double radius;
@@ -43,6 +43,10 @@ public class Ball extends MovableObject {
         this.hasFatBallEffect = false;
         this.launched = false;
     }
+    public static Ball createBall(double x, double y) {
+        return new Ball(x, y, GameConfig.BALL_RADIUS, 0, 0);
+    }
+
 
     public boolean isHasFatBallEffect() {
         return hasFatBallEffect;
