@@ -20,16 +20,6 @@ import java.util.Random;
 public class PhysicsSystem {
 
     /*
-     * update ball position
-     */
-    public void updateBall(Ball ball, double deltaTime) {
-        if (ball.isLaunched() == false) {
-            return;
-        }
-        ball.setPosition(ball.getX() + ball.getDx() * deltaTime, ball.getY() + ball.getDy() * deltaTime);
-    }
-
-    /*
      * check ball statement with wall
      */
     public void bounceBallOnWalls(Ball ball, Paddle paddle) {
@@ -48,14 +38,12 @@ public class PhysicsSystem {
             ball.setDy(Math.abs(ball.getDy()));
         }
 
-        if (ball.getY() >= GameConfig.SCREEN_HEIGHT) {
-            if (ball.getY() >= GameConfig.SCREEN_HEIGHT) {
-                // Nếu paddle có shield thì bóng nảy lại, không reset
-                if (paddle.isHasShield()) {
-                    ball.setDy(-Math.abs(ball.getDy())); // Bật lên
-                    ball.setY(GameConfig.SCREEN_HEIGHT - ball.getHeight() - 5);
-                    paddle.setHasShield(false); // Shield chỉ dùng 1 lần
-                }
+        if (ball.getY() + ball.getHeight() >= GameConfig.SCREEN_HEIGHT - 5) {
+            if (paddle.isHasShield()) {
+                // Bật bóng lên lại
+                ball.setDy(-Math.abs(ball.getDy()));
+                ball.setY(GameConfig.SCREEN_HEIGHT - 5 - ball.getHeight());
+                paddle.setHasShield(false); // Shield chỉ dùng 1 lần
             }
         }
     }
@@ -67,6 +55,7 @@ public class PhysicsSystem {
         if (!CollisionSystem.checkBallPaddle(ball, paddle)) {
             return;
         }
+        paddle.onBallHit();
 
         // Tính vị trí chạm tương đối
         double paddleCenter = paddle.getX() + paddle.getWidth() / 2.0;
@@ -95,10 +84,8 @@ public class PhysicsSystem {
      * @param ball   ball
      * @param bricks list bricks need to check
      */
-    public int bounceBallOnBricks(Ball ball, List<Brick> bricks, List<PowerUp> powerUps) {
+    public Brick  bounceBallOnBricks(Ball ball, List<Brick> bricks) {
         Brick hitBrick = CollisionSystem.getCollidedBrick(ball, bricks);
-        int bricksHit = 0;
-
         if (hitBrick != null) {
             double ballCenterX = ball.getX() + ball.getWidth() / 2;
             double ballCenterY = ball.getY() + ball.getHeight() / 2;
@@ -131,44 +118,7 @@ public class PhysicsSystem {
                     bricks.remove(hitBrick);
                 }
             }
-            if(hitBrick.isBroken()) {
-                Random rand = new Random();
-
-                // Xác suất rơi PowerUp
-                double dropChance = 0.3;
-                if (rand.nextDouble() < dropChance) {
-                    // Nếu rơi ra PowerUp thì chọn loại
-                    double typeChance = rand.nextDouble();
-                    PowerUp newPowerUp;
-
-                    if (typeChance < 0.5) {
-                        newPowerUp = new ExpandPaddlePowerUp(
-                                hitBrick.getX() + hitBrick.getWidth() / 2,
-                                hitBrick.getY() + hitBrick.getHeight() / 2,
-                                20, 20, 70
-                        );
-                    } else if (typeChance < 0.75) {
-                        newPowerUp = new FastBallPowerUp(
-                                hitBrick.getX() + hitBrick.getWidth() / 2,
-                                hitBrick.getY() + hitBrick.getHeight() / 2,
-                                20, 20, 70
-                        );
-                    } else if (typeChance < 0.9) {
-                        newPowerUp = new MultiBallPowerUp(hitBrick.getX() + hitBrick.getWidth() / 2,
-                                hitBrick.getY() + hitBrick.getHeight() / 2,
-                                20, 20, 70);
-                    } else {
-                        newPowerUp = new ShieldPowerUp(
-                                hitBrick.getX() + hitBrick.getWidth() / 2,
-                                hitBrick.getY() + hitBrick.getHeight() / 2,
-                                20, 20, 70
-                        );
-                    }
-                    powerUps.add(newPowerUp);
-                }
-            }
         }
-
-        return bricksHit;
+        return hitBrick;
     }
 }
