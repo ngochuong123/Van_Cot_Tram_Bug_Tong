@@ -15,7 +15,6 @@ import java.util.List;
 import vn.uet.oop.arkanoid.systems.PowerUpSystem;
 import vn.uet.oop.arkanoid.ui.HUD;
 
-
 public class GameManager {
     private static GameManager instance;
 
@@ -62,26 +61,21 @@ public class GameManager {
         this.hud = hud;
         this.score = 0;
     }
+
     private void initGame() {
         // Create main ball
         Ball mainBall = Ball.createBall(GameConfig.SCREEN_WIDTH / 2, GameConfig.SCREEN_HEIGHT / 2);
         balls.add(mainBall);
         mainBall.stickTo(paddle);
-
-        // Load first level
-        loadLevelFromClasspath("/resoures/levels/level2.txt");
+        loadLevelFromClasspath("/levels/level2.txt");
     }
 
-
-
-    // xử lí bóng
-
+    // handle launch ball
     public void launchBall() {
         if (!balls.isEmpty() && !balls.get(0).isLaunched()) {
             balls.get(0).launch();
         }
     }
-
 
     public void update(double deltaTime, boolean leftPressed, boolean rightPressed) {
         if (gameOver) {
@@ -95,24 +89,21 @@ public class GameManager {
             return;
         }
 
-        // LƯU SỐ GẠCH TRƯỚC KHI UPDATE để tính điểm
         int bricksBefore = bricks.size();
 
         updateBalls(deltaTime);
+        for (Brick b : bricks) {
+            if (b != null) b.update(deltaTime);
+        }
         updatePowerUps(deltaTime);
         cleanupObjects();
-
-        // TÍNH ĐIỂM SAU KHI UPDATE BALLS
         calculateScore(bricksBefore);
         checkLevelCompletion();
     }
 
-
-
     private void updateBalls(double deltaTime) {
         ballsToRemove.clear();
 
-        // Use iterator for safe removal during iteration
         Iterator<Ball> ballIterator = balls.iterator();
         while (ballIterator.hasNext()) {
             Ball ball = ballIterator.next();
@@ -142,16 +133,17 @@ public class GameManager {
         physicsSystem.bounceBallOnWalls(ball, paddle);
         physicsSystem.bounceBallOnPaddle(ball, paddle);
         Brick hitBrick = physicsSystem.bounceBallOnBricks(ball, bricks);
+
+        // Spawn powerup theo viên vừa chạm (nếu sau xử lý vẫn còn hợp lệ)
         powerUpSystem.spawnPowerUps(hitBrick);
     }
-
 
     private void updatePowerUps(double deltaTime) {
         powerUpSystem.updatePowerUps(deltaTime);
         powerUpSystem.checkAndApply();
     }
 
-    // THÊM LẠI LOGIC TÍNH ĐIỂM
+    // TÍNH ĐIỂM: dựa vào số gạch bị remove thực sự trong frame (Explosive/Chain cũng tính đúng)
     private void calculateScore(int bricksBefore) {
         int bricksDestroyed = bricksBefore - bricks.size();
         if (bricksDestroyed > 0 && hud != null) {
@@ -159,17 +151,14 @@ public class GameManager {
                 hud.updateScore();
                 score += GameConfig.addscore;
             }
-            System.out.println("Destroyed " + bricksDestroyed + " bricks. Score: " + score);
+            // System.out.println("Destroyed " + bricksDestroyed + " bricks. Score: " + score);
         }
     }
 
     private void handleBallLoss() {
         if (hud != null) {
-            // TRỪ MẠNG CHO MỖI BÓNG MẤT
-            for (Ball ball : ballsToRemove) {
+            for (Ball ignored : ballsToRemove) {
                 hud.loseLife();
-                System.out.println("Life lost! Hearts remaining: " + hud.getHeartCount());
-
                 if (hud.getHeartCount() <= 0) {
                     handleGameOver();
                     break;
@@ -187,12 +176,12 @@ public class GameManager {
     private void handleLevelComplete() {
         levelCompleted = true;
         currentLevel++;
-        System.out.println("Level " + (currentLevel - 1) + " completed! Loading level " + currentLevel);
+        // System.out.println("Level " + (currentLevel - 1) + " completed! Loading level " + currentLevel);
 
-        // Load next level
         loadNextLevel();
         resetBall();
         resetPowerUp();
+        levelCompleted = false; // sẵn sàng cho level mới
     }
 
     public void loadLevelFromClasspath(String resourcePath) {
@@ -204,11 +193,12 @@ public class GameManager {
     }
 
     private void loadNextLevel() {
+        // Đổi sang đường dẫn đúng: /levels/...
         if (currentLevel == 2) {
-            loadLevelFromClasspath("/resoucres/levels/level2.txt");
+            loadLevelFromClasspath("/levels/level2.txt");
         } else {
             currentLevel = 1;
-            loadLevelFromClasspath("/resoucres/levels/level1.txt");
+            loadLevelFromClasspath("/levels/level1.txt");
         }
     }
 
@@ -221,23 +211,22 @@ public class GameManager {
         balls.clear();
         Ball newBall = Ball.createBall(
                 paddle.getX() + paddle.getWidth() / 2 - GameConfig.BALL_RADIUS,
-                paddle.getY() - GameConfig.BALL_RADIUS * 2);
+                paddle.getY() - GameConfig.BALL_RADIUS * 2
+        );
         newBall.stickTo(paddle);
         balls.add(newBall);
-        System.out.println("Ball reset to paddle");
     }
+
     private void resetPowerUp() {
         powerUps.clear();
     }
 
     private void cleanupObjects() {
-        // Clear temporary lists for next frame
         bricksToRemove.clear();
         powerUpsToRemove.clear();
     }
 
     public void render(GraphicsContext gc) {
-        // Render in optimal order
         renderBalls(gc);
         renderPaddle(gc);
         renderBricks(gc);
@@ -258,15 +247,13 @@ public class GameManager {
 
     private void renderBricks(GraphicsContext gc) {
         for (Brick brick : bricks) {
-            if (brick != null)
-                brick.render(gc);
+            if (brick != null) brick.render(gc);
         }
     }
 
     private void renderPowerUps(GraphicsContext gc) {
         for (PowerUp powerUp : powerUps) {
-            if (powerUp != null)
-                powerUp.render(gc);
+            if (powerUp != null) powerUp.render(gc);
         }
     }
 
@@ -289,31 +276,11 @@ public class GameManager {
     }
 
     // Getter methods
-    public List<Ball> getBalls() {
-        return balls;
-    }
-
-    public List<Brick> getBricks() {
-        return bricks;
-    }
-
-    public int getScore() {
-        return score;
-    }
-
-    public int getCurrentLevel() {
-        return currentLevel;
-    }
-
-    public boolean isGameOver() {
-        return gameOver;
-    }
-
-    public int getBricksCount() {
-        return bricks.size();
-    }
-
-    public Paddle getPaddle() {
-        return paddle;
-    }
+    public List<Ball> getBalls() { return balls; }
+    public List<Brick> getBricks() { return bricks; }
+    public int getScore() { return score; }
+    public int getCurrentLevel() { return currentLevel; }
+    public boolean isGameOver() { return gameOver; }
+    public int getBricksCount() { return bricks.size(); }
+    public Paddle getPaddle() { return paddle; }
 }

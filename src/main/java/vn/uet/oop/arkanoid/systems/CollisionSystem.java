@@ -33,7 +33,6 @@ public class CollisionSystem {
     public static Brick getCollidedBrick(Ball ball, List<Brick> bricks) {
         for (Brick brick : bricks) {
             if (!brick.isBroken() && checkRectCollision(ball, brick)) {
-                brick.takeHit(); // giảm độ bền hoặc xử lý logic trúng đạn ở đây
                 return brick;
             }
         }
