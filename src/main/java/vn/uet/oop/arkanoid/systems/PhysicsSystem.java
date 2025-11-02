@@ -5,6 +5,7 @@ import vn.uet.oop.arkanoid.model.Ball;
 import vn.uet.oop.arkanoid.model.Paddle;
 import vn.uet.oop.arkanoid.model.bricks.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -31,6 +32,7 @@ public class PhysicsSystem {
             ball.setDy(Math.abs(ball.getDy()));
         }
 
+        // chạm đáy
         if (ball.getY() + ball.getHeight() >= GameConfig.SCREEN_HEIGHT - 5) {
             if (paddle.isHasShield()) {
                 // Bật bóng lên lại
@@ -70,48 +72,158 @@ public class PhysicsSystem {
         ball.setDy(-Math.abs(speed * Math.cos(angle))); // luôn bay lên
     }
 
+    /**
+     * Phát hiện + xử lý logic gạch NGAY TRONG FRAME.
+     *
+     * @param ball   ball
+     * @param bricks list bricks
+     * @return brick bị chạm (có thể đã bị remove sau xử lý)
+     */
+    public Brick bounceBallOnBricks(Ball ball, List<Brick> bricks) {
+        Brick hitBrick = CollisionSystem.getCollidedBrick(ball, bricks);
+        if (hitBrick == null) return null;
+
+        // --- Phản xạ trước ---
+        resolveBounce(ball, hitBrick);
+
+        // --- Áp dụng logic trong cùng frame ---
+        applyBrickLogicSameFrame(hitBrick, bricks);
+
+        return hitBrick;
+    }
+
+    /* ------------ Helpers ------------ */
+
+    private void resolveBounce(Ball ball, Brick hitBrick) {
+        double ballCenterX = ball.getX() + ball.getWidth() / 2;
+        double ballCenterY = ball.getY() + ball.getHeight() / 2;
+        double brickCenterX = hitBrick.getX() + hitBrick.getWidth() / 2;
+        double brickCenterY = hitBrick.getY() + hitBrick.getHeight() / 2;
+
+        double dx = (ballCenterX - brickCenterX) / hitBrick.getWidth();
+        double dy = (ballCenterY - brickCenterY) / hitBrick.getHeight();
+
+        if (Math.abs(dx) > Math.abs(dy)) {
+            ball.setDx(-ball.getDx());
+            // Đẩy bóng ra khỏi gạch 1 chút để tránh kẹt
+            if (dx > 0) {
+                ball.setX(hitBrick.getX() + hitBrick.getWidth());
+            } else {
+                ball.setX(hitBrick.getX() - ball.getWidth());
+            }
+        } else {
+            ball.setDy(-ball.getDy());
+            // Đẩy bóng ra khỏi gạch 1 chút
+            if (dy > 0) {
+                ball.setY(hitBrick.getY() + hitBrick.getHeight());
+            } else {
+                ball.setY(hitBrick.getY() - ball.getHeight());
+            }
+        }
+    }
 
     /**
-     * check collision on left/right or under/above.
-     * 
-     * @param ball   ball
-     * @param bricks list bricks need to check
+     * Invisible: lần đầu chỉ reveal (không trừ máu)
+     * Explosive: khi vỡ nổ 8 hướng, phá mọi gạch (kể cả Unbreakable), Regenerating bị remove vĩnh viễn
+     * Chain: vỡ 1 viên -> remove cả chain cùng id
+     * Regenerating: khi vỡ thì destroyed & chờ hồi (update ở lớp gạch); nếu bị nổ thì remove vĩnh viễn
+     * Unbreakable: không vỡ bởi bóng (nhưng bị nổ thì remove tại đây)
+     * Normal: vỡ thì remove
      */
-    public Brick  bounceBallOnBricks(Ball ball, List<Brick> bricks) {
-        Brick hitBrick = CollisionSystem.getCollidedBrick(ball, bricks);
-        if (hitBrick != null) {
-            double ballCenterX = ball.getX() + ball.getWidth() / 2;
-            double ballCenterY = ball.getY() + ball.getHeight() / 2;
-            double brickCenterX = hitBrick.getX() + hitBrick.getWidth() / 2;
-            double brickCenterY = hitBrick.getY() + hitBrick.getHeight() / 2;
+    private void applyBrickLogicSameFrame(Brick hit, List<Brick> bricks) {
+        // 1) Invisible: lần đầu đập -> chỉ lộ, không trừ máu
+        if (hit instanceof InvisibleBrick inv) {
+            boolean wasRevealed = inv.isRevealed();
+            inv.takeHit(); // nếu chưa lộ thì chỉ set revealed=true
+            if (!wasRevealed && inv.isRevealed()) {
+                return; // kết thúc frame, chưa phá
+            }
+        } else {
+            // Các loại khác: nhận sát thương ngay
+            hit.takeHit();
+        }
 
-            double dx = (ballCenterX - brickCenterX) / hitBrick.getWidth();
-            double dy = (ballCenterY - brickCenterY) / hitBrick.getHeight();
+        // 2) Explosive: khi vỡ -> nổ 8 hướng & remove ngay
+        if (hit instanceof ExplosiveBrick && hit.isBroken()) {
+            explodeAndRemoveNeighbors((ExplosiveBrick) hit, bricks);
+            // remove chính viên nổ (nếu còn trong list)
+            bricks.remove(hit);
+            return;
+        }
 
-            if (Math.abs(dx) > Math.abs(dy)) {
-                ball.setDx(-ball.getDx());
-                //Đẩy bóng ra khỏi gạch 1 chút để tránh kẹt
-                if (dx > 0) {
-                    ball.setX(hitBrick.getX() + hitBrick.getWidth());
-                } else {
-                    ball.setX(hitBrick.getX() - ball.getWidth());
-                }
-            } else {
-                ball.setDy(-ball.getDy());
-                //Đẩy bóng ra khỏi gạch 1 chút
-                if (dy > 0) {
-                    ball.setY(hitBrick.getY() + hitBrick.getHeight());
-                } else {
-                    ball.setY(hitBrick.getY() - ball.getHeight());
+        // 3) Chain: nếu vỡ -> remove tất cả ChainBrick cùng chainId
+        if (hit instanceof ChainBrick cb && hit.isBroken()) {
+            int id = cb.getChainId();
+            List<Brick> toRemove = new ArrayList<>();
+            for (Brick b : bricks) {
+                if (b instanceof ChainBrick other && other.getChainId() == id) {
+                    toRemove.add(b);
                 }
             }
+            bricks.removeAll(toRemove);
+            return;
+        }
 
-            if (!(hitBrick instanceof UnbreakableBrick)) {
-                if (hitBrick.isBroken()) {
-                    bricks.remove(hitBrick);
+        // 4) Regenerating: khi vỡ -> ở lại list, tự đếm hồi bằng update(); KHÔNG remove
+        if (hit instanceof RegeneratingBrick) {
+            return;
+        }
+
+        // 5) Unbreakable: không bao giờ vỡ do bóng
+        if (hit instanceof UnbreakableBrick) {
+            return;
+        }
+
+        // 6) Gạch thường: vỡ thì remove ngay
+        if (hit.isBroken()) {
+            bricks.remove(hit);
+        }
+    }
+
+    /** Nổ 8 hướng theo bước tâm-tâm: step = kích thước ô + spacing */
+    private void explodeAndRemoveNeighbors(ExplosiveBrick origin, List<Brick> bricks) {
+        List<Brick> toRemove = new ArrayList<>();
+
+        double w  = origin.getWidth();
+        double h  = origin.getHeight();
+        double cx0 = origin.getX() + w / 2.0;
+        double cy0 = origin.getY() + h / 2.0;
+
+        // Bước lưới theo tâm-tâm
+        double stepX = w + GameConfig.BRICK_SPACING;
+        double stepY = h + GameConfig.BRICK_SPACING;
+
+        // Tolerance: nửa spacing + chút đệm
+        double tolX = Math.max(2.0, GameConfig.BRICK_SPACING * 0.6);
+        double tolY = Math.max(2.0, GameConfig.BRICK_SPACING * 0.6);
+
+        for (Brick b : bricks) {
+            if (b == origin) continue;
+
+            double cx = b.getX() + b.getWidth() / 2.0;
+            double cy = b.getY() + b.getHeight() / 2.0;
+            double dx = cx - cx0;
+            double dy = cy - cy0;
+
+            long gx = Math.round(dx / stepX);
+            long gy = Math.round(dy / stepY);
+
+            double snapX = gx * stepX;
+            double snapY = gy * stepY;
+
+            boolean closeToGrid = Math.abs(dx - snapX) <= tolX && Math.abs(dy - snapY) <= tolY;
+            boolean isNeighbor  = Math.max(Math.abs(gx), Math.abs(gy)) == 1 && !(gx == 0 && gy == 0);
+
+            if (closeToGrid && isNeighbor) {
+                if (b instanceof RegeneratingBrick regen) {
+                    regen.destroyPermanently();
+                    toRemove.add(b);
+                } else {
+                    toRemove.add(b); // cả Unbreakable cũng remove theo yêu cầu
                 }
             }
         }
-        return hitBrick;
+        bricks.removeAll(toRemove);
     }
+
 }
