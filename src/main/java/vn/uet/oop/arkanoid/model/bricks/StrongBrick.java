@@ -6,15 +6,13 @@ import javafx.scene.paint.Color;
 
 public class StrongBrick extends Brick {
 
+    private final Image strongBrick1;
+    private final Image strongBrick2;
+
     public StrongBrick(double x, double y, double width, double height, int durabilityPoints) {
         super(x, y, width, height, durabilityPoints);
-        try {
-            BrickType.brick2_1Image = new Image("file:src/main/java/vn/uet/oop/arkanoid/config/image/brick2_1.png");
-            BrickType.brick2_2Image = new Image("file:src/main/java/vn/uet/oop/arkanoid/config/image/brick2_2.png");
-        } catch (Exception e) {
-            System.err.println("Không thể tải hình ảnh brick");
-            // Có thể set hình mặc định ở đây
-        }
+        strongBrick1 = new Image(getClass().getResourceAsStream("/image/StrongBrick1.png"));
+        strongBrick2 = new Image(getClass().getResourceAsStream("/image/StrongBrick2.png"));
     }
 
     @Override
@@ -33,7 +31,6 @@ public class StrongBrick extends Brick {
     @Override
     public void update(double deltaTime) {
         // not need update
-
     }
 
     @Override
@@ -42,10 +39,9 @@ public class StrongBrick extends Brick {
             return;
         }
         if (durabilityPoints == 2) {
-            gc.drawImage(BrickType.brick2_1Image, getX(), getY(), getWidth(), getHeight());
+            gc.drawImage(strongBrick1, getX(), getY(), getWidth(), getHeight());
         } else if (durabilityPoints == 1) {
-            gc.drawImage(BrickType.brick2_2Image, getX(), getY(), getWidth(), getHeight());
+            gc.drawImage(strongBrick2, getX(), getY(), getWidth(), getHeight());
         }
     }
-
 }

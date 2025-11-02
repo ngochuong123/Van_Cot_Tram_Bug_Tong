@@ -62,8 +62,9 @@ public class MenuController {
         root.setTop(topBox);
 
         this.menuScene = new Scene(root, GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT);
+        String menuBackgroundUrl = getClass().getResource("/image/menu.jpg").toExternalForm();
         this.menuScene.getRoot().setStyle(
-                "-fx-background-image: url('file:src/main/java/vn/uet/oop/arkanoid/config/image/menu.jpg');" +
+                "-fx-background-image: url('" + menuBackgroundUrl + "');" +
                         "-fx-background-size: cover;" +
                         "-fx-background-position: center center;");
         this.primaryStage.setScene(menuScene);
@@ -133,7 +134,7 @@ public class MenuController {
 
     /**
      * hieu ung cua button.
-     * 
+     *
      * @param button
      * @param colorNormal
      * @param colorHover

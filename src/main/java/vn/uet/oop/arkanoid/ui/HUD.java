@@ -22,52 +22,41 @@ public class HUD {
     private List<ImageView> hearts = new ArrayList<>();
     private HBox heartsBox = new HBox(5);
     private VBox heart_score = new VBox(10);
+    private final Image heartImage;
 
     public HUD(Stage HUDStage, int score, Scene HUDScene) {
         this.HUDStage = HUDStage;
         this.HUDScene = HUDScene;
-        this.heart = 5; // Số mạng ban đầu
+        this.heart = 5;
         this.score = score;
+        heartImage = new Image(getClass().getResourceAsStream("/image/heart.png"));
         createScores();
         createHeart();
     }
 
-    // Thêm getter cho số mạng hiện tại
     public int getHeartCount() {
         return heart;
     }
 
-    // Thêm getter cho điểm số
     public int getScore() {
         return score;
     }
 
-    /*
-     * ham tao diem so de in len man hinh.
-     */
     public void createScores() {
         this.scores = new Label("SCORE: " + this.score);
         this.scores.setStyle(
                 "-fx-font-family: 'Impact';" +
                         "-fx-font-size: 28px;" +
                         "-fx-font-weight: bold;" +
-                        "-fx-text-fill: #7cfc00;" + // LawnGreen
+                        "-fx-text-fill: #7cfc00;" +
                         "-fx-effect: dropshadow(gaussian, #006400, 8, 0.8, 2, 2);" +
                         "-fx-effect: innershadow(gaussian, #90ee90, 3, 0.5, 0, 0);");
     }
 
-    /**
-     * ham tao hinh anh mang player.
-     */
     public void createHeart() {
-        // Đường dẫn ảnh trái tim
-        Image heartImage = new Image("file:src/main/java/vn/uet/oop/arkanoid/config/image/heart.png");
-
-        // Xóa tim cũ (nếu có)
         heartsBox.getChildren().clear();
         hearts.clear();
 
-        // Tạo tim mới
         for (int i = 0; i < heart; i++) {
             ImageView heartView = new ImageView(heartImage);
             heartView.setFitWidth(30);
@@ -81,32 +70,18 @@ public class HUD {
         }
     }
 
-    /**
-     * ham xoa di trai tim khi bong roi xuong.
-     */
     public void loseLife() {
         if (heart > 0) {
-            heart--; // Giảm số mạng
-
+            heart--;
             System.out.println("Mất 1 mạng! Mạng còn lại: " + heart);
-
-            // Cập nhật giao diện
             updateHeartDisplay();
         }
     }
 
-    /**
-     * Cập nhật hiển thị trái tim
-     */
     private void updateHeartDisplay() {
-        // Đường dẫn ảnh trái tim
-        Image heartImage = new Image("file:src/main/java/vn/uet/oop/arkanoid/config/image/heart.png");
-
-        // Xóa tim cũ
         heartsBox.getChildren().clear();
         hearts.clear();
 
-        // Tạo tim mới theo số mạng hiện tại
         for (int i = 0; i < heart; i++) {
             ImageView heartView = new ImageView(heartImage);
             heartView.setFitWidth(30);
@@ -115,29 +90,19 @@ public class HUD {
             heartsBox.getChildren().add(heartView);
         }
 
-        // Đảm bảo HUD được cập nhật
         heart_score.getChildren().setAll(heartsBox, scores);
     }
 
-    /**
-     * ham cap nhat diem so.
-     */
     public void updateScore() {
         this.score += GameConfig.addscore;
         this.scores.setText("SCORE: " + this.score);
         System.out.println("Điểm: " + this.score);
     }
 
-    /**
-     * ham kiem tra xem ban da het mang hay chua.
-     */
     public boolean stateHeart(int heart) {
         return heart == 0;
     }
 
-    /**
-     * ham ve HUD len man hinh.
-     */
     public void createHUD() {
         BorderPane topleft = (BorderPane) HUDScene.getRoot();
         heart_score.setAlignment(Pos.TOP_LEFT);
