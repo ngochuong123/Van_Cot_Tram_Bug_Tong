@@ -13,9 +13,11 @@ import java.util.TimerTask;
 
 public class ExpandPaddlePowerUp extends PowerUp {
 
+    private final Image expandPaddle;
+
     public ExpandPaddlePowerUp(double x, double y, double width, double height, double dY) {
         super(x, y, width, height, dY);
-
+        expandPaddle = new Image(getClass().getResourceAsStream("/image/expand_paddle.png"));
     }
 
     @Override
@@ -43,12 +45,8 @@ public class ExpandPaddlePowerUp extends PowerUp {
         }
     }
 
-    Image expandPaddle = new Image("file:src/main/java/vn/uet/oop/arkanoid/config/image/expand_paddle.png");
-
     @Override
     public void render(GraphicsContext gc) {
         gc.drawImage(expandPaddle, getX(), getY(), getWidth(), getHeight());
-        // gc.setFill(Color.LIGHTGREEN);
-        // gc.fillRect(getX(), getY(), getWidth(), getHeight());
     }
 }

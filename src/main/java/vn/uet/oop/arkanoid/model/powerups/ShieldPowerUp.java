@@ -7,8 +7,11 @@ import javafx.scene.image.Image;
 
 public class ShieldPowerUp extends PowerUp {
 
+    private final Image shieldPowerUp;
+
     public ShieldPowerUp(double x, double y, double width, double height, double dY) {
         super(x, y, width, height, dY);
+        shieldPowerUp = new Image(getClass().getResourceAsStream("/image/ShieldPowerUp.png"));
     }
 
     @Override
@@ -19,10 +22,8 @@ public class ShieldPowerUp extends PowerUp {
         }
     }
 
-    Image ShieldPowerUp = new Image("file:src/main/java/vn/uet/oop/arkanoid/config/image/ShieldPowerUp.png");
-
     @Override
     public void render(GraphicsContext gc) {
-        gc.drawImage(ShieldPowerUp, getX(), getY(), getWidth(), getHeight());
+        gc.drawImage(shieldPowerUp, getX(), getY(), getWidth(), getHeight());
     }
 }

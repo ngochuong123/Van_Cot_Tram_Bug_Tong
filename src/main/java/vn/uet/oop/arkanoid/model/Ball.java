@@ -17,6 +17,7 @@ public class Ball extends MovableObject {
 
     private boolean hasFatBallEffect;
 
+
     public boolean isLaunched() {
         return launched;
     }

@@ -6,7 +6,7 @@ import vn.uet.oop.arkanoid.model.Ball;
 import vn.uet.oop.arkanoid.model.bricks.Brick;
 import vn.uet.oop.arkanoid.model.bricks.UnbreakableBrick;
 import vn.uet.oop.arkanoid.model.powerups.ExpandPaddlePowerUp;
-import vn.uet.oop.arkanoid.model.powerups.FastBallPowerUp;
+import vn.uet.oop.arkanoid.model.powerups.FatBallPowerUp;
 import vn.uet.oop.arkanoid.model.powerups.MultiBallPowerUp;
 import vn.uet.oop.arkanoid.model.powerups.PowerUp;
 import vn.uet.oop.arkanoid.model.powerups.ShieldPowerUp;
@@ -16,13 +16,13 @@ import java.util.Random;
 
 import static vn.uet.oop.arkanoid.systems.CollisionSystem.checkRectCollision;
 
-public class PowerUpManager {
+public class PowerUpSystem {
     private List<PowerUp> powerUps;
     private Paddle paddle;
     private List<Ball> balls;
 
 
-    public PowerUpManager(List<PowerUp> powerUps, Paddle paddle, List<Ball> balls) {
+    public PowerUpSystem(List<PowerUp> powerUps, Paddle paddle, List<Ball> balls) {
         this.powerUps = powerUps;
         this.paddle = paddle;
         this.balls = balls;
@@ -56,7 +56,7 @@ public class PowerUpManager {
 
                 if (p instanceof ExpandPaddlePowerUp) {
                     p.applyEffect(paddle);
-                } else if (p instanceof FastBallPowerUp) {
+                } else if (p instanceof FatBallPowerUp) {
                     for (Ball ball : balls) {
                         p.applyEffect(ball);
                     }
@@ -93,7 +93,7 @@ public class PowerUpManager {
                             20, 20, 70
                     );
                 } else if (typeChance < 0.5) {
-                    newPowerUp = new FastBallPowerUp(
+                    newPowerUp = new FatBallPowerUp(
                             hitBrick.getX() + hitBrick.getWidth() / 2,
                             hitBrick.getY() + hitBrick.getHeight() / 2,
                             20, 20, 70

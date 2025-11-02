@@ -205,10 +205,10 @@ public class GameManager {
 
     private void loadNextLevel() {
         if (currentLevel == 2) {
-            loadLevelFromClasspath("/resoures/levels/level2.txt");
+            loadLevelFromClasspath("/resoucres/levels/level2.txt");
         } else {
             currentLevel = 1;
-            loadLevelFromClasspath("/resoures/levels/level1.txt");
+            loadLevelFromClasspath("/resoucres/levels/level1.txt");
         }
     }
 
