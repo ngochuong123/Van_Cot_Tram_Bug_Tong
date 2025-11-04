@@ -33,8 +33,7 @@ public class FireBallPowerUp extends PowerUp {
             }
         }
     }
-
-    Image FireBall = new Image("file:src/main/java/vn/uet/oop/arkanoid/resources/image/FireBallPowerUp.png");
+    Image FireBall = new Image("file:src/main/resources/image/FireBallPowerUp.png");
     @Override
     public void render(GraphicsContext gc) {
         gc.drawImage(FireBall, getX(), getY(), getWidth(), getHeight());

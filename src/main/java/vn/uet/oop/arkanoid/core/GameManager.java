@@ -34,13 +34,13 @@ public class GameManager {
     private boolean levelCompleted = false;
 
     // Optimization: reuse collections to avoid GC
-//    private final List<Ball> ballsToRemove = new ArrayList<>();
+    private final List<Ball> ballsToRemove = new ArrayList<>();
     private final List<Brick> bricksToRemove = new ArrayList<>();
     private final List<PowerUp> powerUpsToRemove = new ArrayList<>();
 
     public GameManager() {
         this.balls = new ArrayList<>();
-        this.paddle = createPaddle();
+        this.paddle = Paddle.createPaddle();
         this.bricks = new ArrayList<>();
         this.powerUps = new ArrayList<>();
         this.physicsSystem = new PhysicsSystem();
@@ -61,134 +61,43 @@ public class GameManager {
         this.score = 0;
     }
 
-    private Paddle createPaddle() {
-        return new Paddle(
-                (GameConfig.SCREEN_WIDTH - GameConfig.PADDLE_WIDTH) / 2,
-                GameConfig.SCREEN_HEIGHT - 40,
-                GameConfig.PADDLE_WIDTH,
-                GameConfig.PADDLE_HEIGHT,
-                GameConfig.PADDLE_SPEED);
-    }
-
     private void initGame() {
         // Create main ball
-        Ball mainBall = createBall(GameConfig.SCREEN_WIDTH / 2, GameConfig.SCREEN_HEIGHT / 2);
+        Ball mainBall = Ball.createBall(GameConfig.SCREEN_WIDTH / 2, GameConfig.SCREEN_HEIGHT / 2);
         balls.add(mainBall);
-
-        // Load first level
-        loadLevel(vn.uet.oop.arkanoid.config.Levels.LEVEL_1);
         mainBall.stickTo(paddle);
+        loadLevelFromClasspath("/levels/level2.txt");
     }
 
-    private Ball createBall(double x, double y) {
-        return new Ball(x, y, GameConfig.BALL_RADIUS, 0, 0);
-    }
-
+    // handle launch ball
     public void launchBall() {
         if (!balls.isEmpty() && !balls.get(0).isLaunched()) {
             balls.get(0).launch();
         }
     }
-
-    private void loadLevel(int[][] pattern) {
-        bricks = new ArrayList<>();
-        levelCompleted = false;
-
-        int rows = pattern.length;
-        int cols = pattern[0].length;
-
-        double totalWidth = cols * GameConfig.BRICK_WIDTH + (cols - 1) * GameConfig.BRICK_SPACING;
-        double totalHeight = rows * GameConfig.BRICK_HEIGHT + (rows - 1) * GameConfig.BRICK_SPACING;
-
-        double startX = (GameConfig.SCREEN_WIDTH - totalWidth) / 2.0;
-        double startY = 50;
-
-        // Pre-calculate positions to avoid repeated calculations
-        double brickStepX = GameConfig.BRICK_WIDTH + GameConfig.BRICK_SPACING;
-        double brickStepY = GameConfig.BRICK_HEIGHT + GameConfig.BRICK_SPACING;
-
-        for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < cols; col++) {
-                int code = pattern[row][col];
-                BrickType type = toBrickType(code);
-                if (type == null)
-                    continue;
-
-                double x = startX + col * brickStepX;
-                double y = startY + row * brickStepY;
-
-                int durability = switch (type) {
-                    case NORMAL -> 1;
-                    case STRONG -> 2;
-                    case UNBREAKABLE -> -1; // Không thể phá hủy
-                    case REGENERATING -> 2;
-                    case INVISIBLE -> 1;
-                    case EXPLOSIVE -> 1;
-                    case CHAIN -> 1;
-                    default -> 1;
-                };
-
-                Brick brick = BrickFactory.create(type, x, y,
-                        GameConfig.BRICK_WIDTH, GameConfig.BRICK_HEIGHT, durability, null);
-                if (brick != null) {
-                    bricks.add(brick);
-                }
-            }
+    public void update(double deltaTime, boolean leftPressed, boolean rightPressed) {
+        if (gameOver) {
+            return;
         }
 
-        System.out.println("Level " + currentLevel + " loaded with " + bricks.size() + " bricks");
-    }
+        paddle.update(deltaTime, leftPressed, rightPressed);
 
-    private BrickType toBrickType(int code) {
-        return switch (code) {
-            case 1 -> BrickType.NORMAL;
-            case 2 -> BrickType.STRONG;
-            case 10 -> BrickType.UNBREAKABLE;
-            // Thêm các code khác nếu cần
-            default -> null;
-        };
-    }
-
-    public void update(double deltaTime, boolean leftPressed, boolean rightPressed) {
-        if (gameOver)
-            return;
-
-        updatePaddle(deltaTime, leftPressed, rightPressed);
-
-        if (isAllBallsStuck()) {
+        if (balls.size() == 1 && !balls.get(0).isLaunched()) {
             balls.get(0).stickTo(paddle);
             return;
         }
 
-        // LƯU SỐ GẠCH TRƯỚC KHI UPDATE để tính điểm
         int bricksBefore = bricks.size();
 
         updateBalls(deltaTime);
+        for (Brick b : bricks) {
+            if (b != null) b.update(deltaTime);
+        }
         updatePowerUps(deltaTime);
         cleanupObjects();
-
-        // TÍNH ĐIỂM SAU KHI UPDATE BALLS
         calculateScore(bricksBefore);
         checkLevelCompletion();
     }
-
-    private void updatePaddle(double deltaTime, boolean leftPressed, boolean rightPressed) {
-        paddle.update(deltaTime, leftPressed, rightPressed);
-    }
-
-    private boolean isAllBallsStuck() {
-        if (balls.isEmpty())
-            return false;
-
-        for (Ball ball : balls) {
-            if (ball.isLaunched()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    boolean allBallsOut = false;
 
     private void updateBalls(double deltaTime) {
         if (balls.isEmpty()) return;
@@ -219,8 +128,7 @@ public class GameManager {
         }
 
         if (allBallsOut) {
-            hud.loseLife();
-            resetBall();
+            LoseLife();
             for (Ball ball : balls) {
                 ball.setOutOfScreen(false);
             }
@@ -228,24 +136,27 @@ public class GameManager {
 
 
     }
-        private void LoseLife() {
-            if (hud != null) {
-                hud.loseLife();
-                System.out.println("Life lost! Hearts remaining: " + hud.getHeartCount());
-                if (hud.getHeartCount() <= 0) {
-                    handleGameOver();
-                    return;
-                }
+    private void LoseLife() {
+        if (hud != null) {
+            hud.loseLife();
+            System.out.println("Life lost! Hearts remaining: " + hud.getHeartCount());
+            if (hud.getHeartCount() <= 0) {
+                handleGameOver();
+                return;
             }
-
-            resetBall();
         }
 
+        resetBall();
+    }
+
     private void updateSingleBall(Ball ball, double deltaTime) {
-        physicsSystem.updateBall(ball, deltaTime);
+        ball.update(deltaTime);
         physicsSystem.bounceBallOnWalls(ball, paddle);
         physicsSystem.bounceBallOnPaddle(ball, paddle);
-        physicsSystem.bounceBallOnBricks(ball, bricks, powerUps);
+        Brick hitBrick = physicsSystem.bounceBallOnBricks(ball, bricks);
+
+        // Spawn powerup theo viên vừa chạm (nếu sau xử lý vẫn còn hợp lệ)
+        powerUpSystem.spawnPowerUps(hitBrick);
     }
 
     private void updatePowerUps(double deltaTime) {
@@ -253,7 +164,7 @@ public class GameManager {
         powerUpSystem.checkAndApply();
     }
 
-    // THÊM LẠI LOGIC TÍNH ĐIỂM
+    // TÍNH ĐIỂM: dựa vào số gạch bị remove thực sự trong frame (Explosive/Chain cũng tính đúng)
     private void calculateScore(int bricksBefore) {
         int bricksDestroyed = bricksBefore - bricks.size();
         if (bricksDestroyed > 0 && hud != null) {
@@ -261,24 +172,8 @@ public class GameManager {
                 hud.updateScore();
                 score += GameConfig.addscore;
             }
-            System.out.println("Destroyed " + bricksDestroyed + " bricks. Score: " + score);
         }
     }
-
-//    private void handleBallLoss() {
-//        if (hud != null) {
-//            // TRỪ MẠNG CHO MỖI BÓNG MẤT
-//            for (Ball ball : ballsToRemove) {
-//                hud.loseLife();
-//                System.out.println("Life lost! Hearts remaining: " + hud.getHeartCount());
-//
-//                if (hud.getHeartCount() <= 0) {
-//                    handleGameOver();
-//                    break;
-//                }
-//            }
-//        }
-//    }
 
     private void checkLevelCompletion() {
         if (!levelCompleted && bricks.isEmpty()) {
@@ -289,24 +184,30 @@ public class GameManager {
     private void handleLevelComplete() {
         levelCompleted = true;
         currentLevel++;
-        System.out.println("Level " + (currentLevel - 1) + " completed! Loading level " + currentLevel);
+        // System.out.println("Level " + (currentLevel - 1) + " completed! Loading level " + currentLevel);
 
-        // Stop current ball
-        if (!balls.isEmpty()) {
-            balls.get(0).setLaunched(false);
-        }
-
-        // Load next level
         loadNextLevel();
         resetBall();
+
+        resetPowerUp();
+        levelCompleted = false; // sẵn sàng cho level mới
+    }
+
+    public void loadLevelFromClasspath(String resourcePath) {
+        try {
+            bricks = ResourceLevelLoader.loadFromResource(resourcePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void loadNextLevel() {
+        // Đổi sang đường dẫn đúng: /levels/...
         if (currentLevel == 2) {
-            loadLevel(vn.uet.oop.arkanoid.config.Levels.LEVEL_2);
+            loadLevelFromClasspath("/levels/level2.txt");
         } else {
             currentLevel = 1;
-            loadLevel(vn.uet.oop.arkanoid.config.Levels.LEVEL_1);
+            loadLevelFromClasspath("/levels/level1.txt");
         }
     }
 
@@ -317,22 +218,24 @@ public class GameManager {
 
     private void resetBall() {
         balls.clear();
-        Ball newBall = createBall(
+        Ball newBall = Ball.createBall(
                 paddle.getX() + paddle.getWidth() / 2 - GameConfig.BALL_RADIUS,
-                paddle.getY() - GameConfig.BALL_RADIUS * 2);
+                paddle.getY() - GameConfig.BALL_RADIUS * 2
+        );
         newBall.stickTo(paddle);
         balls.add(newBall);
-        System.out.println("Ball reset to paddle");
+    }
+
+    private void resetPowerUp() {
+        powerUps.clear();
     }
 
     private void cleanupObjects() {
-        // Clear temporary lists for next frame
         bricksToRemove.clear();
         powerUpsToRemove.clear();
     }
 
     public void render(GraphicsContext gc) {
-        // Render in optimal order
         renderBalls(gc);
         renderPaddle(gc);
         renderBricks(gc);
@@ -353,15 +256,13 @@ public class GameManager {
 
     private void renderBricks(GraphicsContext gc) {
         for (Brick brick : bricks) {
-            if (brick != null)
-                brick.render(gc);
+            if (brick != null) brick.render(gc);
         }
     }
 
     private void renderPowerUps(GraphicsContext gc) {
         for (PowerUp powerUp : powerUps) {
-            if (powerUp != null)
-                powerUp.render(gc);
+            if (powerUp != null) powerUp.render(gc);
         }
     }
 
@@ -384,31 +285,11 @@ public class GameManager {
     }
 
     // Getter methods
-    public List<Ball> getBalls() {
-        return balls;
-    }
-
-    public List<Brick> getBricks() {
-        return bricks;
-    }
-
-    public int getScore() {
-        return score;
-    }
-
-    public int getCurrentLevel() {
-        return currentLevel;
-    }
-
-    public boolean isGameOver() {
-        return gameOver;
-    }
-
-    public int getBricksCount() {
-        return bricks.size();
-    }
-
-    public Paddle getPaddle() {
-        return paddle;
-    }
+    public List<Ball> getBalls() { return balls; }
+    public List<Brick> getBricks() { return bricks; }
+    public int getScore() { return score; }
+    public int getCurrentLevel() { return currentLevel; }
+    public boolean isGameOver() { return gameOver; }
+    public int getBricksCount() { return bricks.size(); }
+    public Paddle getPaddle() { return paddle; }
 }

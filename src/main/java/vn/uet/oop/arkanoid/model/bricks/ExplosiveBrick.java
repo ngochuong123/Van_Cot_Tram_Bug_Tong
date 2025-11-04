@@ -1,45 +1,22 @@
-// java
+// File: vn/uet/oop/arkanoid/model/bricks/ExplosiveBrick.java
 package vn.uet.oop.arkanoid.model.bricks;
 
 import javafx.scene.canvas.GraphicsContext;
-import vn.uet.oop.arkanoid.core.GameManager;
-
-import java.util.List;
 
 public class ExplosiveBrick extends Brick {
-    private int blastRadius = 1;
+    private final int blastRadius;
 
     public ExplosiveBrick(double x, double y, double width, double height, int durabilityPoints, int blastRadius) {
         super(x, y, width, height, durabilityPoints);
-        this.blastRadius = blastRadius;
+        this.blastRadius = Math.max(1, blastRadius);
     }
+
+    public int getBlastRadius() { return blastRadius; }
 
     @Override
     public int takeHit() {
-        durabilityPoints--;
-        if (isBroken()) {
-            explode();
-        }
+        durabilityPoints = Math.max(0, durabilityPoints - 1);
         return durabilityPoints;
-    }
-
-    private void explode() {
-        List<Brick> bricks = GameManager.getInstance().getBricks();
-        for (Brick b : bricks) {
-            if (b == this) continue;
-
-            double dx = Math.abs(b.getX() - this.getX());
-            double dy = Math.abs(b.getY() - this.getY());
-            double distance = Math.sqrt(dx * dx + dy * dy);
-
-            if (distance <= blastRadius * this.getWidth()) {
-                if (!(b instanceof UnbreakableBrick)) {
-                    b.takeHit();
-                }
-            }
-        }
-        // add explosion effect if needed
-
     }
 
     @Override
@@ -48,12 +25,16 @@ public class ExplosiveBrick extends Brick {
     }
 
     @Override
-    public void update(double deltaTime) {
-
-    }
+    public void update(double deltaTime) { }
 
     @Override
     public void render(GraphicsContext gc) {
-
+        if (!isBroken()) {
+            gc.setFill(javafx.scene.paint.Color.RED);
+            gc.fillRect(getX(), getY(), getWidth(), getHeight());
+            gc.setStroke(javafx.scene.paint.Color.WHITE);
+            gc.setLineWidth(2);
+            gc.strokeRect(getX(), getY(), getWidth(), getHeight());
+        }
     }
 }
