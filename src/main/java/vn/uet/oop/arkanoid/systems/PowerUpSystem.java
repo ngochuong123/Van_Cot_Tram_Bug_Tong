@@ -58,9 +58,8 @@ public class PowerUpSystem {
                 if (p instanceof ExpandPaddlePowerUp) {
                     p.applyEffect(paddle);
                 } else if (p instanceof FatBallPowerUp) {
-                    for (Ball ball : balls) {
-                        p.applyEffect(ball);
-                    }
+                        p.applyEffect(balls);
+
                 } else if (p instanceof MultiBallPowerUp) {
                     // truyền nguyên danh sách bóng vào
                     p.applyEffect(balls);
@@ -87,31 +86,33 @@ public class PowerUpSystem {
         if (!hitBrick.isBroken()) return;
 
         Random rand = new Random();
-            double dropChance = 0.5; // 30% xác suất rơi PowerUp
+        double dropChance = 0.3; // 50% xác suất rơi PowerUp
+        if (rand.nextDouble() < dropChance) {
 
-            if (rand.nextDouble() < dropChance) {
-                PowerUp newPowerUp;
-                double typeChance = rand.nextDouble();
+            PowerUp newPowerUp;
+            double typeChance = rand.nextDouble();
 
-                if (typeChance < 0.3) {
+            if (balls.size() == 1) {
+                // --- Có MultiBall ---
+                if (typeChance < 0.1) {
                     newPowerUp = new ExpandPaddlePowerUp(
                             hitBrick.getX() + hitBrick.getWidth() / 2,
                             hitBrick.getY() + hitBrick.getHeight() / 2,
                             20, 20, 70
                     );
-                } else if (typeChance < 0.5) {
+                } else if (typeChance < 0.2) {
                     newPowerUp = new FatBallPowerUp(
                             hitBrick.getX() + hitBrick.getWidth() / 2,
                             hitBrick.getY() + hitBrick.getHeight() / 2,
                             20, 20, 70
                     );
-                } else if (typeChance < 0.7) {
+                } else if (typeChance < 0.6) {
                     newPowerUp = new MultiBallPowerUp(
                             hitBrick.getX() + hitBrick.getWidth() / 2,
                             hitBrick.getY() + hitBrick.getHeight() / 2,
                             20, 20, 70
                     );
-                } else if (typeChance < 0.9){
+                } else if (typeChance < 0.7) {
                     newPowerUp = new ShieldPowerUp(
                             hitBrick.getX() + hitBrick.getWidth() / 2,
                             hitBrick.getY() + hitBrick.getHeight() / 2,
@@ -124,11 +125,39 @@ public class PowerUpSystem {
                             20, 20, 70
                     );
                 }
+            } else {
+                // --- Không có MultiBall ---
+                if (typeChance < 0.25) {
+                    newPowerUp = new ExpandPaddlePowerUp(
+                            hitBrick.getX() + hitBrick.getWidth() / 2,
+                            hitBrick.getY() + hitBrick.getHeight() / 2,
+                            20, 20, 70
+                    );
+                } else if (typeChance < 0.5) {
+                    newPowerUp = new FatBallPowerUp(
+                            hitBrick.getX() + hitBrick.getWidth() / 2,
+                            hitBrick.getY() + hitBrick.getHeight() / 2,
+                            20, 20, 70
+                    );
+                } else if (typeChance < 0.7) {
+                    newPowerUp = new ShieldPowerUp(
+                            hitBrick.getX() + hitBrick.getWidth() / 2,
+                            hitBrick.getY() + hitBrick.getHeight() / 2,
+                            20, 20, 70
+                    );
+                } else {
+                    newPowerUp = new FireBallPowerUp(
+                            hitBrick.getX() + hitBrick.getWidth() / 2,
+                            hitBrick.getY() + hitBrick.getHeight() / 2,
+                            20, 20, 70
+                    );
+                }
+            }
 
-                powerUps.add(newPowerUp);
-
+            powerUps.add(newPowerUp);
         }
     }
+
 
 
 }

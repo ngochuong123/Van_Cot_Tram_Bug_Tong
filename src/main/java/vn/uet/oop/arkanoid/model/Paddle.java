@@ -1,16 +1,19 @@
 package vn.uet.oop.arkanoid.model;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import vn.uet.oop.arkanoid.config.GameConfig;
 
 import java.util.Timer;
+
 
 public class Paddle extends MovableObject {
     private boolean hasActiveEffect;
     private boolean hasShield;
     // Hiệu ứng nhún nhẹ
 
+    private final Image paddle;
     private double bounceOffset = 0; // độ lún hiện tại
     private double bounceTimer = 0;  // thời gian nhún
 
@@ -18,6 +21,7 @@ public class Paddle extends MovableObject {
         super(x, y, width, height, 0, 0);
         this.hasActiveEffect = false;
         this.hasShield = false;
+        paddle = new Image(getClass().getResourceAsStream("/image/paddle.png"));
     }
 
     // tạo paddle
@@ -45,8 +49,7 @@ public class Paddle extends MovableObject {
 
     @Override
     public void render(GraphicsContext gc) {
-        gc.setFill(Color.WHITE);
-        gc.fillRect(getX(), getY() + bounceOffset, getWidth(), getHeight());
+        gc.drawImage(paddle, getX(), getY()+bounceOffset, getWidth(), getHeight());
     }
 
     public void update(double deltaTime, boolean leftPressed, boolean rightPressed) {
