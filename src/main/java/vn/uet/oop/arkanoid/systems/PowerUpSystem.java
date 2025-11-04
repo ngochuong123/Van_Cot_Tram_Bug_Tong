@@ -1,5 +1,7 @@
 package vn.uet.oop.arkanoid.systems;
 
+import vn.uet.oop.arkanoid.audio.AudioEngine;
+import vn.uet.oop.arkanoid.audio.SoundManager;
 import vn.uet.oop.arkanoid.config.GameConfig;
 import vn.uet.oop.arkanoid.model.Paddle;
 import vn.uet.oop.arkanoid.model.Ball;
@@ -54,6 +56,7 @@ public class PowerUpSystem {
             PowerUp p = powerUps.get(i);
 
             if (checkRectCollision(paddle, p)) {
+                AudioEngine.playSound(SoundManager.POWERUP_PICKUP);
 
                 if (p instanceof ExpandPaddlePowerUp) {
                     p.applyEffect(paddle);
