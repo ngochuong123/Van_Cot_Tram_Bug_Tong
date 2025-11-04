@@ -11,6 +11,7 @@ public class NormalBrick extends Brick {
 
     public NormalBrick(double x, double y, double width, double height, int durabilityPoints) {
         super(x, y, width, height, durabilityPoints);
+        this.durabilityPoints = Math.min(durabilityPoints, 1);
         brickImage = new Image(getClass().getResourceAsStream("/image/NormalBrick.png"));
     }
 
