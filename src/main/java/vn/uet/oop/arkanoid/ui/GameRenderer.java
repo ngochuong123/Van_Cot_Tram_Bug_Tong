@@ -10,7 +10,7 @@ import vn.uet.oop.arkanoid.core.GameState;
 import vn.uet.oop.arkanoid.model.*;
 import vn.uet.oop.arkanoid.model.bricks.Brick;
 import vn.uet.oop.arkanoid.model.powerups.PowerUp;
-
+import vn.uet.oop.arkanoid.model.Paddle;
 import java.util.List;
 
 /**
@@ -106,6 +106,10 @@ public class GameRenderer {
         if (paddle != null) {
             paddle.render(gc); // Gọi render() của paddle
         }
+        if (paddle.isHasShield()) {
+            gc.setFill(Color.CYAN);
+            gc.fillRect(0, GameConfig.SCREEN_HEIGHT - 5, GameConfig.SCREEN_WIDTH, 5);
+        }
     }
 
     /**
@@ -135,6 +139,7 @@ public class GameRenderer {
             }
         }
     }
+
 
     /**
      * Render level complete overlay (đơn giản, tự động ẩn sau vài giây)

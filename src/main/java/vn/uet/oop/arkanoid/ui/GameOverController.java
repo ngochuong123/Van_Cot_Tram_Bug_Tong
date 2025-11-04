@@ -52,7 +52,6 @@ public class GameOverController {
 
         // Buttons
         Button restartButton = createMenuButton("Play Again", 200, 50);
-        Button menuButton = createMenuButton("Main Menu", 200, 50);
         Button quitButton = createMenuButton("Quit Game", 200, 50); // ✅ THÊM NÚT QUIT
 
         // ✅ SỬA: Button actions với SceneRouter
@@ -64,13 +63,6 @@ public class GameOverController {
             gameOverStage.close();
         });
 
-        menuButton.setOnAction(e -> {
-            System.out.println("🏠 Main Menu requested");
-            if (router != null) {
-                router.showMainMenu(); // ✅ Dùng router
-            }
-            gameOverStage.close();
-        });
 
         quitButton.setOnAction(e -> {
             System.out.println("🚪 Quit Game requested");
@@ -89,7 +81,6 @@ public class GameOverController {
                 scoreLabel,
                 highScoreLabel, // ✅ THÊM HIGH SCORE
                 restartButton,
-                menuButton,
                 quitButton // ✅ THÊM QUIT BUTTON
         );
         layout.setAlignment(Pos.CENTER);
