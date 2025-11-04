@@ -37,7 +37,6 @@ public class GameManager {
     private final List<Brick> bricksToRemove = new ArrayList<>();
     private final List<PowerUp> powerUpsToRemove = new ArrayList<>();
 
-    // Khởi tạo GameManager
     public GameManager() {
         this.balls = new ArrayList<>();
         this.paddle = Paddle.createPaddle();
@@ -69,7 +68,6 @@ public class GameManager {
             balls.get(0).launch();
         }
     }
-
     public void update(double deltaTime, boolean leftPressed, boolean rightPressed) {
         // Nếu game đang paused hoặc game over, không update
         if (currentState != GameState.PLAYING) {
@@ -136,6 +134,8 @@ public class GameManager {
         if (balls.isEmpty() && lives > 0) {
             resetBall(); // Tạo bóng mới
         }
+
+        resetBall();
     }
 
     private void updateSingleBall(Ball ball, double deltaTime) {
@@ -196,6 +196,7 @@ public class GameManager {
         System.out.println("Level " + (currentLevel - 1) + " completed! Loading level" + currentLevel);
         loadNextLevel();
         resetBall();
+
         resetPowerUp();
         levelCompleted = false; // sẵn sàng cho level mới
     }

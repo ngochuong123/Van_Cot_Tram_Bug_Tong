@@ -1,3 +1,4 @@
+
 package vn.uet.oop.arkanoid.model;
 
 import javafx.scene.canvas.GraphicsContext;
@@ -14,6 +15,10 @@ public class Ball extends MovableObject {
     private boolean launched = false;
     private final List<double[]> trail = new LinkedList<>();
     private static final int MAX_TRAIL_SIZE = 10;
+
+    private boolean hasActiveEffect;
+    private boolean fireMode = false;
+    private double fireTimer = 0;
 
     private boolean hasFatBallEffect;
 
@@ -57,6 +62,14 @@ public class Ball extends MovableObject {
         this.hasFatBallEffect = hasActiveEffect;
     }
 
+    public boolean isFireMode() {
+        return fireMode;
+    }
+
+    public void setFireMode(boolean fireMode) {
+        this.fireMode = fireMode;
+    }
+
     public double getRadius() {
         return radius;
     }
@@ -65,6 +78,16 @@ public class Ball extends MovableObject {
         this.radius = radius;
         setWidth(radius * 2);
         setHeight(radius * 2);
+    }
+
+    private boolean outOfScreen = false;
+
+    public boolean isOutOfScreen() {
+        return outOfScreen;
+    }
+
+    public void setOutOfScreen(boolean outOfScreen) {
+        this.outOfScreen = outOfScreen;
     }
 
     @Override
@@ -83,6 +106,17 @@ public class Ball extends MovableObject {
 
     @Override
     public void render(GraphicsContext gc) {
+        if (fireMode) {
+            // Hiệu ứng bóng lửa
+            gc.setFill(Color.ORANGE);
+            gc.fillOval(getX() - 2, getY() - 2, getWidth() + 4, getHeight() + 4);
+
+            gc.setFill(Color.RED);
+            gc.fillOval(getX(), getY(), getWidth(), getHeight());
+        } else {
+            gc.setFill(Color.WHITE);
+            gc.fillOval(getX(), getY(), getWidth(), getHeight());
+        }
         double diameter = this.radius * 2;
 
         //VẼ VỆT LỬA
