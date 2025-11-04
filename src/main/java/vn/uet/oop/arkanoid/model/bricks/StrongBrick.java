@@ -6,13 +6,12 @@ import javafx.scene.paint.Color;
 
 public class StrongBrick extends Brick {
 
-    private final Image strongBrick1;
-    private final Image strongBrick2;
+    private final Image strongBrick;
 
     public StrongBrick(double x, double y, double width, double height, int durabilityPoints) {
         super(x, y, width, height, durabilityPoints);
-        strongBrick1 = new Image(getClass().getResourceAsStream("/image/StrongBrick1.png"));
-        strongBrick2 = new Image(getClass().getResourceAsStream("/image/StrongBrick2.png"));
+        this.durabilityPoints = Math.min(durabilityPoints, 3);
+        strongBrick = new Image(getClass().getResourceAsStream("/image/StrongBrick.png"));
     }
 
     @Override
@@ -38,10 +37,6 @@ public class StrongBrick extends Brick {
         if (isBroken()) {
             return;
         }
-        if (durabilityPoints == 2) {
-            gc.drawImage(strongBrick1, getX(), getY(), getWidth(), getHeight());
-        } else if (durabilityPoints == 1) {
-            gc.drawImage(strongBrick2, getX(), getY(), getWidth(), getHeight());
-        }
+        gc.drawImage(strongBrick, getX(), getY(), getWidth(), getHeight());
     }
 }

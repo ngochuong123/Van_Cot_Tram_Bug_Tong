@@ -1,15 +1,19 @@
 package vn.uet.oop.arkanoid.core;
 
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 import vn.uet.oop.arkanoid.config.GameConfig;
 import vn.uet.oop.arkanoid.model.*;
 import vn.uet.oop.arkanoid.model.powerups.PowerUp;
 import vn.uet.oop.arkanoid.systems.PhysicsSystem;
+import vn.uet.oop.arkanoid.model.bricks.ResourceLevelLoader;
 import vn.uet.oop.arkanoid.model.bricks.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import vn.uet.oop.arkanoid.systems.PowerUpSystem;
+import vn.uet.oop.arkanoid.ui.HUD;
 
 public class GameManager {
     private static GameManager instance = null;
@@ -117,25 +121,49 @@ public class GameManager {
     }
 
     private void updateBalls(double deltaTime) {
-        ballsToRemove.clear(); // Reset danh sách bóng cần xóa
-        Iterator<Ball> ballIterator = balls.iterator();
-        while (ballIterator.hasNext()) {
-            Ball ball = ballIterator.next();
-            updateSingleBall(ball, deltaTime); // Cập nhật từng bóng
-            // Kiểm tra bóng rơi khỏi màn hình
-            if (ball.getY() + ball.getRadius() > GameConfig.SCREEN_HEIGHT) {
-                ballsToRemove.add(ball); // Đánh dấu để xóa
+        if (balls.isEmpty()) return;
+
+        // Cập nhật chuyển động và va chạm cho từng bóng
+        for (Ball ball : balls) {
+            updateSingleBall(ball, deltaTime);
+        }
+
+        // Sau khi cập nhật, kiểm tra nếu tất cả bóng đã rơi khỏi màn hình
+        checkBallsOutOfScreen();
+    }
+
+    /**
+     * Kiểm tra nếu tất cả bóng đều rơi khỏi màn hình
+     * -> Trừ mạng và reset bóng
+     */
+    private void checkBallsOutOfScreen() {
+        // Nếu đang có khiên thì không trừ mạng
+        if (paddle.isHasShield()) return;
+
+        boolean allBallsOut = true;
+        for (Ball ball : balls) {
+            if (!ball.isOutOfScreen()) {
+                allBallsOut = false;
+                break;
             }
         }
-        balls.removeAll(ballsToRemove); // Xóa bóng đã rơi
-        // Xử lý mất bóng
-        if (!ballsToRemove.isEmpty()) {
-            handleBallLoss(); // Trừ mạng
+
+        if (allBallsOut) {
+            LoseLife();
+            for (Ball ball : balls) {
+                ball.setOutOfScreen(false);
+            }
         }
-        // Reset nếu hết bóng
-        if (balls.isEmpty() && lives > 0) {
-            resetBall(); // Tạo bóng mới
+    }
+    private void LoseLife() {
+        this.lives--; // CHỈ thay đổi state
+        System.out.println("💔 Lost a life! Remaining: " + this.lives);
+        if (this.lives <= 0 && balls.isEmpty()) {
+            this.gameOver = true;
+            System.out.println("GAME OVER! Final Score: " + score);
         }
+
+        resetBall();
     }
 
     private void updateSingleBall(Ball ball, double deltaTime) {
@@ -152,8 +180,7 @@ public class GameManager {
         powerUpSystem.checkAndApply();
     }
 
-    // TÍNH ĐIỂM: dựa vào số gạch bị remove thực sự trong frame (Explosive/Chain
-    // cũng tính đúng)
+    // TÍNH ĐIỂM: dựa vào số gạch bị remove thực sự trong frame (Explosive/Chain cũng tính đúng)
     private void calculateScore(int bricksBefore) {
         int bricksDestroyed = bricksBefore - bricks.size();
         if (bricksDestroyed > 0) {
@@ -161,26 +188,6 @@ public class GameManager {
             int pointsEarned = bricksDestroyed * GameConfig.addscore;
             this.score += pointsEarned;
             System.out.println("🎯 Destroyed " + bricksDestroyed + " bricks! +" + pointsEarned + " points");
-        }
-    }
-
-    private void handleBallLoss() {
-        if (!ballsToRemove.isEmpty() && balls.isEmpty()) {
-            loseLife(); // Chỉ mất 1 mạng khi bóng roi hết
-            System.out.println(ballsToRemove.size() + " balls lost! -1 life");
-        } else if (!ballsToRemove.isEmpty()) {
-            // Vẫn còn bóng trên màn hình, chỉ thông báo
-            System.out
-                    .println(ballsToRemove.size() + " balls lost, but still have " + balls.size() + " balls remaining");
-        }
-    }
-
-    private void loseLife() {
-        this.lives--; // CHỈ thay đổi state
-        System.out.println("💔 Lost a life! Remaining: " + this.lives);
-        if (this.lives <= 0 && balls.isEmpty()) {
-            this.gameOver = true;
-            System.out.println("GAME OVER! Final Score: " + score);
         }
     }
 
@@ -196,6 +203,7 @@ public class GameManager {
         System.out.println("Level " + (currentLevel - 1) + " completed! Loading level" + currentLevel);
         loadNextLevel();
         resetBall();
+
         resetPowerUp();
         levelCompleted = false; // sẵn sàng cho level mới
     }

@@ -4,6 +4,11 @@ import vn.uet.oop.arkanoid.config.GameConfig;
 import vn.uet.oop.arkanoid.model.Ball;
 import vn.uet.oop.arkanoid.model.Paddle;
 import vn.uet.oop.arkanoid.model.bricks.*;
+import vn.uet.oop.arkanoid.model.powerups.*;
+import vn.uet.oop.arkanoid.model.powerups.ExpandPaddlePowerUp;
+import vn.uet.oop.arkanoid.model.powerups.MultiBallPowerUp;
+import vn.uet.oop.arkanoid.model.powerups.PowerUp;
+import vn.uet.oop.arkanoid.model.powerups.ShieldPowerUp;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +17,6 @@ import java.util.List;
  * manage physic state
  */
 public class PhysicsSystem {
-
     /*
      * check ball statement with wall
      */
@@ -32,13 +36,15 @@ public class PhysicsSystem {
             ball.setDy(Math.abs(ball.getDy()));
         }
 
-        // chạm đáy
-        if (ball.getY() + ball.getHeight() >= GameConfig.SCREEN_HEIGHT - 5) {
-            if (paddle.isHasShield()) {
-                // Bật bóng lên lại
-                ball.setDy(-Math.abs(ball.getDy()));
-                ball.setY(GameConfig.SCREEN_HEIGHT - 5 - ball.getHeight());
-                paddle.setHasShield(false); // Shield chỉ dùng 1 lần
+            if (ball.getY() >= GameConfig.SCREEN_HEIGHT) {
+                // Nếu paddle có shield thì bóng nảy lại, không reset
+                if (paddle.isHasShield()) {
+                    ball.setDy(-Math.abs(ball.getDy())); // Bật lên
+                    ball.setY(GameConfig.SCREEN_HEIGHT - ball.getHeight() - 5);
+                    paddle.setHasShield(false); // Shield chỉ dùng 1 lần
+                } else if (ball.getY() - ball.getRadius() > GameConfig.SCREEN_HEIGHT + 20) {
+                // Đánh dấu bóng đã rơi khỏi màn hình, không reset ở đây nữa
+                ball.setOutOfScreen(true);
             }
         }
     }
@@ -84,10 +90,22 @@ public class PhysicsSystem {
         if (hitBrick == null) return null;
 
         // --- Phản xạ trước ---
-        resolveBounce(ball, hitBrick);
+        boolean isFireball = ball.isFireMode();
+        boolean isUnbreakable = hitBrick instanceof UnbreakableBrick;
+        if (isFireball && !isUnbreakable) {
+            if (hitBrick instanceof RegeneratingBrick regen) {
+                regen.destroyPermanently();
+            }
 
-        // --- Áp dụng logic trong cùng frame ---
-        applyBrickLogicSameFrame(hitBrick, bricks);
+            applyBrickLogicSameFrame(hitBrick, bricks);
+        } else {
+            applyBrickLogicSameFrame(hitBrick, bricks);
+        }
+
+
+        if (!isFireball || (isFireball && isUnbreakable)) {
+            resolveBounce(ball, hitBrick);
+        }
 
         return hitBrick;
     }
@@ -131,6 +149,12 @@ public class PhysicsSystem {
      * Normal: vỡ thì remove
      */
     private void applyBrickLogicSameFrame(Brick hit, List<Brick> bricks) {
+
+        // 5) Unbreakable: không bao giờ vỡ do bóng
+        if (hit instanceof UnbreakableBrick) {
+            return;
+        }
+
         // 1) Invisible: lần đầu đập -> chỉ lộ, không trừ máu
         if (hit instanceof InvisibleBrick inv) {
             boolean wasRevealed = inv.isRevealed();
@@ -169,10 +193,6 @@ public class PhysicsSystem {
             return;
         }
 
-        // 5) Unbreakable: không bao giờ vỡ do bóng
-        if (hit instanceof UnbreakableBrick) {
-            return;
-        }
 
         // 6) Gạch thường: vỡ thì remove ngay
         if (hit.isBroken()) {
@@ -225,5 +245,6 @@ public class PhysicsSystem {
         }
         bricks.removeAll(toRemove);
     }
+
 
 }

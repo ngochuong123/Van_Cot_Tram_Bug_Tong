@@ -2,13 +2,18 @@
 package vn.uet.oop.arkanoid.model.bricks;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 public class InvisibleBrick extends Brick {
     private boolean revealed = false;
 
+    private final Image invisibleBrickImage;
+
     public InvisibleBrick(double x, double y, double width, double height, int durabilityPoints) {
         super(x, y, width, height, durabilityPoints);
+        this.durabilityPoints = Math.min(durabilityPoints, 4);
+        invisibleBrickImage = new Image(getClass().getResourceAsStream("/image/InvisibleBrick.png"));
     }
 
     /**
@@ -39,11 +44,9 @@ public class InvisibleBrick extends Brick {
     @Override
     public void render(GraphicsContext gc) {
         if (revealed) {
-            gc.setFill(Color.GREEN);
-            gc.fillRect(getX(), getY(), getWidth(), getHeight());
-            gc.setStroke(Color.WHITE);
-            gc.setLineWidth(2);
-            gc.strokeRect(getX(), getY(), getWidth(), getHeight());
+            if (!isBroken()) {
+                gc.drawImage(invisibleBrickImage, getX(), getY(), getWidth(), getHeight());
+            }
         }
 
     }

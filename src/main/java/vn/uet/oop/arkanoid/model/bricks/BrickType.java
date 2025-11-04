@@ -15,8 +15,4 @@ public enum BrickType {
         return BrickType.valueOf(s.trim().toUpperCase());
     }
 
-    public static Image brick2_1Image;
-    public static Image brick2_2Image;
-    public static Image brick1Image;
-    public static Image brick3Image;
 }
