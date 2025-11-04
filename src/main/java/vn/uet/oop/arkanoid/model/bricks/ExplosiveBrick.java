@@ -2,13 +2,19 @@
 package vn.uet.oop.arkanoid.model.bricks;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 
 public class ExplosiveBrick extends Brick {
     private final int blastRadius;
 
+    private final Image explosiveBrickImage;
+
     public ExplosiveBrick(double x, double y, double width, double height, int durabilityPoints, int blastRadius) {
         super(x, y, width, height, durabilityPoints);
         this.blastRadius = Math.max(1, blastRadius);
+
+        this.durabilityPoints = Math.min(durabilityPoints, 4);
+        explosiveBrickImage = new Image(getClass().getResourceAsStream("/image/ExplosiveBrick.png"));
     }
 
     public int getBlastRadius() { return blastRadius; }
@@ -30,11 +36,7 @@ public class ExplosiveBrick extends Brick {
     @Override
     public void render(GraphicsContext gc) {
         if (!isBroken()) {
-            gc.setFill(javafx.scene.paint.Color.RED);
-            gc.fillRect(getX(), getY(), getWidth(), getHeight());
-            gc.setStroke(javafx.scene.paint.Color.WHITE);
-            gc.setLineWidth(2);
-            gc.strokeRect(getX(), getY(), getWidth(), getHeight());
+            gc.drawImage(explosiveBrickImage, getX(), getY(), getWidth(), getHeight());
         }
     }
 }

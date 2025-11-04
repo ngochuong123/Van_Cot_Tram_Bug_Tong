@@ -2,6 +2,7 @@
 package vn.uet.oop.arkanoid.model.bricks;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import vn.uet.oop.arkanoid.config.GameConfig;
 
@@ -12,9 +13,13 @@ public class RegeneratingBrick extends Brick {
     private boolean permanentlyRemoved = false; // be exploded to remove permanently
     private double respawnTimer = 0.0;
 
+    private final Image regeneratingBrickImage;
+
     public RegeneratingBrick(double x, double y, double width, double height, int durabilityPoints) {
         super(x, y, width, height, durabilityPoints);
+        this.durabilityPoints = Math.min(durabilityPoints, 1);
         this.maxDurability = durabilityPoints;
+        regeneratingBrickImage = new Image(getClass().getResourceAsStream("/image/RegeneratingBrick.png"));
     }
 
     /**
@@ -59,11 +64,7 @@ public class RegeneratingBrick extends Brick {
     @Override
     public void render(GraphicsContext gc) {
         if (!isBroken()) {
-            gc.setFill(Color.SALMON);
-            gc.fillRect(getX(), getY(), getWidth(), getHeight());
-            gc.setStroke(Color.WHITE);
-            gc.setLineWidth(2);
-            gc.strokeRect(getX(), getY(), getWidth(), getHeight());
+            gc.drawImage(regeneratingBrickImage, getX(), getY(), getWidth(), getHeight());
         }
     }
 }

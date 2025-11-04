@@ -46,7 +46,7 @@ public final class BrickFactory {
                 ensureLenAtLeast(t, 6, type);
                 int dp = getI(t, 5, "durability");
                 // nếu sau này bạn thêm respawnSec, có thể đọc ở vị trí 6
-                return new RegeneratingBrick(x, y, w, h, dp /* , respawnSecDefault */);
+                return new RegeneratingBrick(x, y, w, h, dp );
             }
             case INVISIBLE: {
                 ensureLenAtLeast(t, 6, type);
@@ -84,31 +84,7 @@ public final class BrickFactory {
      * @param extra      extra parameter
      * @return Brick instance
      */
-    public static Brick create(BrickType type,
-            double x, double y, double w, double h,
-            int durability,
-            Integer extra) {
-        switch (type) {
-            case UNBREAKABLE:
-                return new UnbreakableBrick(x, y, w, h);
-            case NORMAL:
-                return new NormalBrick(x, y, w, h, durability);
-            case STRONG:
-                return new StrongBrick(x, y, w, h, durability);
-            case REGENERATING:
-                return new RegeneratingBrick(x, y, w, h, durability);
-            case INVISIBLE:
-                return new InvisibleBrick(x, y, w, h, durability);
-            case EXPLOSIVE:
-                int radius = (extra != null) ? extra : 1;
-                return new ExplosiveBrick(x, y, w, h, durability, radius);
-            case CHAIN:
-                int chainId = (extra != null) ? extra : 0;
-                return new ChainBrick(x, y, w, h, durability, chainId);
-            default:
-                throw new IllegalArgumentException("Unsupported type: " + type);
-        }
-    }
+
 
     /**
      * ensure token length.
