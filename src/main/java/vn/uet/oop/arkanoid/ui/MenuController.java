@@ -19,6 +19,7 @@ import javafx.stage.Stage;
 
 public class MenuController {
     private Stage primaryStage;
+    private SceneRouter router;
     private Scene menuScene;
     // Các thành phần UI
     private BorderPane root;
@@ -28,13 +29,16 @@ public class MenuController {
     private Button startButton;
     private Button settingsButton;
     private Button exitButton;
-    private boolean onStartGame;
 
-    public MenuController(Stage stage) {
+    public MenuController(Stage stage, SceneRouter router) {
         this.primaryStage = stage;
-        this.onStartGame = false;
+        this.router = router;
         createMenu();
         eventMenu();
+    }
+
+    public MenuController(Stage stage) {
+        this(stage, null);
     }
 
     /*
@@ -62,13 +66,28 @@ public class MenuController {
         root.setTop(topBox);
 
         this.menuScene = new Scene(root, GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT);
-        this.menuScene.getRoot().setStyle(
-                "-fx-background-image: url('file:src/main/java/vn/uet/oop/arkanoid/config/image/menu.jpg');" +
-                        "-fx-background-size: cover;" +
-                        "-fx-background-position: center center;");
+        // Safe background loading
+        String menuBackgroundUrl;
+        try {
+            menuBackgroundUrl = getClass().getResource("/image/menu.jpg").toExternalForm();
+        } catch (NullPointerException e) {
+            menuBackgroundUrl = "";
+            System.out.println("Menu background image not found");
+        }
+        if (!menuBackgroundUrl.isEmpty()) {
+            this.menuScene.getRoot().setStyle(
+                    "-fx-background-image: url('" + menuBackgroundUrl + "');" +
+                            "-fx-background-size: cover;" +
+                            "-fx-background-position: center center;");
+        } else {
+            // Fallback background
+            this.menuScene.getRoot().setStyle("-fx-background-color: #1a1a2e;");
+        }
+
         this.primaryStage.setScene(menuScene);
         this.primaryStage.setTitle("ARKANOID");
         this.primaryStage.show();
+
     }
 
     public void createTitle() {
@@ -110,22 +129,24 @@ public class MenuController {
         addHoverEffect(settingsButton, "#FF3366", "#00BFFF", 15);
         addHoverEffect(exitButton, "#FF3366", "#00BFFF", 15);
 
+        // CHỈ SET ACTION MỘT LẦN - xóa các setOnAction trùng lặp
         startButton.setOnAction(e -> {
-            System.out.println("Người chơi bấm START");
-            // ví dụ: chuyển sang màn chơi
-            SceneRouter router = new SceneRouter();
-            router.playgame(primaryStage);
+            System.out.println("🎮 START BUTTON - Using SceneRouter to start game");
+            if (router != null) {
+                router.startNewGame(); // ✅ Dùng router nếu có
+            }
         });
 
         settingsButton.setOnAction(e -> {
-            System.out.println("Người chơi bấm SETTINGS");
-            // ví dụ: mở cửa sổ cài đặt
-            // showSettingsWindow();
+            System.out.println("SETTINGS BUTTON");
+            if (router != null) {
+                router.showSettings(); // ✅ Dùng router
+            }
+            // Xử lý settings
         });
 
         exitButton.setOnAction(e -> {
-            System.out.println("Người chơi bấm EXIT");
-            // thoát game
+            System.out.println(" EXIT GAME");
             Platform.exit();
             System.exit(0);
         });
@@ -133,7 +154,7 @@ public class MenuController {
 
     /**
      * hieu ung cua button.
-     * 
+     *
      * @param button
      * @param colorNormal
      * @param colorHover
@@ -157,7 +178,15 @@ public class MenuController {
         return this.menuScene;
     }
 
-    public boolean getOnStartGame() {
-        return this.onStartGame;
+    public Button getStartButton() {
+        return this.startButton;
+    }
+
+    public Button getExitButton() {
+        return this.exitButton;
+    }
+
+    public Button getSettingsButton() {
+        return this.settingsButton;
     }
 }
