@@ -46,6 +46,10 @@ public class InvisibleBrick extends Brick {
         if (revealed) {
             if (!isBroken()) {
                 gc.drawImage(invisibleBrickImage, getX(), getY(), getWidth(), getHeight());
+                Image crackImage = getCrackImage();
+                if (crackImage != null) {
+                    gc.drawImage(crackImage, getX(), getY(), getWidth(), getHeight());
+                }
             }
         }
 

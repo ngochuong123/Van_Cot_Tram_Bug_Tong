@@ -37,6 +37,12 @@ public class NormalBrick extends Brick {
     public void render(GraphicsContext gc) {
         if (!isBroken()) {
             gc.drawImage(brickImage, getX(), getY(), getWidth(), getHeight());
+
+            Image crackImage = getCrackImage();
+            if (crackImage != null) {
+                gc.drawImage(crackImage, getX(), getY(), getWidth(), getHeight());
+            }
         }
     }
+
 }

@@ -38,5 +38,9 @@ public class StrongBrick extends Brick {
             return;
         }
         gc.drawImage(strongBrick, getX(), getY(), getWidth(), getHeight());
+        Image crackImage = getCrackImage();
+        if (crackImage != null) {
+            gc.drawImage(crackImage, getX(), getY(), getWidth(), getHeight());
+        }
     }
 }
