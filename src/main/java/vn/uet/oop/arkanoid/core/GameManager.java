@@ -22,6 +22,7 @@ public class GameManager {
 
     private boolean paused = false;
     private boolean gameOver = false;
+
     // Core game objects
     private final List<Ball> balls;
     private final Paddle paddle;
@@ -60,14 +61,12 @@ public class GameManager {
     }
 
     private void initGame() {
-        // Create main ball - Tạo bóng chính ở giữa màn hình
         Ball mainBall = Ball.createBall(GameConfig.SCREEN_WIDTH / 2, GameConfig.SCREEN_HEIGHT / 2);
-        balls.add(mainBall); // Thêm vào danh sách
-        mainBall.stickTo(paddle); // Gắn bóng vào paddle
-        loadLevelFromClasspath("/levels/level2.txt"); // Load level 2
+        balls.add(mainBall);
+        mainBall.stickTo(paddle);
+        loadLevelFromClasspath("/levels/level2.txt"); // Bắt đầu từ level 1
     }
 
-    // handle launch ball
     public void launchBall() {
         if (!balls.isEmpty() && !balls.get(0).isLaunched()) {
             balls.get(0).launch();
@@ -75,34 +74,40 @@ public class GameManager {
     }
 
     public void update(double deltaTime, boolean leftPressed, boolean rightPressed) {
-        // Nếu game đang paused hoặc game over, không update
         if (currentState != GameState.PLAYING) {
             return;
         }
-        paddle.update(deltaTime, leftPressed, rightPressed); // Di chuyển paddle
-        // Nếu chỉ có 1 bóng và chưa launch -> giữ bóng trên paddle
+
+        paddle.update(deltaTime, leftPressed, rightPressed);
+
+        // Giữ bóng trên paddle nếu chưa launch
         if (balls.size() == 1 && !balls.get(0).isLaunched()) {
             balls.get(0).stickTo(paddle);
         }
-        int bricksBefore = bricks.size(); // Đếm gạch trước khi update
-        updateBalls(deltaTime); // Cập nhật bóng
-        for (Brick b : bricks) { // Cập nhật gạch
-            if (b != null)
-                b.update(deltaTime);
+
+        int bricksBefore = bricks.size();
+        updateBalls(deltaTime);
+
+        // Cập nhật tất cả bricks
+        for (Brick brick : bricks) {
+            if (brick != null) {
+                brick.update(deltaTime);
+            }
         }
-        updatePowerUps(deltaTime); // Cập nhật power-up
-        cleanupObjects(); // Dọn dẹp object
-        calculateScore(bricksBefore); // Tính điểm
-        checkLevelCompletion(); // Kiểm tra hoàn thành level
-        checkStateTransitions(); // Kiểm tra chuyển trạng thái
+
+        updatePowerUps(deltaTime);
+        cleanupObjects();
+        calculateScore(bricksBefore);
+
+        // Kiểm tra hoàn thành level
+        checkAndHandleLevelCompletion();
+        checkStateTransitions();
     }
 
     private void checkStateTransitions() {
         if (currentState == GameState.PLAYING) {
             if (!isAlive()) {
                 setState(GameState.GAME_OVER);
-            } else if (bricks.isEmpty()) {
-                setState(GameState.LEVEL_COMPLETE);
             }
         }
     }
@@ -110,34 +115,24 @@ public class GameManager {
     public void setState(GameState newState) {
         GameState oldState = this.currentState;
         this.currentState = newState;
-        // Thông báo state change cho các hệ thống khác
         onStateChange(oldState, newState);
     }
 
     private void onStateChange(GameState oldState, GameState newState) {
         System.out.println("🔄 GameState changed: " + oldState + " → " + newState);
-        // Có thể thêm logic xử lý khi state thay đổi
-        // Ví dụ: pause/resume audio, stop/start animations, etc.
     }
 
     private void updateBalls(double deltaTime) {
         if (balls.isEmpty()) return;
 
-        // Cập nhật chuyển động và va chạm cho từng bóng
         for (Ball ball : balls) {
             updateSingleBall(ball, deltaTime);
         }
 
-        // Sau khi cập nhật, kiểm tra nếu tất cả bóng đã rơi khỏi màn hình
         checkBallsOutOfScreen();
     }
 
-    /**
-     * Kiểm tra nếu tất cả bóng đều rơi khỏi màn hình
-     * -> Trừ mạng và reset bóng
-     */
     private void checkBallsOutOfScreen() {
-        // Nếu đang có khiên thì không trừ mạng
         if (paddle.isHasShield()) return;
 
         boolean allBallsOut = true;
@@ -149,29 +144,31 @@ public class GameManager {
         }
 
         if (allBallsOut) {
-            LoseLife();
+            loseLife();
             for (Ball ball : balls) {
                 ball.setOutOfScreen(false);
             }
         }
     }
-    private void LoseLife() {
-        this.lives--; // CHỈ thay đổi state
-        System.out.println("💔 Lost a life! Remaining: " + this.lives);
-        if (this.lives <= 0 && balls.isEmpty()) {
-            this.gameOver = true;
-            System.out.println("GAME OVER! Final Score: " + score);
-        }
 
-        resetBall();
+    private void loseLife() {
+        this.lives--;
+        System.out.println("💔 Lost a life! Remaining: " + this.lives);
+
+        if (this.lives <= 0) {
+            this.gameOver = true;
+            setState(GameState.GAME_OVER);
+            System.out.println("GAME OVER! Final Score: " + score);
+        } else {
+            resetBall();
+        }
     }
 
     private void updateSingleBall(Ball ball, double deltaTime) {
-        ball.update(deltaTime); // Di chuyển bóng
-        physicsSystem.bounceBallOnWalls(ball, paddle); // Nảy tường
-        physicsSystem.bounceBallOnPaddle(ball, paddle); // Nảy paddle
-        Brick hitBrick = physicsSystem.bounceBallOnBricks(ball, bricks); // Nảy gạch
-        // Spawn powerup nếu phá gạch
+        ball.update(deltaTime);
+        physicsSystem.bounceBallOnWalls(ball, paddle);
+        physicsSystem.bounceBallOnPaddle(ball, paddle);
+        Brick hitBrick = physicsSystem.bounceBallOnBricks(ball, bricks);
         powerUpSystem.spawnPowerUps(hitBrick);
     }
 
@@ -180,32 +177,67 @@ public class GameManager {
         powerUpSystem.checkAndApply();
     }
 
-    // TÍNH ĐIỂM: dựa vào số gạch bị remove thực sự trong frame (Explosive/Chain cũng tính đúng)
     private void calculateScore(int bricksBefore) {
         int bricksDestroyed = bricksBefore - bricks.size();
         if (bricksDestroyed > 0) {
-            // CHỈ tính điểm, không gọi HUD
             int pointsEarned = bricksDestroyed * GameConfig.addscore;
             this.score += pointsEarned;
             System.out.println("🎯 Destroyed " + bricksDestroyed + " bricks! +" + pointsEarned + " points");
         }
     }
 
-    private void checkLevelCompletion() {
-        if (!levelCompleted && bricks.isEmpty()) {
-            handleLevelComplete();
+    /**
+     * Kiểm tra level có hoàn thành không
+     * - UnbreakableBrick: không cần phá
+     * - RegeneratingBrick: phải đang bị phá (isBroken = true)
+     * - Các brick khác: không được tồn tại
+     */
+    private boolean checkLevelComplete() {
+        for (Brick brick : bricks) {
+            if (brick instanceof UnbreakableBrick) {
+                continue;
+            }
+
+            if (brick instanceof RegeneratingBrick) {
+                RegeneratingBrick regenBrick = (RegeneratingBrick) brick;
+                if (!regenBrick.isBroken()) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Kiểm tra và xử lý hoàn thành level
+     */
+    private void checkAndHandleLevelCompletion() {
+        if (levelCompleted) return;
+
+        if (checkLevelComplete()) {
+            levelCompleted = true;
+            currentLevel++;
+            System.out.println("🎉 Level " + (currentLevel - 1) + " completed!");
+            setState(GameState.LEVEL_COMPLETE);
         }
     }
 
-    private void handleLevelComplete() {
-        levelCompleted = true;
-        currentLevel++;
-        System.out.println("Level " + (currentLevel - 1) + " completed! Loading level" + currentLevel);
-        loadNextLevel();
-        resetBall();
+    /**
+     * Load level tiếp theo và reset trạng thái
+     */
+    public void loadNextLevel() {
+        System.out.println("🔄 Loading Level " + currentLevel);
 
+        resetBall();
         resetPowerUp();
-        levelCompleted = false; // sẵn sàng cho level mới
+
+        String levelPath = "/levels/level" + currentLevel + ".txt";
+        loadLevelFromClasspath(levelPath);
+
+        levelCompleted = false;
+        setState(GameState.PLAYING);
     }
 
     public void loadLevelFromClasspath(String resourcePath) {
@@ -214,23 +246,6 @@ public class GameManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public void loadNextLevel() {
-        currentLevel++;
-        System.out.println("🔄 Loading Level " + currentLevel);
-
-        resetBall();
-        resetPowerUp();
-
-        if (currentLevel == 2) {
-            loadLevelFromClasspath("/levels/level2.txt");
-        } else {
-            currentLevel = 1;
-            loadLevelFromClasspath("/levels/level1.txt");
-        }
-
-        levelCompleted = false;
     }
 
     private void resetBall() {
@@ -252,7 +267,6 @@ public class GameManager {
     }
 
     public void resetGame() {
-        // Reset tất cả trạng thái
         this.balls.clear();
         this.bricks.clear();
         this.powerUps.clear();
@@ -263,7 +277,6 @@ public class GameManager {
         this.paused = false;
         this.gameOver = false;
 
-        // Khởi tạo lại game
         initGame();
     }
 
@@ -324,7 +337,7 @@ public class GameManager {
         return currentState;
     }
 
-    public boolean isLevelComplete() {
+    public boolean isLevelCompleteState() {
         return currentState == GameState.LEVEL_COMPLETE;
     }
 }
