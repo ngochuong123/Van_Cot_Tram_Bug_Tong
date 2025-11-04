@@ -111,7 +111,7 @@ public class PowerUpSystem {
                             hitBrick.getY() + hitBrick.getHeight() / 2,
                             20, 20, 70
                     );
-                } else if (typeChance < 0.8){
+                } else if (typeChance < 0.9){
                     newPowerUp = new ShieldPowerUp(
                             hitBrick.getX() + hitBrick.getWidth() / 2,
                             hitBrick.getY() + hitBrick.getHeight() / 2,
