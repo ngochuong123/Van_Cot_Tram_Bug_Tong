@@ -3,6 +3,8 @@ package vn.uet.oop.arkanoid.systems;
 import vn.uet.oop.arkanoid.config.GameConfig;
 import vn.uet.oop.arkanoid.model.Paddle;
 import vn.uet.oop.arkanoid.model.Ball;
+import vn.uet.oop.arkanoid.model.interfaces.Collidable;
+import vn.uet.oop.arkanoid.model.powerups.*;
 import vn.uet.oop.arkanoid.model.bricks.Brick;
 import vn.uet.oop.arkanoid.model.bricks.UnbreakableBrick;
 import vn.uet.oop.arkanoid.model.powerups.ExpandPaddlePowerUp;
@@ -26,7 +28,6 @@ public class PowerUpSystem {
         this.powerUps = powerUps;
         this.paddle = paddle;
         this.balls = balls;
-
     }
 
     /*
@@ -68,6 +69,12 @@ public class PowerUpSystem {
                 if (p instanceof ShieldPowerUp) {
                     p.applyEffect(paddle);
                 }
+
+                if (p instanceof FireBallPowerUp) {
+                    p.applyEffect(balls);
+                }
+
+
                 powerUps.remove(i);
                 i--;
             }
@@ -104,8 +111,14 @@ public class PowerUpSystem {
                             hitBrick.getY() + hitBrick.getHeight() / 2,
                             20, 20, 70
                     );
-                } else {
+                } else if (typeChance < 0.8){
                     newPowerUp = new ShieldPowerUp(
+                            hitBrick.getX() + hitBrick.getWidth() / 2,
+                            hitBrick.getY() + hitBrick.getHeight() / 2,
+                            20, 20, 70
+                    );
+                } else {
+                    newPowerUp = new FireBallPowerUp(
                             hitBrick.getX() + hitBrick.getWidth() / 2,
                             hitBrick.getY() + hitBrick.getHeight() / 2,
                             20, 20, 70

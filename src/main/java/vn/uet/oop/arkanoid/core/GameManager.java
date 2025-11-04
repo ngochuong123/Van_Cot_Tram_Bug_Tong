@@ -38,7 +38,6 @@ public class GameManager {
     private final List<Brick> bricksToRemove = new ArrayList<>();
     private final List<PowerUp> powerUpsToRemove = new ArrayList<>();
 
-    // Khởi tạo GameManager
     public GameManager() {
         this.balls = new ArrayList<>();
         this.paddle = Paddle.createPaddle();
@@ -76,7 +75,6 @@ public class GameManager {
             balls.get(0).launch();
         }
     }
-
     public void update(double deltaTime, boolean leftPressed, boolean rightPressed) {
         if (gameOver) {
             return;
@@ -102,30 +100,53 @@ public class GameManager {
     }
 
     private void updateBalls(double deltaTime) {
-        ballsToRemove.clear();
+        if (balls.isEmpty()) return;
 
-        Iterator<Ball> ballIterator = balls.iterator();
-        while (ballIterator.hasNext()) {
-            Ball ball = ballIterator.next();
+        // Cập nhật chuyển động và va chạm cho từng bóng
+        for (Ball ball : balls) {
             updateSingleBall(ball, deltaTime);
+        }
 
-            if (ball.getY() + ball.getRadius() > GameConfig.SCREEN_HEIGHT) {
-                ballsToRemove.add(ball);
+        // Sau khi cập nhật, kiểm tra nếu tất cả bóng đã rơi khỏi màn hình
+        checkBallsOutOfScreen();
+    }
+
+    /**
+     * Kiểm tra nếu tất cả bóng đều rơi khỏi màn hình
+     * -> Trừ mạng và reset bóng
+     */
+    private void checkBallsOutOfScreen() {
+        // Nếu đang có khiên thì không trừ mạng
+        if (paddle.isHasShield()) return;
+
+        boolean allBallsOut = true;
+        for (Ball ball : balls) {
+            if (!ball.isOutOfScreen()) {
+                allBallsOut = false;
+                break;
             }
         }
 
-        // Remove fallen balls
-        balls.removeAll(ballsToRemove);
-
-        // Handle ball loss - TRỪ MẠNG KHI MẤT BÓNG
-        if (!ballsToRemove.isEmpty()) {
-            handleBallLoss();
+        if (allBallsOut) {
+            LoseLife();
+            for (Ball ball : balls) {
+                ball.setOutOfScreen(false);
+            }
         }
 
-        // Reset if no balls left
-        if (balls.isEmpty() && !gameOver) {
-            resetBall();
+
+    }
+    private void LoseLife() {
+        if (hud != null) {
+            hud.loseLife();
+            System.out.println("Life lost! Hearts remaining: " + hud.getHeartCount());
+            if (hud.getHeartCount() <= 0) {
+                handleGameOver();
+                return;
+            }
         }
+
+        resetBall();
     }
 
     private void updateSingleBall(Ball ball, double deltaTime) {
@@ -151,19 +172,6 @@ public class GameManager {
                 hud.updateScore();
                 score += GameConfig.addscore;
             }
-            // System.out.println("Destroyed " + bricksDestroyed + " bricks. Score: " + score);
-        }
-    }
-
-    private void handleBallLoss() {
-        if (hud != null) {
-            for (Ball ignored : ballsToRemove) {
-                hud.loseLife();
-                if (hud.getHeartCount() <= 0) {
-                    handleGameOver();
-                    break;
-                }
-            }
         }
     }
 
@@ -180,6 +188,7 @@ public class GameManager {
 
         loadNextLevel();
         resetBall();
+
         resetPowerUp();
         levelCompleted = false; // sẵn sàng cho level mới
     }

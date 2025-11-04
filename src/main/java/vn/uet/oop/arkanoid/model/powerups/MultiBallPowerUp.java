@@ -6,6 +6,7 @@ import vn.uet.oop.arkanoid.model.Ball;
 
 import java.util.ArrayList;
 import java.util.List;
+import javafx.scene.image.Image;
 
 public class MultiBallPowerUp extends PowerUp {
 
@@ -54,9 +55,9 @@ public class MultiBallPowerUp extends PowerUp {
     }
 
 
+    Image Multi = new Image("file:src/main/resources/image/x3_Ball.png");
     @Override
     public void render(GraphicsContext gc) {
-        gc.setFill(Color.GOLD);
-        gc.fillOval(getX(), getY(), getWidth(), getHeight());
+        gc.drawImage(Multi, getX(), getY(), getWidth(), getHeight());
     }
 }
