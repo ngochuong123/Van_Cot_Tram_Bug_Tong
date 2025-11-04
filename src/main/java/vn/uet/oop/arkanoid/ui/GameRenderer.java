@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class GameRenderer {
     private final GameManager gameManager;
-
+    
     public GameRenderer(GameManager gameManager, HUD hud) {
         this.gameManager = gameManager;
         // HUD được render riêng qua JavaFX nodes, không cần tham chiếu ở đây

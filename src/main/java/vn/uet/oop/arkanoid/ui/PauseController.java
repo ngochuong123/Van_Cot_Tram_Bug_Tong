@@ -33,7 +33,6 @@ public class PauseController {
     private void createPauseMenu(Stage parentStage) {
         pauseStage = new Stage();
         pauseStage.initOwner(parentStage);
-        pauseStage.initModality(Modality.APPLICATION_MODAL);
         pauseStage.initStyle(StageStyle.TRANSPARENT);
         pauseStage.setResizable(false);
 
@@ -45,8 +44,6 @@ public class PauseController {
         // Buttons
         Button resumeButton = createMenuButton("Resume", 200, 50);
         Button restartButton = createMenuButton("Restart", 200, 50);
-        Button menuButton = createMenuButton("Main Menu", 200, 50);
-        Button settingsButton = createMenuButton("Settings", 200, 50); // ✅ THÊM NÚT SETTINGS
 
         // Button actions với SceneRouter
         resumeButton.setOnAction(e -> {
@@ -65,30 +62,13 @@ public class PauseController {
             pauseStage.close();
         });
 
-        menuButton.setOnAction(e -> {
-            System.out.println("🏠 Return to menu requested");
-            if (router != null) {
-                router.showMainMenu(); // ✅ Dùng router
-            }
-            pauseStage.close();
-        });
-
-        settingsButton.setOnAction(e -> {
-            System.out.println("⚙️ Settings requested");
-            if (router != null) {
-                router.showSettings(); // ✅ Dùng router
-            }
-            pauseStage.close();
-        });
 
         // Layout
         VBox layout = new VBox(15);
         layout.getChildren().addAll(
                 titleLabel,
                 resumeButton,
-                restartButton,
-                settingsButton, // ✅ THÊM SETTINGS
-                menuButton);
+                restartButton);
         layout.setAlignment(Pos.CENTER);
         layout.setStyle("-fx-background-color: rgba(0, 0, 0, 0.9); -fx-padding: 40; -fx-background-radius: 15;");
 
@@ -101,6 +81,7 @@ public class PauseController {
             pauseStage.setX(parentStage.getX() + (parentStage.getWidth() - pauseStage.getWidth()) / 2);
             pauseStage.setY(parentStage.getY() + (parentStage.getHeight() - pauseStage.getHeight()) / 2);
         });
+        pauseStage.setAlwaysOnTop(true);
     }
 
     private Button createMenuButton(String text, double width, double height) {
@@ -142,6 +123,7 @@ public class PauseController {
     }
 
     public void show() {
+        System.out.println("🎯 Showing pause menu - Non blocking");
         // XOÁ reset flags
         pauseStage.show();
 

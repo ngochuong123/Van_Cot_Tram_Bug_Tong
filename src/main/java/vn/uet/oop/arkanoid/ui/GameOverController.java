@@ -32,7 +32,6 @@ public class GameOverController {
     private void createGameOverMenu(Stage parentStage, int finalScore) {
         gameOverStage = new Stage();
         gameOverStage.initOwner(parentStage);
-        gameOverStage.initModality(Modality.APPLICATION_MODAL);
         gameOverStage.initStyle(StageStyle.TRANSPARENT);
         gameOverStage.setResizable(false);
 
@@ -105,11 +104,13 @@ public class GameOverController {
             gameOverStage.setX(parentStage.getX() + (parentStage.getWidth() - gameOverStage.getWidth()) / 2);
             gameOverStage.setY(parentStage.getY() + (parentStage.getHeight() - gameOverStage.getHeight()) / 2);
         });
+
+        gameOverStage.setAlwaysOnTop(true);
     }
 
-    // ✅ THÊM: High score logic (có thể mở rộng sau)
+    // High score logic (có thể mở rộng sau)
     private int getHighScore(int currentScore) {
-        // TODO: Load từ file/settings
+        // Load từ file/settings
         return Math.max(currentScore, 1000); // Placeholder
     }
 

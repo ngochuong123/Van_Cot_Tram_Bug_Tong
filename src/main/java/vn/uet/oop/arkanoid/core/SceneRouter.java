@@ -46,6 +46,11 @@ public class SceneRouter {
         System.out.println("🚀 Initializing SceneRouter...");
         // Pre-initialize các controller chính
         this.menuController = new MenuController(primaryStage, this);
+        // Xử lý sự kiện đóng cửa sổ chính
+        primaryStage.setOnCloseRequest(e -> {
+            System.out.println("Main window closing...");
+            exitGame();
+        });
     }
 
     // ==================== MAIN NAVIGATION METHODS ====================
@@ -53,10 +58,6 @@ public class SceneRouter {
     public void showMainMenu() {
         System.out.println("🏠 Showing Main Menu");
         stopGameLoop();
-        if (gameManager != null) {
-            gameManager.setState(GameState.MENU);
-        }
-
         if (menuController == null) {
             menuController = new MenuController(primaryStage, this);
         }
@@ -64,6 +65,7 @@ public class SceneRouter {
 
     public void startNewGame() {
         System.out.println("🎮 Starting New Game");
+        cleanup();
         // Khởi tạo game components
         initializeGameComponents();
         // Đặt trạng thái PLAYING
@@ -75,22 +77,28 @@ public class SceneRouter {
     }
 
     public void resumeGame() {
-        System.out.println("▶️ Resuming Game");
+        System.out.println("Resuming Game");
+
+        // ĐẢM BẢO pause menu đã đóng
+        if (pauseController != null && pauseController.isShowing()) {
+            pauseController.close();
+            System.out.println("✅ Pause menu closed");
+        }
 
         if (gameManager != null) {
             gameManager.setState(GameState.PLAYING);
+            System.out.println("✅ GameState set to PLAYING");
         }
 
-        if (pauseController != null) {
-            pauseController.close();
-        }
+        // RESTART GAME LOOP
+        startGameLoop();
 
+        // FOCUS LẠI GAME CANVAS
         if (gameCanvas != null) {
             gameCanvas.requestFocus();
-            System.out.println("✅ Canvas focused for input");
+            System.out.println("✅ Game canvas focused");
         }
-        switchToGameScene();
-        startGameLoop();
+        System.out.println("✅ Game resumed successfully");
     }
 
     public void showPauseMenu() {
@@ -188,8 +196,13 @@ public class SceneRouter {
         this.gameRenderer = new GameRenderer(gameManager, null);
 
         // Tạo canvas và graphics context
+    if (this.gameCanvas == null) {
         this.gameCanvas = new Canvas(GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT);
         this.gc = gameCanvas.getGraphicsContext2D();
+    } else {
+        this.gc = gameCanvas.getGraphicsContext2D();
+    }
+
     }
 
     private void switchToGameScene() {
@@ -289,6 +302,7 @@ public class SceneRouter {
         System.out.println("🛑 Stopping Game Loop");
         if (gameLoop != null) {
             gameLoop.stop();
+            gameLoop = null;
         }
     }
 
@@ -296,37 +310,32 @@ public class SceneRouter {
 
     private void setupGameInputHandling() {
         System.out.println("⌨️ Setting up game input handling");
+        if (gameManager != null && gameManager.getCurrentState() == GameState.PLAYING) {
+            gameScene.setOnKeyPressed(event -> {
+                KeyCode code = event.getCode();
 
-        gameScene.setOnKeyPressed(event -> {
-            KeyCode code = event.getCode();
-
-            switch (code) {
-                case LEFT:
-                case A:
-                    leftPressed = true;
-                    break;
-                case RIGHT:
-                case D:
-                    rightPressed = true;
-                    break;
-                case SPACE:
-                    if (!spacePressed) {
-                        spacePressed = true;
-                        handleSpacePress();
-                    }
-                    break;
-                case P:
-                case ESCAPE:
-                    showPauseMenu();
-                    break;
-                case R:
-                    startNewGame(); // Restart
-                    break;
-                case M:
-                    showMainMenu(); // Quay về menu
-                    break;
-            }
-        });
+                switch (code) {
+                    case LEFT:
+                    case A:
+                        leftPressed = true;
+                        break;
+                    case RIGHT:
+                    case D:
+                        rightPressed = true;
+                        break;
+                    case SPACE:
+                        if (!spacePressed) {
+                            spacePressed = true;
+                            handleSpacePress();
+                        }
+                        break;
+                    case P:
+                    case ESCAPE:
+                        showPauseMenu();
+                        break;
+                }
+            });
+        }
 
         gameScene.setOnKeyReleased(event -> {
             KeyCode code = event.getCode();
@@ -436,9 +445,12 @@ public class SceneRouter {
     // ==================== CLEANUP ====================
 
     public void cleanup() {
-        System.out.println("🧹 Cleaning up SceneRouter");
+        System.out.println(" Cleaning up SceneRouter");
         stopGameLoop();
 
+        if (gameManager != null) {
+            gameManager.resetGame();
+        }
         // Cleanup các controller
         if (pauseController != null) {
             pauseController.close();
@@ -447,8 +459,8 @@ public class SceneRouter {
             gameOverController.close();
         }
 
-        gameManager = null;
-        gameRenderer = null;
         gameLoop = null;
+
+        System.out.println(" Cleanup completed");
     }
 }
