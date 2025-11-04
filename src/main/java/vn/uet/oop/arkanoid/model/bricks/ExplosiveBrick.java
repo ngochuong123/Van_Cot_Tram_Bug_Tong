@@ -37,6 +37,10 @@ public class ExplosiveBrick extends Brick {
     public void render(GraphicsContext gc) {
         if (!isBroken()) {
             gc.drawImage(explosiveBrickImage, getX(), getY(), getWidth(), getHeight());
+            Image crackImage = getCrackImage();
+            if (crackImage != null) {
+                gc.drawImage(crackImage, getX(), getY(), getWidth(), getHeight());
+            }
         }
     }
 }

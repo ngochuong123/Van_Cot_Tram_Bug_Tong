@@ -10,8 +10,6 @@ import javafx.scene.image.Image;
 
 public class FireBallPowerUp extends PowerUp {
 
-    private static final double DURATION = 5.0;
-
     public FireBallPowerUp(double x, double y, double width, double height, double dY) {
         super(x, y, width, height, dY);
     }

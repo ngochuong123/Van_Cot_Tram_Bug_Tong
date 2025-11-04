@@ -1,6 +1,7 @@
 package vn.uet.oop.arkanoid.ui;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -67,21 +68,9 @@ public class GameRenderer {
      * Render background đơn giản
      */
     private void renderBackground(GraphicsContext gc) {
-        // Màu nền xanh đậm
-        gc.setFill(Color.rgb(25, 25, 50));
-        gc.fillRect(0, 0, GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT);
+        Image bgImage = new Image(getClass().getResourceAsStream("/image/Background_game.png"));
+        gc.drawImage(bgImage, 0, 0, GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT);
 
-        // Grid nhẹ để tạo chiều sâu
-        gc.setStroke(Color.rgb(255, 255, 255, 0.1));
-        gc.setLineWidth(0.5);
-
-        // Vẽ grid
-        for (int x = 0; x < GameConfig.SCREEN_WIDTH; x += 40) {
-            gc.strokeLine(x, 0, x, GameConfig.SCREEN_HEIGHT);
-        }
-        for (int y = 0; y < GameConfig.SCREEN_HEIGHT; y += 40) {
-            gc.strokeLine(0, y, GameConfig.SCREEN_WIDTH, y);
-        }
     }
 
     /**
