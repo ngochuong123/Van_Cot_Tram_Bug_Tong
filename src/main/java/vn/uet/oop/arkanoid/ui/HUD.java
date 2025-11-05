@@ -1,148 +1,143 @@
 package vn.uet.oop.arkanoid.ui;
 
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-import vn.uet.oop.arkanoid.config.GameConfig;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class HUD {
-    private Stage HUDStage;
-    private Scene HUDScene;
-    private int heart;
-    private int score;
-    private Label scores;
-    private List<ImageView> hearts = new ArrayList<>();
-    private HBox heartsBox = new HBox(5);
-    private VBox heart_score = new VBox(10);
+    private Label scoreLabel;
+    private Label levelLabel;
+    private Label livesLabel;
+    private Label messageLabel;
+    private List<ImageView> heartIcons = new ArrayList<>();
+    private HBox heartsContainer = new HBox(5);
+    private VBox hudContainer = new VBox(10);
+    private final Image heartImage;
 
-    public HUD(Stage HUDStage, int score, Scene HUDScene) {
-        this.HUDStage = HUDStage;
-        this.HUDScene = HUDScene;
-        this.heart = 5; // Số mạng ban đầu
-        this.score = score;
-        createScores();
-        createHeart();
+    public HUD() {
+        initializeUI();
+        heartImage = loadHeartImage();
     }
 
-    // Thêm getter cho số mạng hiện tại
-    public int getHeartCount() {
-        return heart;
-    }
-
-    // Thêm getter cho điểm số
-    public int getScore() {
-        return score;
-    }
-
-    /*
-     * ham tao diem so de in len man hinh.
-     */
-    public void createScores() {
-        this.scores = new Label("SCORE: " + this.score);
-        this.scores.setStyle(
+    private void initializeUI() {
+        scoreLabel = new Label("SCORE: 0");
+        scoreLabel.setStyle(
                 "-fx-font-family: 'Impact';" +
                         "-fx-font-size: 28px;" +
                         "-fx-font-weight: bold;" +
-                        "-fx-text-fill: #7cfc00;" + // LawnGreen
-                        "-fx-effect: dropshadow(gaussian, #006400, 8, 0.8, 2, 2);" +
-                        "-fx-effect: innershadow(gaussian, #90ee90, 3, 0.5, 0, 0);");
+                        "-fx-text-fill: #7cfc00;" +
+                        "-fx-effect: dropshadow(gaussian, #006400, 8, 0.8, 2, 2);");
+
+        levelLabel = new Label("LEVEL: 1");
+        levelLabel.setStyle(
+                "-fx-font-family: 'Arial';" +
+                        "-fx-font-size: 20px;" +
+                        "-fx-text-fill: #ffffff;" +
+                        "-fx-font-weight: bold;");
+
+        livesLabel = new Label("LIVES: ");
+        livesLabel.setStyle(
+                "-fx-font-family: 'Arial';" +
+                        "-fx-font-size: 20px;" +
+                        "-fx-text-fill: #ffffff;" +
+                        "-fx-font-weight: bold;");
+
+        messageLabel = new Label();
+        messageLabel.setStyle(
+                "-fx-font-family: 'Impact'; -fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #FFD700; -fx-effect: dropshadow(gaussian, #FF4500, 10, 0.8, 3, 3);");
+        messageLabel.setVisible(false);
+        messageLabel.setManaged(false);
+
+        heartsContainer.setAlignment(Pos.CENTER_LEFT);
+        HBox livesBox = new HBox(10, livesLabel, heartsContainer);
+
+        hudContainer.getChildren().addAll(messageLabel, scoreLabel, levelLabel, livesBox);
+        hudContainer.setAlignment(Pos.TOP_LEFT);
+        hudContainer.setStyle("-fx-padding: 20; -fx-background-color: rgba(0,0,0,0.3);");
     }
 
-    /**
-     * ham tao hinh anh mang player.
-     */
-    public void createHeart() {
-        // Đường dẫn ảnh trái tim
-        Image heartImage = new Image("file:src/main/java/vn/uet/oop/arkanoid/config/image/heart.png");
-
-        // Xóa tim cũ (nếu có)
-        heartsBox.getChildren().clear();
-        hearts.clear();
-
-        // Tạo tim mới
-        for (int i = 0; i < heart; i++) {
-            ImageView heartView = new ImageView(heartImage);
-            heartView.setFitWidth(30);
-            heartView.setFitHeight(30);
-            hearts.add(heartView);
-            heartsBox.getChildren().add(heartView);
-        }
-
-        if (!heart_score.getChildren().contains(heartsBox)) {
-            heart_score.getChildren().addAll(heartsBox, scores);
-        }
-    }
-
-    /**
-     * ham xoa di trai tim khi bong roi xuong.
-     */
-    public void loseLife() {
-        if (heart > 0) {
-            heart--; // Giảm số mạng
-
-            System.out.println("Mất 1 mạng! Mạng còn lại: " + heart);
-
-            // Cập nhật giao diện
-            updateHeartDisplay();
+    private Image loadHeartImage() {
+        try {
+            return new Image(getClass().getResourceAsStream("/image/heart.png"));
+        } catch (Exception e) {
+            System.err.println(" Could not load heart image: " + e.getMessage());
+            return null;
         }
     }
 
+
     /**
-     * Cập nhật hiển thị trái tim
+     * update score
+     * @param score current score
      */
-    private void updateHeartDisplay() {
-        // Đường dẫn ảnh trái tim
-        Image heartImage = new Image("file:src/main/java/vn/uet/oop/arkanoid/config/image/heart.png");
+    public void setScore(int score) {
+        scoreLabel.setText("SCORE: " + score);
+    }
 
-        // Xóa tim cũ
-        heartsBox.getChildren().clear();
-        hearts.clear();
+    /**
+     * update lives from GameManager
+     */
+    public void setLives(int lives) {
+        updateHeartsDisplay(lives);
+    }
 
-        // Tạo tim mới theo số mạng hiện tại
-        for (int i = 0; i < heart; i++) {
-            ImageView heartView = new ImageView(heartImage);
-            heartView.setFitWidth(30);
-            heartView.setFitHeight(30);
-            hearts.add(heartView);
-            heartsBox.getChildren().add(heartView);
+    /**
+     * update level display
+     */
+    public void setLevel(int level) {
+        levelLabel.setText("LEVEL: " + level);
+    }
+
+    /**
+     * update heart icons display
+     */
+    private void updateHeartsDisplay(int lives) {
+        heartsContainer.getChildren().clear();
+        heartIcons.clear();
+
+        if (heartImage != null) {
+            for (int i = 0; i < lives; i++) {
+                ImageView heartView = new ImageView(heartImage);
+                heartView.setFitWidth(30);
+                heartView.setFitHeight(30);
+                heartIcons.add(heartView);
+                heartsContainer.getChildren().add(heartView);
+            }
+        } else {
+            livesLabel.setText("LIVES: " + lives);
         }
-
-        // Đảm bảo HUD được cập nhật
-        heart_score.getChildren().setAll(heartsBox, scores);
     }
 
     /**
-     * ham cap nhat diem so.
+     * Reset HUD
      */
-    public void updateScore() {
-        this.score += GameConfig.addscore;
-        this.scores.setText("SCORE: " + this.score);
-        System.out.println("Điểm: " + this.score);
+    public void reset() {
+        setScore(0);
+        setLives(3);
+        setLevel(1);
     }
 
     /**
-     * ham kiem tra xem ban da het mang hay chua.
+     * get the HUD container
      */
-    public boolean stateHeart(int heart) {
-        return heart == 0;
+    public VBox getContainer() {
+        return hudContainer;
     }
 
-    /**
-     * ham ve HUD len man hinh.
-     */
-    public void createHUD() {
-        BorderPane topleft = (BorderPane) HUDScene.getRoot();
-        heart_score.setAlignment(Pos.TOP_LEFT);
-        heart_score.setStyle("-fx-padding: 25;");
-        topleft.setTop(heart_score);
-        HUDStage.setScene(HUDScene);
+    public void showMessage(String message) {
+        messageLabel.setText(message);
+        messageLabel.setVisible(true);
+        messageLabel.setManaged(true);
+    }
+
+    public void hideMessage() {
+        messageLabel.setVisible(false);
+        messageLabel.setManaged(false);
     }
 }

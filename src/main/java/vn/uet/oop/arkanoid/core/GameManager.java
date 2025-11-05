@@ -1,7 +1,4 @@
 package vn.uet.oop.arkanoid.core;
-
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
 import vn.uet.oop.arkanoid.config.GameConfig;
 import vn.uet.oop.arkanoid.model.*;
 import vn.uet.oop.arkanoid.model.powerups.PowerUp;
@@ -10,13 +7,16 @@ import vn.uet.oop.arkanoid.model.bricks.ResourceLevelLoader;
 import vn.uet.oop.arkanoid.model.bricks.*;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import vn.uet.oop.arkanoid.systems.PowerUpSystem;
-import vn.uet.oop.arkanoid.ui.HUD;
 
 public class GameManager {
-    private static GameManager instance;
+    private static GameManager instance = null;
+
+    private GameState currentState = GameState.MENU;
+
+    private boolean paused = false;
+    private boolean gameOver = false;
 
     // Core game objects
     private final List<Ball> balls;
@@ -27,20 +27,18 @@ public class GameManager {
     private final PowerUpSystem powerUpSystem;
 
     // Game state
-    private HUD hud;
-    private int score;
+    private int score = 0;
+    private int lives = 5;
     private int currentLevel = 1;
-    private boolean gameOver = false;
     private boolean levelCompleted = false;
 
-    // Optimization: reuse collections to avoid GC
-    private final List<Ball> ballsToRemove = new ArrayList<>();
+    // Tối ưu hóa: tái sử dụng các collection để tránh GC
     private final List<Brick> bricksToRemove = new ArrayList<>();
     private final List<PowerUp> powerUpsToRemove = new ArrayList<>();
 
     public GameManager() {
         this.balls = new ArrayList<>();
-        this.paddle = createPaddle();
+        this.paddle = Paddle.createPaddle();
         this.bricks = new ArrayList<>();
         this.powerUps = new ArrayList<>();
         this.physicsSystem = new PhysicsSystem();
@@ -48,6 +46,10 @@ public class GameManager {
         initGame();
     }
 
+    /**
+     * Singleton
+     * @return GameManager instance
+     */
     public static GameManager getInstance() {
         if (instance == null) {
             instance = new GameManager();
@@ -55,167 +57,221 @@ public class GameManager {
         return instance;
     }
 
-    public GameManager(HUD hud) {
-        this();
-        this.hud = hud;
-        this.score = 0;
-    }
-
-    private Paddle createPaddle() {
-        return new Paddle(
-                (GameConfig.SCREEN_WIDTH - GameConfig.PADDLE_WIDTH) / 2,
-                GameConfig.SCREEN_HEIGHT - 40,
-                GameConfig.PADDLE_WIDTH,
-                GameConfig.PADDLE_HEIGHT,
-                GameConfig.PADDLE_SPEED);
-    }
-
+    /**
+     * Initialize game state
+     */
     private void initGame() {
-        // Create main ball
-        Ball mainBall = createBall(GameConfig.SCREEN_WIDTH / 2, GameConfig.SCREEN_HEIGHT / 2);
+        Ball mainBall = Ball.createBall(GameConfig.SCREEN_WIDTH / 2, GameConfig.SCREEN_HEIGHT / 2);
         balls.add(mainBall);
-
-        // Load first level
-        loadLevelFromClasspath("/resoures/levels/level2.txt");
         mainBall.stickTo(paddle);
+        loadLevelFromClasspath("/levels/level3.txt");
     }
 
-    private Ball createBall(double x, double y) {
-        return new Ball(x, y, GameConfig.BALL_RADIUS, 0, 0);
-    }
-
+    /**
+     * launch the ball.
+     */
     public void launchBall() {
         if (!balls.isEmpty() && !balls.get(0).isLaunched()) {
             balls.get(0).launch();
         }
     }
 
-
+    /**
+     * Update game state
+     *
+     * @param deltaTime time
+     * @param leftPressed left key pressed
+     * @param rightPressed right key pressed
+     */
     public void update(double deltaTime, boolean leftPressed, boolean rightPressed) {
-        if (gameOver)
-            return;
-
-        updatePaddle(deltaTime, leftPressed, rightPressed);
-
-        if (isAllBallsStuck()) {
-            balls.get(0).stickTo(paddle);
+        if (currentState != GameState.PLAYING) {
             return;
         }
 
-        // LƯU SỐ GẠCH TRƯỚC KHI UPDATE để tính điểm
-        int bricksBefore = bricks.size();
+        paddle.update(deltaTime, leftPressed, rightPressed);
+        if (balls.size() == 1 && !balls.get(0).isLaunched()) {
+            balls.get(0).stickTo(paddle);
+        }
 
+        int bricksBefore = bricks.size();
         updateBalls(deltaTime);
+        for (Brick brick : bricks) {
+            if (brick != null) {
+                brick.update(deltaTime);
+            }
+        }
         updatePowerUps(deltaTime);
         cleanupObjects();
-
-        // TÍNH ĐIỂM SAU KHI UPDATE BALLS
         calculateScore(bricksBefore);
-        checkLevelCompletion();
+
+        checkAndHandleLevelCompletion();
+        checkStateTransitions();
     }
 
-    private void updatePaddle(double deltaTime, boolean leftPressed, boolean rightPressed) {
-        paddle.update(deltaTime, leftPressed, rightPressed);
+    /**
+     * check and handle state transitions.
+     */
+    private void checkStateTransitions() {
+        if (currentState == GameState.PLAYING) {
+            if (!isAlive()) {
+                setState(GameState.GAME_OVER);
+            }
+        }
     }
 
-    private boolean isAllBallsStuck() {
-        if (balls.isEmpty())
-            return false;
+    /**
+     * set state.
+     * @param newState new game state
+     */
+    public void setState(GameState newState) {
+        GameState oldState = this.currentState;
+        this.currentState = newState;
+        onStateChange(oldState, newState);
+    }
+
+    /**
+     * print state change.
+     *
+     * @param oldState old game state
+     * @param newState new game state
+     */
+    private void onStateChange(GameState oldState, GameState newState) {
+        System.out.println("🔄 GameState changed: " + oldState + " → " + newState);
+    }
+
+    /**
+     * update all balls in the game.
+     * @param deltaTime time
+     */
+    private void updateBalls(double deltaTime) {
+        if (balls.isEmpty()) return;
 
         for (Ball ball : balls) {
-            if (ball.isLaunched()) {
+            updateSingleBall(ball, deltaTime);
+        }
+
+        checkBallsOutOfScreen();
+    }
+
+    /**
+     * check if all balls are out of screen.
+     */
+    private void checkBallsOutOfScreen() {
+        if (paddle.isHasShield()) return;
+
+        boolean allBallsOut = true;
+        for (Ball ball : balls) {
+            if (!ball.isOutOfScreen()) {
+                allBallsOut = false;
+                break;
+            }
+        }
+
+        if (allBallsOut) {
+            loseLife();
+            for (Ball ball : balls) {
+                ball.setOutOfScreen(false);
+            }
+        }
+    }
+
+    /**
+     * handle losing a life.
+     */
+    private void loseLife() {
+        this.lives--;
+        System.out.println("💔 Lost a life! Remaining: " + this.lives);
+
+        if (this.lives <= 0) {
+            this.gameOver = true;
+            setState(GameState.GAME_OVER);
+            System.out.println("GAME OVER! Final Score: " + score);
+        } else {
+            resetBall();
+        }
+    }
+
+    /**
+     * update a single ball.
+     * @param ball the ball to update
+     * @param deltaTime time
+     */
+    private void updateSingleBall(Ball ball, double deltaTime) {
+        ball.update(deltaTime);
+        physicsSystem.bounceBallOnWalls(ball, paddle);
+        physicsSystem.bounceBallOnPaddle(ball, paddle);
+        Brick hitBrick = physicsSystem.bounceBallOnBricks(ball, bricks);
+        powerUpSystem.spawnPowerUps(hitBrick);
+    }
+
+    /**
+     * update power-ups.
+     *
+     * @param deltaTime time
+     */
+    private void updatePowerUps(double deltaTime) {
+        powerUpSystem.updatePowerUps(deltaTime);
+        powerUpSystem.checkAndApply();
+    }
+
+    private void calculateScore(int bricksBefore) {
+        int bricksDestroyed = bricksBefore - bricks.size();
+        if (bricksDestroyed > 0) {
+            int pointsEarned = bricksDestroyed * GameConfig.addscore;
+            this.score += pointsEarned;
+            System.out.println("🎯 Destroyed " + bricksDestroyed + " bricks! +" + pointsEarned + " points");
+        }
+    }
+
+    /**
+     * check logic to determine if level is complete.
+     */
+    private boolean checkLevelComplete() {
+        for (Brick brick : bricks) {
+            if (brick instanceof UnbreakableBrick) {
+                continue;
+            }
+
+            if (brick instanceof RegeneratingBrick) {
+                RegeneratingBrick regenBrick = (RegeneratingBrick) brick;
+                if (!regenBrick.isBroken()) {
+                    return false;
+                }
+            } else {
                 return false;
             }
         }
         return true;
     }
 
-    private void updateBalls(double deltaTime) {
-        ballsToRemove.clear();
+    /**
+     * check and handle level completion
+     */
+    private void checkAndHandleLevelCompletion() {
+        if (levelCompleted) return;
 
-        // Use iterator for safe removal during iteration
-        Iterator<Ball> ballIterator = balls.iterator();
-        while (ballIterator.hasNext()) {
-            Ball ball = ballIterator.next();
-            updateSingleBall(ball, deltaTime);
-
-            if (ball.getY() + ball.getRadius() > GameConfig.SCREEN_HEIGHT) {
-                ballsToRemove.add(ball);
-            }
-        }
-
-        // Remove fallen balls
-        balls.removeAll(ballsToRemove);
-
-        // Handle ball loss - TRỪ MẠNG KHI MẤT BÓNG
-        if (!ballsToRemove.isEmpty()) {
-            handleBallLoss();
-        }
-
-        // Reset if no balls left
-        if (balls.isEmpty() && !gameOver) {
-            resetBall();
+        if (checkLevelComplete()) {
+            levelCompleted = true;
+            currentLevel++;
+            System.out.println("🎉 Level " + (currentLevel - 1) + " completed!");
+            setState(GameState.LEVEL_COMPLETE);
         }
     }
 
-    private void updateSingleBall(Ball ball, double deltaTime) {
-        physicsSystem.updateBall(ball, deltaTime);
-        physicsSystem.bounceBallOnWalls(ball, paddle);
-        physicsSystem.bounceBallOnPaddle(ball, paddle);
-        physicsSystem.bounceBallOnBricks(ball, bricks, powerUps);
-    }
+    /**
+     * load the next level from classpath.
+     */
+    public void loadNextLevel() {
+        System.out.println("🔄 Loading Level " + currentLevel);
 
-    private void updatePowerUps(double deltaTime) {
-        powerUpSystem.updatePowerUps(deltaTime);
-        powerUpSystem.checkAndApply();
-    }
-
-    // THÊM LẠI LOGIC TÍNH ĐIỂM
-    private void calculateScore(int bricksBefore) {
-        int bricksDestroyed = bricksBefore - bricks.size();
-        if (bricksDestroyed > 0 && hud != null) {
-            for (int i = 0; i < bricksDestroyed; i++) {
-                hud.updateScore();
-                score += GameConfig.addscore;
-            }
-            System.out.println("Destroyed " + bricksDestroyed + " bricks. Score: " + score);
-        }
-    }
-
-    private void handleBallLoss() {
-        if (hud != null) {
-            // TRỪ MẠNG CHO MỖI BÓNG MẤT
-            for (Ball ball : ballsToRemove) {
-                hud.loseLife();
-                System.out.println("Life lost! Hearts remaining: " + hud.getHeartCount());
-
-                if (hud.getHeartCount() <= 0) {
-                    handleGameOver();
-                    break;
-                }
-            }
-        }
-    }
-
-    private void checkLevelCompletion() {
-        if (!levelCompleted && bricks.isEmpty()) {
-            handleLevelComplete();
-        }
-    }
-
-    private void handleLevelComplete() {
-        levelCompleted = true;
-        currentLevel++;
-        System.out.println("Level " + (currentLevel - 1) + " completed! Loading level " + currentLevel);
-
-        // Stop current ball
-        if (!balls.isEmpty()) {
-            balls.get(0).setLaunched(false);
-        }
-
-        // Load next level
-        loadNextLevel();
         resetBall();
+        resetPowerUp();
+
+        String levelPath = "/levels/level" + currentLevel + ".txt";
+        loadLevelFromClasspath(levelPath);
+
+        levelCompleted = false;
+        setState(GameState.PLAYING);
     }
 
     public void loadLevelFromClasspath(String resourcePath) {
@@ -226,86 +282,42 @@ public class GameManager {
         }
     }
 
-    private void loadNextLevel() {
-        if (currentLevel == 2) {
-            loadLevelFromClasspath("/resoures/levels/level2.txt");
-        } else {
-            currentLevel = 1;
-            loadLevelFromClasspath("/resoures/levels/level1.txt");
-        }
-    }
-
-    private void handleGameOver() {
-        gameOver = true;
-        System.out.println("GAME OVER! Final Score: " + score);
-    }
-
+    /**
+     * reset the ball to initial position.
+     */
     private void resetBall() {
         balls.clear();
-        Ball newBall = createBall(
+        Ball newBall = Ball.createBall(
                 paddle.getX() + paddle.getWidth() / 2 - GameConfig.BALL_RADIUS,
                 paddle.getY() - GameConfig.BALL_RADIUS * 2);
         newBall.stickTo(paddle);
         balls.add(newBall);
-        System.out.println("Ball reset to paddle");
+    }
+
+    private void resetPowerUp() {
+        powerUps.clear();
     }
 
     private void cleanupObjects() {
-        // Clear temporary lists for next frame
         bricksToRemove.clear();
         powerUpsToRemove.clear();
     }
 
-    public void render(GraphicsContext gc) {
-        // Render in optimal order
-        renderBalls(gc);
-        renderPaddle(gc);
-        renderBricks(gc);
-        renderPowerUps(gc);
-        renderShield(gc);
-        renderGameOver(gc);
-    }
+    /**
+     * reset the entire game state.
+     */
+    public void resetGame() {
+        this.balls.clear();
+        this.bricks.clear();
+        this.powerUps.clear();
+        this.score = 0;
+        this.lives = 5;
+        this.currentLevel = 1;
+        this.levelCompleted = false;
+        this.paused = false;
+        this.gameOver = false;
 
-    private void renderBalls(GraphicsContext gc) {
-        for (Ball ball : balls) {
-            ball.render(gc);
-        }
-    }
-
-    private void renderPaddle(GraphicsContext gc) {
-        paddle.render(gc);
-    }
-
-    private void renderBricks(GraphicsContext gc) {
-        for (Brick brick : bricks) {
-            if (brick != null)
-                brick.render(gc);
-        }
-    }
-
-    private void renderPowerUps(GraphicsContext gc) {
-        for (PowerUp powerUp : powerUps) {
-            if (powerUp != null)
-                powerUp.render(gc);
-        }
-    }
-
-    private void renderShield(GraphicsContext gc) {
-        if (paddle.isHasShield()) {
-            gc.setFill(Color.CYAN);
-            gc.fillRect(0, GameConfig.SCREEN_HEIGHT - 5, GameConfig.SCREEN_WIDTH, 5);
-        }
-    }
-
-    private void renderGameOver(GraphicsContext gc) {
-        if (gameOver) {
-            gc.setFill(javafx.scene.paint.Color.RED);
-            gc.setFont(new javafx.scene.text.Font(48));
-            gc.fillText("GAME OVER", GameConfig.SCREEN_WIDTH / 2 - 120, GameConfig.SCREEN_HEIGHT / 2);
-
-            gc.setFont(new javafx.scene.text.Font(24));
-            gc.fillText("Final Score: " + score, GameConfig.SCREEN_WIDTH / 2 - 80, GameConfig.SCREEN_HEIGHT / 2 + 40);
-        }
+        initGame();
     }
 
     // Getter methods
@@ -325,15 +337,47 @@ public class GameManager {
         return currentLevel;
     }
 
-    public boolean isGameOver() {
-        return gameOver;
-    }
-
     public int getBricksCount() {
         return bricks.size();
     }
 
     public Paddle getPaddle() {
         return paddle;
+    }
+
+    public int getLives() {
+        return lives;
+    }
+
+    public List<PowerUp> getPowerUps() {
+        return powerUps;
+    }
+
+    public boolean isAlive() {
+        return lives > 0;
+    }
+
+    public boolean isPaused() {
+        return paused;
+    }
+
+    public void setPaused(boolean paused) {
+        this.paused = paused;
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
+    }
+
+    public GameState getCurrentState() {
+        return currentState;
+    }
+
+    public boolean isLevelCompleteState() {
+        return currentState == GameState.LEVEL_COMPLETE;
     }
 }

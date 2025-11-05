@@ -19,8 +19,9 @@ import javafx.stage.Stage;
 
 public class MenuController {
     private Stage primaryStage;
+    private SceneRouter router;
     private Scene menuScene;
-    // Các thành phần UI
+
     private BorderPane root;
     private HBox menuHBox;
     private VBox menuVBox;
@@ -28,17 +29,20 @@ public class MenuController {
     private Button startButton;
     private Button settingsButton;
     private Button exitButton;
-    private boolean onStartGame;
 
-    public MenuController(Stage stage) {
+    public MenuController(Stage stage, SceneRouter router) {
         this.primaryStage = stage;
-        this.onStartGame = false;
+        this.router = router;
         createMenu();
         eventMenu();
     }
 
+    public MenuController(Stage stage) {
+        this(stage, null);
+    }
+
     /*
-     * ham khoi tao cac nut, tieu de cua menu.
+     * initialize menu
      */
     public void createMenu() {
         createTitle();
@@ -58,33 +62,43 @@ public class MenuController {
 
         HBox topBox = new HBox(this.settingsButton);
         topBox.setAlignment(Pos.TOP_RIGHT);
-        topBox.setStyle("-fx-padding: 20;"); // cách mép 20px
+        topBox.setStyle("-fx-padding: 20;");
         root.setTop(topBox);
 
         this.menuScene = new Scene(root, GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT);
-        this.menuScene.getRoot().setStyle(
-                "-fx-background-image: url('file:src/main/java/vn/uet/oop/arkanoid/config/image/menu.jpg');" +
-                        "-fx-background-size: cover;" +
-                        "-fx-background-position: center center;");
+        String menuBackgroundUrl;
+        try {
+            menuBackgroundUrl = getClass().getResource("/image/menu.jpg").toExternalForm();
+        } catch (NullPointerException e) {
+            menuBackgroundUrl = "";
+            System.out.println("Menu background image not found");
+        }
+        if (!menuBackgroundUrl.isEmpty()) {
+            this.menuScene.getRoot().setStyle(
+                    "-fx-background-image: url('" + menuBackgroundUrl + "');" +
+                            "-fx-background-size: cover;" +
+                            "-fx-background-position: center center;");
+        } else {
+            this.menuScene.getRoot().setStyle("-fx-background-color: #1a1a2e;");
+        }
+
         this.primaryStage.setScene(menuScene);
         this.primaryStage.setTitle("ARKANOID");
         this.primaryStage.show();
+
     }
 
     public void createTitle() {
-        // label hien chu.
         this.titleLabel = new Label("Let'S GO");
-        this.titleLabel.setFont(Font.font("Impact", 72)); // font kiểu khối
-        this.titleLabel.setTextFill(Color.web("#FF3366")); // màu vàng
+        this.titleLabel.setFont(Font.font("Impact", 72));
+        this.titleLabel.setTextFill(Color.web("#FF3366"));
         this.titleLabel.setStyle("-fx-font-weight: bold;");
-        // hieu ung do bong 3d nhe
         DropShadow shadow = new DropShadow();
         shadow.setColor(Color.web("#FF0040"));
         shadow.setRadius(25);
         shadow.setOffsetX(5);
         shadow.setOffsetY(5);
         this.titleLabel.setEffect(shadow);
-        // hieu ung phong to nho lien tuc
         ScaleTransition scale = new ScaleTransition(Duration.seconds(1.5), titleLabel);
         scale.setFromX(1.0);
         scale.setFromY(1.0);
@@ -111,33 +125,33 @@ public class MenuController {
         addHoverEffect(exitButton, "#FF3366", "#00BFFF", 15);
 
         startButton.setOnAction(e -> {
-            System.out.println("Người chơi bấm START");
-            // ví dụ: chuyển sang màn chơi
-            SceneRouter router = new SceneRouter();
-            router.playgame(primaryStage);
+            System.out.println("🎮 START BUTTON - Using SceneRouter to start game");
+            if (router != null) {
+                router.startNewGame();
+            }
         });
 
         settingsButton.setOnAction(e -> {
-            System.out.println("Người chơi bấm SETTINGS");
-            // ví dụ: mở cửa sổ cài đặt
-            // showSettingsWindow();
+            System.out.println("SETTINGS BUTTON");
+            if (router != null) {
+                router.showSettings();
+            }
         });
 
         exitButton.setOnAction(e -> {
-            System.out.println("Người chơi bấm EXIT");
-            // thoát game
+            System.out.println(" EXIT GAME");
             Platform.exit();
             System.exit(0);
         });
     }
 
     /**
-     * hieu ung cua button.
-     * 
-     * @param button
-     * @param colorNormal
-     * @param colorHover
-     * @param radius
+     * button hover effect
+     *
+     * @param button button to add effect
+     * @param colorNormal color when not hover
+     * @param colorHover color when hover
+     * @param radius border radius
      */
     public void addHoverEffect(Button button, String colorNormal, String colorHover, int radius) {
         button.setOnMouseEntered(e -> {
@@ -157,7 +171,15 @@ public class MenuController {
         return this.menuScene;
     }
 
-    public boolean getOnStartGame() {
-        return this.onStartGame;
+    public Button getStartButton() {
+        return this.startButton;
+    }
+
+    public Button getExitButton() {
+        return this.exitButton;
+    }
+
+    public Button getSettingsButton() {
+        return this.settingsButton;
     }
 }

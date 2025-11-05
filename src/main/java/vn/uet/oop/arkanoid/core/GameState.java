@@ -1,22 +1,36 @@
 package vn.uet.oop.arkanoid.core;
 
-import vn.uet.oop.arkanoid.config.GameConfig;
-import javafx.stage.Stage;
+public enum GameState {
+    MENU("Main Menu"),
+    PLAYING("In Game"),
+    PAUSED("Game Paused"),
+    GAME_OVER("Game Over"),
+    LEVEL_COMPLETE("Level Complete"),
+    TRANSITION("Level Transition");
 
-public class GameState {
-    private Stage stateStage;
+    private final String description;
 
-    public GameState(Stage s) {
-        this.stateStage = s;
+    GameState(String description) {
+        this.description = description;
     }
 
-    public void checkGameState(int x) {
-        switch (x) {
-            case GameConfig.pauseState:
+    public String getDescription() {
+        return description;
+    }
 
-            case GameConfig.settingState:
+    /**
+     * check game is active  or paused
+     * @return true if game is active or paused
+     */
+    public boolean isGameActive() {
+        return this == PLAYING || this == PAUSED;
+    }
 
-            case GameConfig.gameOverState:
-        }
+    public boolean canPause() {
+        return this == PLAYING;
+    }
+
+    public boolean canResume() {
+        return this == PAUSED;
     }
 }

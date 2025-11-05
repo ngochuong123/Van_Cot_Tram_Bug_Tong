@@ -1,52 +1,55 @@
 package vn.uet.oop.arkanoid.model.bricks;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
+import javafx.scene.image.Image;
 
 public class InvisibleBrick extends Brick {
     private boolean revealed = false;
 
+    private final Image invisibleBrickImage;
+
     public InvisibleBrick(double x, double y, double width, double height, int durabilityPoints) {
         super(x, y, width, height, durabilityPoints);
-
+        this.durabilityPoints = Math.min(durabilityPoints, 4);
+        invisibleBrickImage = new Image(getClass().getResourceAsStream("/image/InvisibleBrick.png"));
     }
 
+    /**
+     * first hit just reveals the brick without reducing durability.
+     *
+     * @return the remaining durability points
+     */
     @Override
     public int takeHit() {
         if (!revealed) {
             revealed = true;
-            // TODO: turn on some visual effect to indicate the brick is revealed
-            return durabilityPoints; // first hit just reveals the brick
+            return durabilityPoints;
         }
-
-        durabilityPoints--;
+        durabilityPoints = Math.max(0, durabilityPoints - 1);
         return durabilityPoints;
     }
 
+    public boolean isRevealed() { return revealed; }
+
     @Override
     public boolean isBroken() {
-        return durabilityPoints <= 0;
-    }
-
-    public boolean isRevealed() {
-        return revealed;
+        return revealed && durabilityPoints <= 0;
     }
 
     @Override
-    public void update(double deltaTime) {
-        // not need update
-    }
+    public void update(double deltaTime) { }
 
     @Override
     public void render(GraphicsContext gc) {
         if (revealed) {
-            gc.setFill(Color.GREEN);
-            gc.fillRect(getX(), getY(), getWidth(), getHeight());
-
-            gc.setStroke(Color.WHITE);
-            gc.setLineWidth(2);
-            gc.strokeRect(getX(), getY(), getWidth(), getHeight());
+            if (!isBroken()) {
+                gc.drawImage(invisibleBrickImage, getX(), getY(), getWidth(), getHeight());
+                Image crackImage = getCrackImage();
+                if (crackImage != null) {
+                    gc.drawImage(crackImage, getX(), getY(), getWidth(), getHeight());
+                }
+            }
         }
-        // Nếu chưa lộ diện thì không vẽ gì
+
     }
 }

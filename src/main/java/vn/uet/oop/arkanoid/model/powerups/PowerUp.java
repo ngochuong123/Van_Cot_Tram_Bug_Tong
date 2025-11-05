@@ -1,10 +1,8 @@
 package vn.uet.oop.arkanoid.model.powerups;
 
 import javafx.geometry.Rectangle2D;
-import javafx.scene.canvas.GraphicsContext;
 import vn.uet.oop.arkanoid.model.GameObject;
-import vn.uet.oop.arkanoid.model.Paddle;
-import vn.uet.oop.arkanoid.model.Ball;
+import vn.uet.oop.arkanoid.config.GameConfig;
 import vn.uet.oop.arkanoid.model.interfaces.Collidable;
 import vn.uet.oop.arkanoid.model.interfaces.Renderable;
 
@@ -29,12 +27,14 @@ public abstract class PowerUp extends GameObject implements Collidable, Renderab
         this.dY = dY;
     }
 
-    // PowerUp rơi xuống
     @Override
     public void update(double deltaTime) {
         setY(getY() + dY * deltaTime);
     }
 
-    // Mỗi PowerUp sẽ có hiệu ứng riêng
+    public boolean isActive() {
+        return getY() < GameConfig.SCREEN_HEIGHT;
+    }
+
     public abstract void applyEffect(Object o);
 }

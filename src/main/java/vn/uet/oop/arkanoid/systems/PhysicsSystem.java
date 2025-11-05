@@ -1,39 +1,23 @@
 package vn.uet.oop.arkanoid.systems;
 
+import vn.uet.oop.arkanoid.audio.AudioEngine;
+import vn.uet.oop.arkanoid.audio.SoundManager;
 import vn.uet.oop.arkanoid.config.GameConfig;
 import vn.uet.oop.arkanoid.model.Ball;
-import vn.uet.oop.arkanoid.model.GameObject;
 import vn.uet.oop.arkanoid.model.Paddle;
 import vn.uet.oop.arkanoid.model.bricks.*;
-import vn.uet.oop.arkanoid.model.powerups.ExpandPaddlePowerUp;
-import vn.uet.oop.arkanoid.model.powerups.FastBallPowerUp;
-import vn.uet.oop.arkanoid.model.powerups.MultiBallPowerUp;
-import vn.uet.oop.arkanoid.model.powerups.PowerUp;
-import vn.uet.oop.arkanoid.model.powerups.ShieldPowerUp;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /*
  * manage physic state
  */
 public class PhysicsSystem {
-
-    /*
-     * update ball position
-     */
-    public void updateBall(Ball ball, double deltaTime) {
-        if (ball.isLaunched() == false) {
-            return;
-        }
-        ball.setPosition(ball.getX() + ball.getDx() * deltaTime, ball.getY() + ball.getDy() * deltaTime);
-    }
-
     /*
      * check ball statement with wall
      */
     public void bounceBallOnWalls(Ball ball, Paddle paddle) {
-        // va cham trai phai
         if (ball.getX() <= 0) {
             ball.setX(0);
             ball.setDx(Math.abs(ball.getDx()));
@@ -42,20 +26,20 @@ public class PhysicsSystem {
             ball.setDx(-Math.abs(ball.getDx()));
         }
 
-        // va cham tran
+        // boundary top and bottom
         if (ball.getY() <= 0) {
             ball.setY(0);
             ball.setDy(Math.abs(ball.getDy()));
         }
 
-        if (ball.getY() >= GameConfig.SCREEN_HEIGHT) {
             if (ball.getY() >= GameConfig.SCREEN_HEIGHT) {
-                // Nếu paddle có shield thì bóng nảy lại, không reset
+                // set shield effect
                 if (paddle.isHasShield()) {
-                    ball.setDy(-Math.abs(ball.getDy())); // Bật lên
+                    ball.setDy(-Math.abs(ball.getDy()));
                     ball.setY(GameConfig.SCREEN_HEIGHT - ball.getHeight() - 5);
-                    paddle.setHasShield(false); // Shield chỉ dùng 1 lần
-                }
+                    paddle.setHasShield(false);
+                } else if (ball.getY() - ball.getRadius() > GameConfig.SCREEN_HEIGHT + 20) {
+                ball.setOutOfScreen(true);
             }
         }
     }
@@ -67,108 +51,186 @@ public class PhysicsSystem {
         if (!CollisionSystem.checkBallPaddle(ball, paddle)) {
             return;
         }
+        paddle.onBallHit();
+        AudioEngine.playSound(SoundManager.HIT_WALL);
 
-        // Tính vị trí chạm tương đối
         double paddleCenter = paddle.getX() + paddle.getWidth() / 2.0;
         double ballCenter = ball.getX() + ball.getWidth() / 2.0;
         double hitOffset = (ballCenter - paddleCenter) / (paddle.getWidth() / 2.0);
-        // hitOffset ∈ [-1, 1] → -1 là rìa trái, 1 là rìa phải
 
-        // Tốc độ tổng hiện tại của bóng (để giữ đà bay đều)
         double speed = Math.sqrt(ball.getDx() * ball.getDx() + ball.getDy() * ball.getDy());
 
-        // Giới hạn góc phản xạ: không bay ngang hoàn toàn
-        double maxAngle = Math.toRadians(60); // 60 độ lệch tối đa
+        double maxAngle = Math.toRadians(60); // 60 degrees
 
-        // Góc phản xạ (so với trục dọc)
+        // angle of reflection
         double angle = hitOffset * maxAngle;
 
-        // Cập nhật vector vận tốc
+        // update ball velocity
         ball.setDx(speed * Math.sin(angle));
-        ball.setDy(-Math.abs(speed * Math.cos(angle))); // luôn bay lên
+        ball.setDy(-Math.abs(speed * Math.cos(angle)));
     }
 
+    /**
+     * check logic when ball hits bricks.
+     * @param ball the ball
+     * @param bricks list of bricks
+     */
+    public Brick bounceBallOnBricks(Ball ball, List<Brick> bricks) {
+        Brick hitBrick = CollisionSystem.getCollidedBrick(ball, bricks);
+        if (hitBrick == null) return null;
+
+        AudioEngine.playSound(SoundManager.HIT_BRICK);
+        boolean isFireball = ball.isFireMode();
+        boolean isUnbreakable = hitBrick instanceof UnbreakableBrick;
+        if (isFireball && !isUnbreakable) {
+            if (hitBrick instanceof RegeneratingBrick regen) {
+                regen.destroyPermanently();
+            }
+
+            applyBrickLogicSameFrame(hitBrick, bricks);
+        } else {
+            applyBrickLogicSameFrame(hitBrick, bricks);
+        }
+
+
+        if (!isFireball || (isFireball && isUnbreakable)) {
+            resolveBounce(ball, hitBrick);
+        }
+
+        return hitBrick;
+    }
 
     /**
-     * check collision on left/right or under/above.
-     * 
-     * @param ball   ball
-     * @param bricks list bricks need to check
+     * check and resolve when ball bounces on brick.
+     *
+     * @param ball
+     * @param hitBrick
      */
-    public int bounceBallOnBricks(Ball ball, List<Brick> bricks, List<PowerUp> powerUps) {
-        Brick hitBrick = CollisionSystem.getCollidedBrick(ball, bricks);
-        int bricksHit = 0;
+    private void resolveBounce(Ball ball, Brick hitBrick) {
+        double ballCenterX = ball.getX() + ball.getWidth() / 2;
+        double ballCenterY = ball.getY() + ball.getHeight() / 2;
+        double brickCenterX = hitBrick.getX() + hitBrick.getWidth() / 2;
+        double brickCenterY = hitBrick.getY() + hitBrick.getHeight() / 2;
 
-        if (hitBrick != null) {
-            double ballCenterX = ball.getX() + ball.getWidth() / 2;
-            double ballCenterY = ball.getY() + ball.getHeight() / 2;
-            double brickCenterX = hitBrick.getX() + hitBrick.getWidth() / 2;
-            double brickCenterY = hitBrick.getY() + hitBrick.getHeight() / 2;
+        double dx = (ballCenterX - brickCenterX) / hitBrick.getWidth();
+        double dy = (ballCenterY - brickCenterY) / hitBrick.getHeight();
 
-            double dx = (ballCenterX - brickCenterX) / hitBrick.getWidth();
-            double dy = (ballCenterY - brickCenterY) / hitBrick.getHeight();
-
-            if (Math.abs(dx) > Math.abs(dy)) {
-                ball.setDx(-ball.getDx());
-                //Đẩy bóng ra khỏi gạch 1 chút để tránh kẹt
-                if (dx > 0) {
-                    ball.setX(hitBrick.getX() + hitBrick.getWidth());
-                } else {
-                    ball.setX(hitBrick.getX() - ball.getWidth());
-                }
+        if (Math.abs(dx) > Math.abs(dy)) {
+            ball.setDx(-ball.getDx());
+            if (dx > 0) {
+                ball.setX(hitBrick.getX() + hitBrick.getWidth());
             } else {
-                ball.setDy(-ball.getDy());
-                //Đẩy bóng ra khỏi gạch 1 chút
-                if (dy > 0) {
-                    ball.setY(hitBrick.getY() + hitBrick.getHeight());
+                ball.setX(hitBrick.getX() - ball.getWidth());
+            }
+        } else {
+            ball.setDy(-ball.getDy());
+            if (dy > 0) {
+                ball.setY(hitBrick.getY() + hitBrick.getHeight());
+            } else {
+                ball.setY(hitBrick.getY() - ball.getHeight());
+            }
+        }
+    }
+
+    /**
+     * apply brick logic immediately.
+     *
+     * @param hit the hit brick
+     * @param bricks list of bricks
+     */
+    private void applyBrickLogicSameFrame(Brick hit, List<Brick> bricks) {
+
+        if (hit instanceof UnbreakableBrick) {
+            return;
+        }
+
+        // first hit just reveals.
+        hit.takeHit();
+        if (hit instanceof InvisibleBrick inv && !inv.isBroken()) {
+            return;
+        }
+
+        // explode neighbors
+        if (hit instanceof ExplosiveBrick && hit.isBroken()) {
+            AudioEngine.playSound(SoundManager.BREAK_BRICK);
+            explodeAndRemoveNeighbors((ExplosiveBrick) hit, bricks);
+            bricks.remove(hit);
+            return;
+        }
+
+        // remove all chain bricks with same id
+        if (hit instanceof ChainBrick cb && hit.isBroken()) {
+            AudioEngine.playSound(SoundManager.BREAK_BRICK);
+            int id = cb.getChainId();
+            List<Brick> toRemove = new ArrayList<>();
+            for (Brick b : bricks) {
+                if (b instanceof ChainBrick other && other.getChainId() == id) {
+                    toRemove.add(b);
+                }
+            }
+            bricks.removeAll(toRemove);
+            return;
+        }
+
+        //regenerating after some time
+        if (hit instanceof RegeneratingBrick) {
+            return;
+        }
+
+        if (hit.isBroken()) {
+            AudioEngine.playSound(SoundManager.BREAK_BRICK);
+            bricks.remove(hit);
+        }
+    }
+
+    /**
+     * explode and remove neighboring bricks.
+     *
+     * @param origin the explosive brick
+     * @param bricks list of bricks
+     */
+    private void explodeAndRemoveNeighbors(ExplosiveBrick origin, List<Brick> bricks) {
+        List<Brick> toRemove = new ArrayList<>();
+
+        double w  = origin.getWidth();
+        double h  = origin.getHeight();
+        double cx0 = origin.getX() + w / 2.0;
+        double cy0 = origin.getY() + h / 2.0;
+
+        double stepX = w + GameConfig.BRICK_SPACING;
+        double stepY = h + GameConfig.BRICK_SPACING;
+
+        double tolX = Math.max(2.0, GameConfig.BRICK_SPACING * 0.6);
+        double tolY = Math.max(2.0, GameConfig.BRICK_SPACING * 0.6);
+
+        for (Brick b : bricks) {
+            if (b == origin) continue;
+
+            double cx = b.getX() + b.getWidth() / 2.0;
+            double cy = b.getY() + b.getHeight() / 2.0;
+            double dx = cx - cx0;
+            double dy = cy - cy0;
+
+            long gx = Math.round(dx / stepX);
+            long gy = Math.round(dy / stepY);
+
+            double snapX = gx * stepX;
+            double snapY = gy * stepY;
+
+            boolean closeToGrid = Math.abs(dx - snapX) <= tolX && Math.abs(dy - snapY) <= tolY;
+            boolean isNeighbor  = Math.max(Math.abs(gx), Math.abs(gy)) == 1 && !(gx == 0 && gy == 0);
+
+            if (closeToGrid && isNeighbor) {
+                if (b instanceof RegeneratingBrick regen) {
+                    regen.destroyPermanently();
+                    toRemove.add(b);
                 } else {
-                    ball.setY(hitBrick.getY() - ball.getHeight());
-                }
-            }
-
-            if (!(hitBrick instanceof UnbreakableBrick)) {
-                if (hitBrick.isBroken()) {
-                    bricks.remove(hitBrick);
-                }
-            }
-            if(hitBrick.isBroken()) {
-                Random rand = new Random();
-
-                // Xác suất rơi PowerUp
-                double dropChance = 0.3;
-                if (rand.nextDouble() < dropChance) {
-                    // Nếu rơi ra PowerUp thì chọn loại
-                    double typeChance = rand.nextDouble();
-                    PowerUp newPowerUp;
-
-                    if (typeChance < 0.5) {
-                        newPowerUp = new ExpandPaddlePowerUp(
-                                hitBrick.getX() + hitBrick.getWidth() / 2,
-                                hitBrick.getY() + hitBrick.getHeight() / 2,
-                                20, 20, 70
-                        );
-                    } else if (typeChance < 0.75) {
-                        newPowerUp = new FastBallPowerUp(
-                                hitBrick.getX() + hitBrick.getWidth() / 2,
-                                hitBrick.getY() + hitBrick.getHeight() / 2,
-                                20, 20, 70
-                        );
-                    } else if (typeChance < 0.9) {
-                        newPowerUp = new MultiBallPowerUp(hitBrick.getX() + hitBrick.getWidth() / 2,
-                                hitBrick.getY() + hitBrick.getHeight() / 2,
-                                20, 20, 70);
-                    } else {
-                        newPowerUp = new ShieldPowerUp(
-                                hitBrick.getX() + hitBrick.getWidth() / 2,
-                                hitBrick.getY() + hitBrick.getHeight() / 2,
-                                20, 20, 70
-                        );
-                    }
-                    powerUps.add(newPowerUp);
+                    toRemove.add(b);
                 }
             }
         }
-
-        return bricksHit;
+        bricks.removeAll(toRemove);
     }
+
+
 }

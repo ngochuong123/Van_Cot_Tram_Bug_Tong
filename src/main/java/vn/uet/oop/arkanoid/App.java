@@ -1,32 +1,44 @@
 package vn.uet.oop.arkanoid;
 
-import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.input.KeyCode;
-import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import vn.uet.oop.arkanoid.audio.AudioEngine;
+import vn.uet.oop.arkanoid.core.SceneRouter;
 import vn.uet.oop.arkanoid.config.GameConfig;
-import vn.uet.oop.arkanoid.core.GameManager;
-import vn.uet.oop.arkanoid.ui.HUD;
-import vn.uet.oop.arkanoid.ui.MenuController;
-import javafx.scene.image.Image;
 
 
 public class App extends Application {
 
     @Override
-    public void start(Stage stage) {
-        MenuController menuController = new MenuController(stage);
-        menuController.eventMenu();
+    public void start(Stage primaryStage) {
+        try {
 
+            AudioEngine.init();
+
+            primaryStage.setTitle("Arkanoid Game");
+            primaryStage.setResizable(false);
+
+            SceneRouter router = new SceneRouter(primaryStage);
+
+            router.showMainMenu();
+
+            primaryStage.show();
+
+            System.out.println(" Arkanoid Game started successfully!");
+
+        } catch (Exception e) {
+            System.err.println("❌ Failed to start game: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void stop() {
+        System.out.println(" Game application stopping...");
     }
 
     public static void main(String[] args) {
-        launch(args); // Khởi động JavaFX Application
-
+        System.out.println("🎮 Starting Arkanoid Game...");
+        launch(args);
     }
 }

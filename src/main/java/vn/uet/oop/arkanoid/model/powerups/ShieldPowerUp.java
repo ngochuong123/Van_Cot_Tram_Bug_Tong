@@ -1,16 +1,33 @@
 package vn.uet.oop.arkanoid.model.powerups;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
 import vn.uet.oop.arkanoid.model.Paddle;
 import javafx.scene.image.Image;
 
+/**
+ * ShieldPowerUp class
+ */
 public class ShieldPowerUp extends PowerUp {
 
+    private final Image shieldPowerUp;
+
+    /**
+     * ShieldPowerUp's constructor.
+     * @param x
+     * @param y
+     * @param width
+     * @param height
+     * @param dY
+     */
     public ShieldPowerUp(double x, double y, double width, double height, double dY) {
         super(x, y, width, height, dY);
+        shieldPowerUp = new Image(getClass().getResourceAsStream("/image/ShieldPowerUp.png"));
     }
 
+    /**
+     * ShieldPowerUp's effect
+     * @param o
+     */
     @Override
     public void applyEffect(Object o) {
         if (o instanceof Paddle) {
@@ -19,10 +36,9 @@ public class ShieldPowerUp extends PowerUp {
         }
     }
 
-    Image ShieldPowerUp = new Image("file:src/main/java/vn/uet/oop/arkanoid/config/image/ShieldPowerUp.png");
-
+    //render ShieldPowerUp image
     @Override
     public void render(GraphicsContext gc) {
-        gc.drawImage(ShieldPowerUp, getX(), getY(), getWidth(), getHeight());
+        gc.drawImage(shieldPowerUp, getX(), getY(), getWidth(), getHeight());
     }
 }

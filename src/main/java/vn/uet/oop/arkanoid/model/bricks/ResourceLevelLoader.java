@@ -1,4 +1,3 @@
-// File: src/main/java/vn/uet/oop/arkanoid/model/bricks/ResourceLevelLoader.java
 package vn.uet.oop.arkanoid.model.bricks;
 
 import java.io.IOException;
@@ -25,7 +24,6 @@ public final class ResourceLevelLoader {
 
         String p = resourcePath.replace('\\','/').trim();
         if (p.startsWith("/")) p = p.substring(1);
-        p = p.replaceFirst("^resoures/", "resources/");
 
         String fileName = p.substring(p.lastIndexOf('/') + 1);
         String classpathPath = "levels/" + fileName;
