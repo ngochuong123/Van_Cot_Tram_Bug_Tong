@@ -1,6 +1,5 @@
 package vn.uet.oop.arkanoid.model.bricks;
 
-import javafx.scene.image.Image;
 
 public enum BrickType {
     NORMAL,
@@ -11,6 +10,11 @@ public enum BrickType {
     EXPLOSIVE,
     CHAIN;
 
+    /**
+     * get brick type.
+     * @param s String type
+     * @return BrickType
+     */
     public static BrickType from(String s) {
         return BrickType.valueOf(s.trim().toUpperCase());
     }

@@ -1,7 +1,6 @@
 package vn.uet.oop.arkanoid.model.powerups;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
 import vn.uet.oop.arkanoid.model.Ball;
 
 import java.util.ArrayList;

@@ -1,9 +1,7 @@
-// File: vn/uet/oop/arkanoid/model/bricks/InvisibleBrick.java
 package vn.uet.oop.arkanoid.model.bricks;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.paint.Color;
 
 public class InvisibleBrick extends Brick {
     private boolean revealed = false;
@@ -17,9 +15,9 @@ public class InvisibleBrick extends Brick {
     }
 
     /**
-     * first hit just reveals the brick without reducing durability
+     * first hit just reveals the brick without reducing durability.
      *
-     * @return
+     * @return the remaining durability points
      */
     @Override
     public int takeHit() {

@@ -2,6 +2,7 @@ package vn.uet.oop.arkanoid.model.powerups;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import vn.uet.oop.arkanoid.config.GameConfig;
 import vn.uet.oop.arkanoid.model.Ball;
 
 import java.util.Timer;
@@ -9,6 +10,8 @@ import java.util.TimerTask;
 import javafx.scene.image.Image;
 
 public class FireBallPowerUp extends PowerUp {
+
+    private static final int DURATION = GameConfig.DURATION_POWERUP;
 
     public FireBallPowerUp(double x, double y, double width, double height, double dY) {
         super(x, y, width, height, dY);
@@ -26,7 +29,7 @@ public class FireBallPowerUp extends PowerUp {
                         public void run() {
                             ball.setFireMode(false);
                         }
-                    }, 5000);
+                    }, DURATION);
                 }
             }
         }

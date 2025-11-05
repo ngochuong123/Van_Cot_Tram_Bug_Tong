@@ -1,6 +1,4 @@
 package vn.uet.oop.arkanoid.model.bricks;
-import vn.uet.oop.arkanoid.model.bricks.Brick;
-import vn.uet.oop.arkanoid.model.bricks.BrickFactory;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;

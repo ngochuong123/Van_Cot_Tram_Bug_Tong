@@ -1,8 +1,6 @@
 package vn.uet.oop.arkanoid.model.bricks;
-
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.paint.Color;
 
 public class UnbreakableBrick extends Brick {
 

@@ -16,8 +16,10 @@ public class ChainBrick extends Brick {
         chainBrickImage = new Image(getClass().getResourceAsStream("/image/ChainBrick.png"));
     }
 
-    public int getChainId() { return chainId; }
-
+    /**
+     * substract 1 durability point when hit.
+     * @return the remaining durability points
+     */
     @Override
     public int takeHit() {
         durabilityPoints = Math.max(0, durabilityPoints - 1);
@@ -28,8 +30,12 @@ public class ChainBrick extends Brick {
     public boolean isBroken() { return durabilityPoints <= 0; }
 
     @Override
-    public void update(double deltaTime) { /* no-op */ }
+    public void update(double deltaTime) { }
 
+    /**
+     * render the brick.
+     * @param gc the GraphicsContext to render on
+     */
     @Override
     public void render(GraphicsContext gc) {
         if (!isBroken()) {
@@ -41,4 +47,6 @@ public class ChainBrick extends Brick {
             }
         }
     }
+
+    public int getChainId() { return chainId; }
 }
