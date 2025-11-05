@@ -58,7 +58,7 @@ public class GameManager {
         Ball mainBall = Ball.createBall(GameConfig.SCREEN_WIDTH / 2, GameConfig.SCREEN_HEIGHT / 2);
         balls.add(mainBall);
         mainBall.stickTo(paddle);
-        loadLevelFromClasspath("/levels/level2.txt");
+        loadLevelFromClasspath("/levels/level3.txt");
     }
 
     public void launchBall() {
