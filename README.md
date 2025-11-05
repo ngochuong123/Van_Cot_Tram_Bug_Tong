@@ -10,7 +10,7 @@ Dự án này được thực hiện trong khuôn khổ bài tập **Lập trìn
 ## 🎯 2. Video Demo
 
 🎥 **Xem video giới thiệu game tại đây:**  
-👉 https://youtu.be/your-demo-link
+👉 [https://youtu.be/your-demo-link](https://drive.google.com/file/d/1w1vnluYeM2menXUQ6BvXS2-XWdoiG1AX/view?usp=sharing)
 
 ---
 
