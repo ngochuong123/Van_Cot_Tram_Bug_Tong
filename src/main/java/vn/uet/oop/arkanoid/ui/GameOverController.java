@@ -16,14 +16,12 @@ public class GameOverController {
     private SceneRouter router; // THÊM SceneRouter reference
     private Stage parentStage;
 
-    // CONSTRUCTOR MỚI - nhận SceneRouter
     public GameOverController(Stage parentStage, int finalScore, SceneRouter router) {
         this.parentStage = parentStage;
         this.router = router;
         createGameOverMenu(parentStage, finalScore);
     }
 
-    // CONSTRUCTOR CŨ (tương thích)
     public GameOverController(Stage parentStage, int finalScore) {
         this(parentStage, finalScore, null);
     }
@@ -44,31 +42,31 @@ public class GameOverController {
         scoreLabel.setFont(Font.font("Arial", 24));
         scoreLabel.setTextFill(Color.WHITE);
 
-        // High Score (✅ THÊM - nếu có)
+        // High Score
         Label highScoreLabel = new Label("High Score: " + getHighScore(finalScore));
         highScoreLabel.setFont(Font.font("Arial", 20));
         highScoreLabel.setTextFill(Color.GOLD);
 
         // Buttons
         Button restartButton = createMenuButton("Play Again", 200, 50);
-        Button quitButton = createMenuButton("Quit Game", 200, 50); // ✅ THÊM NÚT QUIT
+        Button quitButton = createMenuButton("Quit Game", 200, 50);
 
-        // ✅ SỬA: Button actions với SceneRouter
+        // Button actions with SceneRouter
         restartButton.setOnAction(e -> {
-            System.out.println("🔄 Play Again requested - Score: " + finalScore);
+            System.out.println("Play Again requested - Score: " + finalScore);
             if (router != null) {
-                router.startNewGame(); // ✅ Dùng router
+                router.startNewGame();
             }
             gameOverStage.close();
         });
 
 
         quitButton.setOnAction(e -> {
-            System.out.println("🚪 Quit Game requested");
+            System.out.println(" Quit Game requested");
             if (router != null) {
-                router.exitGame(); // ✅ Dùng router
+                router.exitGame();
             } else {
-                System.exit(0); // Fallback
+                System.exit(0);
             }
             gameOverStage.close();
         });
@@ -78,14 +76,14 @@ public class GameOverController {
         layout.getChildren().addAll(
                 titleLabel,
                 scoreLabel,
-                highScoreLabel, // ✅ THÊM HIGH SCORE
+                highScoreLabel,
                 restartButton,
-                quitButton // ✅ THÊM QUIT BUTTON
+                quitButton
         );
         layout.setAlignment(Pos.CENTER);
         layout.setStyle("-fx-background-color: rgba(0, 0, 0, 0.95); -fx-padding: 40; -fx-background-radius: 15;");
 
-        Scene scene = new Scene(layout, 500, 450); // ✅ TĂNG chiều cao
+        Scene scene = new Scene(layout, 500, 450); //
         scene.setFill(Color.TRANSPARENT);
         gameOverStage.setScene(scene);
 
@@ -98,9 +96,7 @@ public class GameOverController {
         gameOverStage.setAlwaysOnTop(true);
     }
 
-    // High score logic (có thể mở rộng sau)
     private int getHighScore(int currentScore) {
-        // Load từ file/settings
         return Math.max(currentScore, 1000); // Placeholder
     }
 
@@ -124,7 +120,7 @@ public class GameOverController {
                             "-fx-border-color: #FFFFFF; " +
                             "-fx-border-width: 2; " +
                             "-fx-border-radius: 10;");
-            button.setScaleX(1.05); // THÊM hiệu ứng scale
+            button.setScaleX(1.05);
             button.setScaleY(1.05);
         });
 
@@ -135,7 +131,7 @@ public class GameOverController {
                             "-fx-border-color: #FFFFFF; " +
                             "-fx-border-width: 2; " +
                             "-fx-border-radius: 10;");
-            button.setScaleX(1.0); // RESET scale
+            button.setScaleX(1.0);
             button.setScaleY(1.0);
         });
 
@@ -143,21 +139,17 @@ public class GameOverController {
     }
 
     public void show() {
-        // XOÁ reset flags
         gameOverStage.show();
         gameOverStage.requestFocus();
     }
 
-    // Method để đóng game over menu
     public void close() {
         if (gameOverStage != null) {
             gameOverStage.close();
         }
     }
 
-    // Update score (cho trường hợp hiển thị lại)
     public void updateScore(int newScore) {
-        // Có thể cập nhật UI nếu cần
         System.out.println("🎯 GameOver score updated: " + newScore);
     }
 }

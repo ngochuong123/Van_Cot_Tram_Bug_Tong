@@ -25,7 +25,6 @@ public class SceneRouter {
     private MenuController menuController;
     private PauseController pauseController;
     private GameOverController gameOverController;
-    // private SettingsController settingsController;
 
     private HUD hud;
 
@@ -48,7 +47,6 @@ public class SceneRouter {
         System.out.println(" Initializing SceneRouter...");
         // Pre-initialize các controller chính
         this.menuController = new MenuController(primaryStage, this);
-        // Xử lý sự kiện đóng cửa sổ chính
         primaryStage.setOnCloseRequest(e -> {
             System.out.println("Main window closing...");
             exitGame();
@@ -60,8 +58,8 @@ public class SceneRouter {
     public void showMainMenu() {
         System.out.println("🏠 Showing Main Menu");
         stopGameLoop();
-        AudioEngine.stopMusic(); // Dừng nhạc game (nếu đang phát)
-        AudioEngine.playMenuMusic(); // Bật nhạc menu
+        AudioEngine.stopMusic();
+        AudioEngine.playMenuMusic();
         if (menuController == null) {
             menuController = new MenuController(primaryStage, this);
         }
@@ -70,22 +68,17 @@ public class SceneRouter {
     public void startNewGame() {
         System.out.println("🎮 Starting New Game");
         cleanup();
-        // Khởi tạo game components
         initializeGameComponents();
-        // Đặt trạng thái PLAYING
         gameManager.setState(GameState.PLAYING);
-        AudioEngine.stopMusic(); // Dừng nhạc menu
-        AudioEngine.playGameMusic(); // Bật nhạc game
-        // Tạo và chuyển sang game scene
+        AudioEngine.stopMusic();
+        AudioEngine.playGameMusic();
         switchToGameScene();
-        // Bắt đầu game loop
         startGameLoop();
     }
 
     public void resumeGame() {
         System.out.println("Resuming Game");
 
-        // ĐẢM BẢO pause menu đã đóng
         if (pauseController != null && pauseController.isShowing()) {
             pauseController.close();
             System.out.println("✅ Pause menu closed");
@@ -96,10 +89,8 @@ public class SceneRouter {
             System.out.println("✅ GameState set to PLAYING");
         }
 
-        // RESTART GAME LOOP
         startGameLoop();
 
-        // FOCUS LẠI GAME CANVAS
         if (gameCanvas != null) {
             gameCanvas.requestFocus();
             System.out.println("✅ Game canvas focused");
@@ -146,10 +137,8 @@ public class SceneRouter {
 
         if (gameManager != null) {
             gameManager.setState(GameState.LEVEL_COMPLETE);
-            // Tạm dừng game loop trong thời gian chuyển level
             stopGameLoop();
 
-            // Sau 2 giây, chuyển level mới
             new Thread(() -> {
                 try {
                     Thread.sleep(2000);
@@ -174,13 +163,11 @@ public class SceneRouter {
 
     public void showSettings() {
         System.out.println("⚙️ Showing Settings");
-        // Tạm thời hiển thị thông báo
         System.out.println("Settings feature coming soon!");
     }
 
     public void showHighScores() {
         System.out.println("🏆 Showing High Scores");
-        // Implement HighScoresController
         System.out.println("High Scores feature coming soon!");
     }
 
@@ -196,15 +183,10 @@ public class SceneRouter {
 
     private void initializeGameComponents() {
         System.out.println("🔄 Initializing game components...");
-
-        // Khởi tạo GameManager (dùng singleton hoặc new)
         this.gameManager = GameManager.getInstance();
-        // Hoặc: this.gameManager = new GameManager();
 
-        // Khởi tạo GameRenderer
         this.gameRenderer = new GameRenderer(gameManager);
 
-        // Tạo canvas và graphics context
     if (this.gameCanvas == null) {
         this.gameCanvas = new Canvas(GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT);
         this.gc = gameCanvas.getGraphicsContext2D();
@@ -225,23 +207,19 @@ public class SceneRouter {
         primaryStage.setTitle("Arkanoid Game");
         primaryStage.show();
 
-        // Focus để nhận input
         gameCanvas.requestFocus();
     }
 
     private void createGameScene() {
         System.out.println("🎨 Creating Game Scene");
 
-        // Tạo root layout với HUD
         StackPane root = new StackPane();
 
-        // Canvas chiếm toàn bộ
         root.getChildren().add(gameCanvas);
 
-        // HUD overlay lên trên
         this.hud = new HUD();
         VBox hudContainer = hud.getContainer();
-        hudContainer.setStyle("-fx-background-color: transparent;"); // Background trong suốt
+        hudContainer.setStyle("-fx-background-color: transparent;");
         StackPane.setAlignment(hudContainer, Pos.TOP_LEFT);
         root.getChildren().add(hudContainer);
 
@@ -269,7 +247,6 @@ public class SceneRouter {
                     lastTime[0] = currentTime;
                     deltaTime = Math.min(deltaTime, 0.1);
 
-                    // Xử lý theo trạng thái game
                     if (gameManager != null) {
                         GameState currentState = gameManager.getCurrentState();
 
@@ -284,7 +261,7 @@ public class SceneRouter {
                                 // Render game
                                 gameRenderer.render(gc);
 
-                                // Kiểm tra auto-navigation
+                                // auto-navigation
                                 checkAutoNavigation();
                                 break;
 
@@ -292,7 +269,6 @@ public class SceneRouter {
                             case GAME_OVER:
                             case LEVEL_COMPLETE:
                             case MENU:
-                                // Chỉ render mà không update logic
                                 break;
                         }
                     }
@@ -363,7 +339,6 @@ public class SceneRouter {
             }
         });
 
-        // Click để focus
         gameScene.setOnMouseClicked(e -> gameCanvas.requestFocus());
     }
 
@@ -373,13 +348,13 @@ public class SceneRouter {
 
             switch (state) {
                 case GAME_OVER:
-                    startNewGame(); // Restart từ game over
+                    startNewGame();
                     break;
                 case PLAYING:
-                    gameManager.launchBall(); // Launch ball khi đang chơi
+                    gameManager.launchBall();
                     break;
                 case PAUSED:
-                    resumeGame(); // Resume từ pause bằng space
+                    resumeGame();
                     break;
             }
         }
@@ -393,7 +368,6 @@ public class SceneRouter {
             hud.setLives(gameManager.getLives());
             hud.setLevel(gameManager.getCurrentLevel());
 
-            // Hiển thị thông báo trạng thái game
             GameState state = gameManager.getCurrentState();
             switch (state) {
                 case PAUSED:
@@ -426,7 +400,6 @@ public class SceneRouter {
                     break;
 
                 case PLAYING:
-                    // Kiểm tra các điều kiện chuyển trạng thái
                     if (!gameManager.isAlive()) {
                         gameManager.setState(GameState.GAME_OVER);
                     } else if (gameManager.getBricksCount() == 0) {
@@ -460,7 +433,6 @@ public class SceneRouter {
         if (gameManager != null) {
             gameManager.resetGame();
         }
-        // Cleanup các controller
         if (pauseController != null) {
             pauseController.close();
         }

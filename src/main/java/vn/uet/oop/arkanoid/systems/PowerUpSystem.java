@@ -48,8 +48,7 @@ public class PowerUpSystem {
             PowerUp p = powerUps.get(i);
             p.update(deltaTime);
 
-            // nếu rơi khỏi màn hình thì xóa
-            if (p.getY() > GameConfig.SCREEN_HEIGHT) { // 600 = chiều cao màn hình
+            if (p.getY() > GameConfig.SCREEN_HEIGHT) {
                 powerUps.remove(i);
                 i--;
             }
@@ -72,7 +71,6 @@ public class PowerUpSystem {
                         p.applyEffect(balls);
 
                 } else if (p instanceof MultiBallPowerUp) {
-                    // truyền nguyên danh sách bóng vào
                     p.applyEffect(balls);
                 }
 
@@ -101,12 +99,11 @@ public class PowerUpSystem {
         if (!hitBrick.isBroken()) return;
 
         Random rand = new Random();
-        double dropChance = 0.5; // 30% xác suất rơi PowerUp
+        double dropChance = 0.5;
         if (rand.nextDouble() < dropChance) {
 
             PowerUp newPowerUp;
             double typeChance = rand.nextDouble();
-                // --- Có MultiBall ---
                 if (typeChance < 0.05) {
                     newPowerUp = new ExpandPaddlePowerUp(
                             hitBrick.getX() + hitBrick.getWidth() / 2,

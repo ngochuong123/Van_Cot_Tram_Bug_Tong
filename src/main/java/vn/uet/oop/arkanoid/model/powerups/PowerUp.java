@@ -27,7 +27,6 @@ public abstract class PowerUp extends GameObject implements Collidable, Renderab
         this.dY = dY;
     }
 
-    // PowerUp rơi xuống
     @Override
     public void update(double deltaTime) {
         setY(getY() + dY * deltaTime);
@@ -37,6 +36,5 @@ public abstract class PowerUp extends GameObject implements Collidable, Renderab
         return getY() < GameConfig.SCREEN_HEIGHT;
     }
 
-    // Mỗi PowerUp sẽ có hiệu ứng riêng
     public abstract void applyEffect(Object o);
 }

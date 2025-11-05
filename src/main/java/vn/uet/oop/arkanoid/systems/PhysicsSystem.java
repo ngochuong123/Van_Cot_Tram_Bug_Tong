@@ -18,7 +18,6 @@ public class PhysicsSystem {
      * check ball statement with wall
      */
     public void bounceBallOnWalls(Ball ball, Paddle paddle) {
-        // va cham trai phai
         if (ball.getX() <= 0) {
             ball.setX(0);
             ball.setDx(Math.abs(ball.getDx()));
@@ -27,20 +26,19 @@ public class PhysicsSystem {
             ball.setDx(-Math.abs(ball.getDx()));
         }
 
-        // va cham tran
+        // boundary top and bottom
         if (ball.getY() <= 0) {
             ball.setY(0);
             ball.setDy(Math.abs(ball.getDy()));
         }
 
             if (ball.getY() >= GameConfig.SCREEN_HEIGHT) {
-                // Nếu paddle có shield thì bóng nảy lại, không reset
+                // set shield effect
                 if (paddle.isHasShield()) {
-                    ball.setDy(-Math.abs(ball.getDy())); // Bật lên
+                    ball.setDy(-Math.abs(ball.getDy()));
                     ball.setY(GameConfig.SCREEN_HEIGHT - ball.getHeight() - 5);
-                    paddle.setHasShield(false); // Shield chỉ dùng 1 lần
+                    paddle.setHasShield(false);
                 } else if (ball.getY() - ball.getRadius() > GameConfig.SCREEN_HEIGHT + 20) {
-                // Đánh dấu bóng đã rơi khỏi màn hình, không reset ở đây nữa
                 ball.setOutOfScreen(true);
             }
         }
@@ -56,39 +54,32 @@ public class PhysicsSystem {
         paddle.onBallHit();
         AudioEngine.playSound(SoundManager.HIT_WALL);
 
-        // Tính vị trí chạm tương đối
         double paddleCenter = paddle.getX() + paddle.getWidth() / 2.0;
         double ballCenter = ball.getX() + ball.getWidth() / 2.0;
         double hitOffset = (ballCenter - paddleCenter) / (paddle.getWidth() / 2.0);
-        // hitOffset ∈ [-1, 1] → -1 là rìa trái, 1 là rìa phải
 
-        // Tốc độ tổng hiện tại của bóng (để giữ đà bay đều)
         double speed = Math.sqrt(ball.getDx() * ball.getDx() + ball.getDy() * ball.getDy());
 
-        // Giới hạn góc phản xạ: không bay ngang hoàn toàn
-        double maxAngle = Math.toRadians(60); // 60 độ lệch tối đa
+        double maxAngle = Math.toRadians(60); // 60 degrees
 
-        // Góc phản xạ (so với trục dọc)
+        // angle of reflection
         double angle = hitOffset * maxAngle;
 
-        // Cập nhật vector vận tốc
+        // update ball velocity
         ball.setDx(speed * Math.sin(angle));
-        ball.setDy(-Math.abs(speed * Math.cos(angle))); // luôn bay lên
+        ball.setDy(-Math.abs(speed * Math.cos(angle)));
     }
 
     /**
-     * Phát hiện + xử lý logic gạch NGAY TRONG FRAME.
-     *
-     * @param ball   ball
-     * @param bricks list bricks
-     * @return brick bị chạm (có thể đã bị remove sau xử lý)
+     * check logic when ball hits bricks.
+     * @param ball the ball
+     * @param bricks list of bricks
      */
     public Brick bounceBallOnBricks(Ball ball, List<Brick> bricks) {
         Brick hitBrick = CollisionSystem.getCollidedBrick(ball, bricks);
         if (hitBrick == null) return null;
 
         AudioEngine.playSound(SoundManager.HIT_BRICK);
-        // --- Phản xạ trước ---
         boolean isFireball = ball.isFireMode();
         boolean isUnbreakable = hitBrick instanceof UnbreakableBrick;
         if (isFireball && !isUnbreakable) {
@@ -109,8 +100,12 @@ public class PhysicsSystem {
         return hitBrick;
     }
 
-    /* ------------ Helpers ------------ */
-
+    /**
+     * check and resolve when ball bounces on brick.
+     *
+     * @param ball
+     * @param hitBrick
+     */
     private void resolveBounce(Ball ball, Brick hitBrick) {
         double ballCenterX = ball.getX() + ball.getWidth() / 2;
         double ballCenterY = ball.getY() + ball.getHeight() / 2;
@@ -122,7 +117,6 @@ public class PhysicsSystem {
 
         if (Math.abs(dx) > Math.abs(dy)) {
             ball.setDx(-ball.getDx());
-            // Đẩy bóng ra khỏi gạch 1 chút để tránh kẹt
             if (dx > 0) {
                 ball.setX(hitBrick.getX() + hitBrick.getWidth());
             } else {
@@ -130,7 +124,6 @@ public class PhysicsSystem {
             }
         } else {
             ball.setDy(-ball.getDy());
-            // Đẩy bóng ra khỏi gạch 1 chút
             if (dy > 0) {
                 ball.setY(hitBrick.getY() + hitBrick.getHeight());
             } else {
@@ -140,42 +133,32 @@ public class PhysicsSystem {
     }
 
     /**
-     * Invisible: lần đầu chỉ reveal (không trừ máu)
-     * Explosive: khi vỡ nổ 8 hướng, phá mọi gạch (kể cả Unbreakable), Regenerating bị remove vĩnh viễn
-     * Chain: vỡ 1 viên -> remove cả chain cùng id
-     * Regenerating: khi vỡ thì destroyed & chờ hồi (update ở lớp gạch); nếu bị nổ thì remove vĩnh viễn
-     * Unbreakable: không vỡ bởi bóng (nhưng bị nổ thì remove tại đây)
-     * Normal: vỡ thì remove
+     * apply brick logic immediately.
+     *
+     * @param hit the hit brick
+     * @param bricks list of bricks
      */
     private void applyBrickLogicSameFrame(Brick hit, List<Brick> bricks) {
 
-        // 5) Unbreakable: không bao giờ vỡ do bóng
         if (hit instanceof UnbreakableBrick) {
             return;
         }
 
-        // 1) Invisible: lần đầu đập -> chỉ lộ, không trừ máu
-        if (hit instanceof InvisibleBrick inv) {
-            boolean wasRevealed = inv.isRevealed();
-            inv.takeHit(); // nếu chưa lộ thì chỉ set revealed=true
-            if (!wasRevealed && inv.isRevealed()) {
-                return; // kết thúc frame, chưa phá
-            }
-        } else {
-            // Các loại khác: nhận sát thương ngay
-            hit.takeHit();
+        // first hit just reveals.
+        hit.takeHit();
+        if (hit instanceof InvisibleBrick inv && !inv.isBroken()) {
+            return;
         }
 
-        // 2) Explosive: khi vỡ -> nổ 8 hướng & remove ngay
+        // explode neighbors
         if (hit instanceof ExplosiveBrick && hit.isBroken()) {
             AudioEngine.playSound(SoundManager.BREAK_BRICK);
             explodeAndRemoveNeighbors((ExplosiveBrick) hit, bricks);
-            // remove chính viên nổ (nếu còn trong list)
             bricks.remove(hit);
             return;
         }
 
-        // 3) Chain: nếu vỡ -> remove tất cả ChainBrick cùng chainId
+        // remove all chain bricks with same id
         if (hit instanceof ChainBrick cb && hit.isBroken()) {
             AudioEngine.playSound(SoundManager.BREAK_BRICK);
             int id = cb.getChainId();
@@ -189,20 +172,23 @@ public class PhysicsSystem {
             return;
         }
 
-        // 4) Regenerating: khi vỡ -> ở lại list, tự đếm hồi bằng update(); KHÔNG remove
+        //regenerating after some time
         if (hit instanceof RegeneratingBrick) {
             return;
         }
 
-
-        // 6) Gạch thường: vỡ thì remove ngay
         if (hit.isBroken()) {
             AudioEngine.playSound(SoundManager.BREAK_BRICK);
             bricks.remove(hit);
         }
     }
 
-    /** Nổ 8 hướng theo bước tâm-tâm: step = kích thước ô + spacing */
+    /**
+     * explode and remove neighboring bricks.
+     *
+     * @param origin the explosive brick
+     * @param bricks list of bricks
+     */
     private void explodeAndRemoveNeighbors(ExplosiveBrick origin, List<Brick> bricks) {
         List<Brick> toRemove = new ArrayList<>();
 
@@ -211,11 +197,9 @@ public class PhysicsSystem {
         double cx0 = origin.getX() + w / 2.0;
         double cy0 = origin.getY() + h / 2.0;
 
-        // Bước lưới theo tâm-tâm
         double stepX = w + GameConfig.BRICK_SPACING;
         double stepY = h + GameConfig.BRICK_SPACING;
 
-        // Tolerance: nửa spacing + chút đệm
         double tolX = Math.max(2.0, GameConfig.BRICK_SPACING * 0.6);
         double tolY = Math.max(2.0, GameConfig.BRICK_SPACING * 0.6);
 
@@ -241,7 +225,7 @@ public class PhysicsSystem {
                     regen.destroyPermanently();
                     toRemove.add(b);
                 } else {
-                    toRemove.add(b); // cả Unbreakable cũng remove theo yêu cầu
+                    toRemove.add(b);
                 }
             }
         }

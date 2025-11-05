@@ -18,17 +18,18 @@ public enum GameState {
         return description;
     }
 
-    // Kiểm tra xem game có đang active không
+    /**
+     * check game is active  or paused
+     * @return true if game is active or paused
+     */
     public boolean isGameActive() {
         return this == PLAYING || this == PAUSED;
     }
 
-    // Kiểm tra xem có thể pause không
     public boolean canPause() {
         return this == PLAYING;
     }
 
-    // Kiểm tra xem có thể resume không
     public boolean canResume() {
         return this == PAUSED;
     }

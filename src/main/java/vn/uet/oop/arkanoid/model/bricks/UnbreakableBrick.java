@@ -13,7 +13,6 @@ public class UnbreakableBrick extends Brick {
 
     @Override
     public int takeHit() {
-        // Do nothing, unbreakable brick
         return 10;
     }
 

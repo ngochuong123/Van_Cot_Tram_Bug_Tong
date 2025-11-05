@@ -21,7 +21,7 @@ public class MenuController {
     private Stage primaryStage;
     private SceneRouter router;
     private Scene menuScene;
-    // Các thành phần UI
+
     private BorderPane root;
     private HBox menuHBox;
     private VBox menuVBox;
@@ -42,7 +42,7 @@ public class MenuController {
     }
 
     /*
-     * ham khoi tao cac nut, tieu de cua menu.
+     * initialize menu
      */
     public void createMenu() {
         createTitle();
@@ -89,7 +89,6 @@ public class MenuController {
     }
 
     public void createTitle() {
-        // label hien chu.
         this.titleLabel = new Label("Let'S GO");
         this.titleLabel.setFont(Font.font("Impact", 72));
         this.titleLabel.setTextFill(Color.web("#FF3366"));
@@ -147,12 +146,12 @@ public class MenuController {
     }
 
     /**
-     * hieu ung cua button.
+     * button hover effect
      *
-     * @param button
-     * @param colorNormal
-     * @param colorHover
-     * @param radius
+     * @param button button to add effect
+     * @param colorNormal color when not hover
+     * @param colorHover color when hover
+     * @param radius border radius
      */
     public void addHoverEffect(Button button, String colorNormal, String colorHover, int radius) {
         button.setOnMouseEntered(e -> {

@@ -41,11 +41,11 @@ public class PauseController {
         Button resumeButton = createMenuButton("Resume", 200, 50);
         Button restartButton = createMenuButton("Restart", 200, 50);
 
-        // Button actions với SceneRouter
+        // Button actions with SceneRouter
         resumeButton.setOnAction(e -> {
             System.out.println("▶️ Resume game requested");
             if (router != null) {
-                router.resumeGame(); // ✅ Dùng router
+                router.resumeGame();
             }
             pauseStage.close();
         });
@@ -53,7 +53,7 @@ public class PauseController {
         restartButton.setOnAction(e -> {
             System.out.println("🔄 Restart game requested");
             if (router != null) {
-                router.startNewGame(); // ✅ Dùng router
+                router.startNewGame();
             }
             pauseStage.close();
         });
@@ -117,20 +117,18 @@ public class PauseController {
     }
 
     public void show() {
-        System.out.println("🎯 Showing pause menu - Non blocking");
+        System.out.println("Showing pause menu - Non blocking");
         pauseStage.show();
 
         pauseStage.requestFocus();
     }
 
-    // Method để đóng pause menu
     public void close() {
         if (pauseStage != null) {
             pauseStage.close();
         }
     }
 
-    // Check nếu pause menu đang hiển thị
     public boolean isShowing() {
         return pauseStage != null && pauseStage.isShowing();
     }

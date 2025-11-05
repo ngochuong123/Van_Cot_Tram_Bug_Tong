@@ -47,7 +47,6 @@ public class MusicPlayer {
             currentMusicPlayer = new MediaPlayer(media);
             currentMusicPlayer.setMute(isMuted);
 
-            // infinity loop to play music
             currentMusicPlayer.setOnEndOfMedia(() ->
                     currentMusicPlayer.seek(Duration.ZERO)
             );

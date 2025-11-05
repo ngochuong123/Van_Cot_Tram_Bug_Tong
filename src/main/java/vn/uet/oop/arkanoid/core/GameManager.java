@@ -36,7 +36,6 @@ public class GameManager {
     private final List<Brick> bricksToRemove = new ArrayList<>();
     private final List<PowerUp> powerUpsToRemove = new ArrayList<>();
 
-    // Khởi tạo GameManager
     public GameManager() {
         this.balls = new ArrayList<>();
         this.paddle = Paddle.createPaddle();
@@ -47,6 +46,10 @@ public class GameManager {
         initGame();
     }
 
+    /**
+     * Singleton
+     * @return GameManager instance
+     */
     public static GameManager getInstance() {
         if (instance == null) {
             instance = new GameManager();
@@ -54,6 +57,9 @@ public class GameManager {
         return instance;
     }
 
+    /**
+     * Initialize game state
+     */
     private void initGame() {
         Ball mainBall = Ball.createBall(GameConfig.SCREEN_WIDTH / 2, GameConfig.SCREEN_HEIGHT / 2);
         balls.add(mainBall);
@@ -61,43 +67,50 @@ public class GameManager {
         loadLevelFromClasspath("/levels/level3.txt");
     }
 
+    /**
+     * launch the ball.
+     */
     public void launchBall() {
         if (!balls.isEmpty() && !balls.get(0).isLaunched()) {
             balls.get(0).launch();
         }
     }
 
+    /**
+     * Update game state
+     *
+     * @param deltaTime time
+     * @param leftPressed left key pressed
+     * @param rightPressed right key pressed
+     */
     public void update(double deltaTime, boolean leftPressed, boolean rightPressed) {
         if (currentState != GameState.PLAYING) {
             return;
         }
 
         paddle.update(deltaTime, leftPressed, rightPressed);
-
-        // Giữ bóng trên paddle nếu chưa launch
         if (balls.size() == 1 && !balls.get(0).isLaunched()) {
             balls.get(0).stickTo(paddle);
         }
 
         int bricksBefore = bricks.size();
         updateBalls(deltaTime);
-
-        // Cập nhật tất cả bricks
         for (Brick brick : bricks) {
             if (brick != null) {
                 brick.update(deltaTime);
             }
         }
-
         updatePowerUps(deltaTime);
         cleanupObjects();
         calculateScore(bricksBefore);
 
-        // Kiểm tra hoàn thành level
         checkAndHandleLevelCompletion();
         checkStateTransitions();
     }
 
+    /**
+     * check and handle state transitions.
+     */
     private void checkStateTransitions() {
         if (currentState == GameState.PLAYING) {
             if (!isAlive()) {
@@ -106,16 +119,30 @@ public class GameManager {
         }
     }
 
+    /**
+     * set state.
+     * @param newState new game state
+     */
     public void setState(GameState newState) {
         GameState oldState = this.currentState;
         this.currentState = newState;
         onStateChange(oldState, newState);
     }
 
+    /**
+     * print state change.
+     *
+     * @param oldState old game state
+     * @param newState new game state
+     */
     private void onStateChange(GameState oldState, GameState newState) {
         System.out.println("🔄 GameState changed: " + oldState + " → " + newState);
     }
 
+    /**
+     * update all balls in the game.
+     * @param deltaTime time
+     */
     private void updateBalls(double deltaTime) {
         if (balls.isEmpty()) return;
 
@@ -126,6 +153,9 @@ public class GameManager {
         checkBallsOutOfScreen();
     }
 
+    /**
+     * check if all balls are out of screen.
+     */
     private void checkBallsOutOfScreen() {
         if (paddle.isHasShield()) return;
 
@@ -145,6 +175,9 @@ public class GameManager {
         }
     }
 
+    /**
+     * handle losing a life.
+     */
     private void loseLife() {
         this.lives--;
         System.out.println("💔 Lost a life! Remaining: " + this.lives);
@@ -158,6 +191,11 @@ public class GameManager {
         }
     }
 
+    /**
+     * update a single ball.
+     * @param ball the ball to update
+     * @param deltaTime time
+     */
     private void updateSingleBall(Ball ball, double deltaTime) {
         ball.update(deltaTime);
         physicsSystem.bounceBallOnWalls(ball, paddle);
@@ -166,6 +204,11 @@ public class GameManager {
         powerUpSystem.spawnPowerUps(hitBrick);
     }
 
+    /**
+     * update power-ups.
+     *
+     * @param deltaTime time
+     */
     private void updatePowerUps(double deltaTime) {
         powerUpSystem.updatePowerUps(deltaTime);
         powerUpSystem.checkAndApply();
@@ -216,7 +259,7 @@ public class GameManager {
     }
 
     /**
-     * load the next level from classpath
+     * load the next level from classpath.
      */
     public void loadNextLevel() {
         System.out.println("🔄 Loading Level " + currentLevel);
@@ -239,6 +282,9 @@ public class GameManager {
         }
     }
 
+    /**
+     * reset the ball to initial position.
+     */
     private void resetBall() {
         balls.clear();
         Ball newBall = Ball.createBall(
@@ -257,6 +303,9 @@ public class GameManager {
         powerUpsToRemove.clear();
     }
 
+    /**
+     * reset the entire game state.
+     */
     public void resetGame() {
         this.balls.clear();
         this.bricks.clear();

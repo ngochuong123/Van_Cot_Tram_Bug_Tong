@@ -11,7 +11,7 @@ import java.util.TimerTask;
 
 /**
  * FireBallPowerUp class.
- * Làm bóng có thể xuyên gạch trong một khoảng thời gian.
+ * set ball to fire mode for a duration.
  */
 public class FireBallPowerUp extends PowerUp {
 
@@ -31,7 +31,6 @@ public class FireBallPowerUp extends PowerUp {
         if (obj instanceof List<?>) {
             List<Ball> balls = (List<Ball>) obj;
 
-            // Nếu đã có hiệu ứng FireBall đang hoạt động → chỉ reset thời gian
             if (isFireBallActive) {
                 if (fireBallTimer != null) {
                     fireBallTimer.cancel();
@@ -46,15 +45,10 @@ public class FireBallPowerUp extends PowerUp {
                 return;
             }
 
-            // Bắt đầu hiệu ứng mới
             isFireBallActive = true;
-
-            // Bật chế độ fire cho tất cả bóng hiện tại
             for (Ball ball : balls) {
                 ball.setFireMode(true);
             }
-
-            // Hẹn giờ tắt hiệu ứng
             fireBallTimer = new Timer();
             fireBallTimer.schedule(new TimerTask() {
                 @Override
@@ -65,15 +59,12 @@ public class FireBallPowerUp extends PowerUp {
         }
     }
 
-    // Hết hiệu ứng → tắt fire mode
     private void resetFireBall(List<Ball> balls) {
         for (Ball ball : balls) {
             ball.setFireMode(false);
         }
         isFireBallActive = false;
     }
-
-    // Cho phép lớp khác (như MultiBallPowerUp) kiểm tra hiệu ứng đang bật không
     public static boolean isFireBallActive() {
         return isFireBallActive;
     }

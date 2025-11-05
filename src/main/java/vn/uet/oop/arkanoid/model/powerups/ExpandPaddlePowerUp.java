@@ -17,6 +17,11 @@ public class ExpandPaddlePowerUp extends PowerUp {
         expandPaddle = new Image(getClass().getResourceAsStream("/image/expand_paddle.png"));
     }
 
+    /**
+     * apply effect to paddle.
+     *
+     * @param obj
+     */
     @Override
     public void applyEffect(Object obj) {
         if (obj instanceof Paddle) {

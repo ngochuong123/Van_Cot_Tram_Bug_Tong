@@ -15,11 +15,10 @@ public class Ball extends MovableObject {
     private boolean fireMode = false;
     private boolean outOfScreen = false;
 
-    // Góc phóng tự động (dao động)
-    private double launchAngle = 0;                // góc hiện tại
-    private static final double MAX_ANGLE = 80;    // giới hạn ±80°
-    private double angleSpeed = 60;                // tốc độ thay đổi góc (độ/giây)
-    private boolean angleIncreasing = true;        // hướng thay đổi góc
+    private double launchAngle = 0;
+    private static final double MAX_ANGLE = 80;
+    private double angleSpeed = 60;
+    private boolean angleIncreasing = true;
 
     public Ball(double x, double y, double radius, double dx, double dy) {
         super(x, y, radius * 2, radius * 2, dx, dy);
@@ -45,18 +44,23 @@ public class Ball extends MovableObject {
         setHeight(radius * 2);
     }
 
-    // Bóng dính trên paddle
+    /**
+     * stick ball to paddle.
+     * @param paddle
+     */
     public void stickTo(Paddle paddle) {
         double cx = paddle.getX() + paddle.getWidth() / 2.0;
         setX(cx - getWidth() / 2.0);
         setY(paddle.getY() - getHeight());
     }
 
-    // Phóng bóng theo góc hiện tại
+    /**
+     * launch the ball.
+     */
     public void launch() {
         double rad = Math.toRadians(launchAngle);
-        setDx(GameConfig.BALL_SPEED * Math.sin(rad));  // chuyển sang trái/phải
-        setDy(-GameConfig.BALL_SPEED * Math.cos(rad)); // hướng lên
+        setDx(GameConfig.BALL_SPEED * Math.sin(rad));
+        setDy(-GameConfig.BALL_SPEED * Math.cos(rad));
         launched = true;
     }
 
@@ -68,15 +72,13 @@ public class Ball extends MovableObject {
             return;
         }
 
-        // Cập nhật vị trí
         setPosition(getX() + getDx() * deltaTime, getY() + getDy() * deltaTime);
 
-        // Vệt lửa
+        // line fire trail
         trail.add(0, new double[]{getX(), getY()});
         if (trail.size() > MAX_TRAIL_SIZE) trail.remove(trail.size() - 1);
     }
 
-    // Góc phóng dao động tự động qua lại
     private void autoAdjustAngle(double deltaTime) {
         double change = angleSpeed * deltaTime;
         if (angleIncreasing) {
@@ -98,11 +100,10 @@ public class Ball extends MovableObject {
     public void render(GraphicsContext gc) {
         double diameter = this.radius * 2;
 
-        //  Vẽ tia hướng bắn khi chưa phóng
         if (!isLaunched()) {
             double cx = getX() + radius;
             double cy = getY() + radius;
-            double len = 80; // chiều dài tia
+            double len = 80;
             double rad = Math.toRadians(launchAngle);
 
             double tx = cx + len * Math.sin(rad);
@@ -112,12 +113,10 @@ public class Ball extends MovableObject {
             gc.setLineWidth(2.5);
             gc.strokeLine(cx, cy, tx, ty);
 
-            // Hiệu ứng sáng ở đầu tia
             gc.setFill(Color.rgb(255, 80, 80, 0.7));
             gc.fillOval(tx - 5, ty - 5, 10, 10);
         }
 
-        // 🔥 Vẽ bóng
         if (fireMode) {
             gc.setFill(Color.ORANGE);
             gc.fillOval(getX() - 2, getY() - 2, getWidth() + 4, getHeight() + 4);
@@ -128,7 +127,7 @@ public class Ball extends MovableObject {
             gc.fillOval(getX(), getY(), getWidth(), getHeight());
         }
 
-        // Vẽ vệt lửa
+        // pattern trail
         double alpha = 0.9;
         double sizeFactor = 1.0;
         double hueShift = 0;
@@ -150,7 +149,7 @@ public class Ball extends MovableObject {
             hueShift += 20;
         }
 
-        // Khói phía sau
+        // smoke trail
         for (int i = 1; i < trail.size(); i += 2) {
             double[] pos = trail.get(i);
             double smokeSize = diameter * 0.6 * (1.0 - (double) i / trail.size());
@@ -158,7 +157,6 @@ public class Ball extends MovableObject {
             gc.fillOval(pos[0], pos[1], smokeSize, smokeSize);
         }
 
-        // Bóng chính + highlight
         gc.setFill(Color.BLACK);
         gc.fillOval(getX(), getY(), diameter, diameter);
         gc.setFill(new Color(1, 1, 0.7, 0.9));

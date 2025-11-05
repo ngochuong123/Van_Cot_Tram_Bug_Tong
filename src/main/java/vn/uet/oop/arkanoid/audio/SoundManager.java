@@ -2,9 +2,9 @@ package vn.uet.oop.arkanoid.audio;
 
 import javafx.scene.media.AudioClip;
 import java.net.URL;
-import java.util.ArrayList; // <-- Import
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;      // <-- Import
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,13 +40,10 @@ public class SoundManager {
                 return;
             }
 
-            // create AudioClip once
             AudioClip clip = new AudioClip(resourceUrl.toExternalForm());
 
-            // 2. save in cache for quick access
             soundCache.put(name, clip);
 
-            // 3. save in list to prevent GC clean
             clipHolder.add(clip);
 
         } catch (Exception e) {
@@ -58,17 +55,15 @@ public class SoundManager {
     public static void play(String name) {
         if (isMuted) return;
 
-        // take from cache, not create new one
         AudioClip clip = soundCache.get(name);
 
         if (clip != null) {
-            clip.play(); // play sound
+            clip.play();
         } else {
             System.err.println("Âm thanh chưa được tải: " + name);
         }
     }
 
-    // setMuted and isMuted method
     public static void setMuted(boolean muted) {
         isMuted = muted;
     }

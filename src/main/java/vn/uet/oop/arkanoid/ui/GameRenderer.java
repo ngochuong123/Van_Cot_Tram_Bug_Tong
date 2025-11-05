@@ -14,9 +14,7 @@ import vn.uet.oop.arkanoid.model.powerups.PowerUp;
 import vn.uet.oop.arkanoid.model.Paddle;
 import java.util.List;
 
-/**
- * Class chuyên trách việc render tất cả các thành phần của game
- */
+
 public class GameRenderer {
     private final GameManager gameManager;
     
@@ -36,7 +34,7 @@ public class GameRenderer {
     }
 
     /**
-     * Render tất cả các thành phần gameplay
+     * Render all gameplay elements
      */
     private void renderGameplay(GraphicsContext gc) {
         renderBackground(gc);
@@ -47,7 +45,7 @@ public class GameRenderer {
     }
 
     /**
-     * Xóa canvas với màu nền
+     * reset canvas
      */
     private void clearCanvas(GraphicsContext gc) {
         gc.setFill(Color.BLACK);
@@ -55,7 +53,7 @@ public class GameRenderer {
     }
 
     /**
-     * Render background đơn giản
+     * Render background
      */
     private void renderBackground(GraphicsContext gc) {
         Image bgImage = new Image(getClass().getResourceAsStream("/image/Background_game.png"));
@@ -64,7 +62,7 @@ public class GameRenderer {
     }
 
     /**
-     * Render tất cả bricks - GỌI render() CỦA TỪNG BRICK
+     * Render bricks
      */
     private void renderBricks(GraphicsContext gc) {
         List<Brick> bricks = gameManager.getBricks();
@@ -78,7 +76,7 @@ public class GameRenderer {
     }
 
     /**
-     * Render paddle - GỌI render() CỦA PADDLE
+     * Render paddle
      */
     private void renderPaddle(GraphicsContext gc) {
         Paddle paddle = gameManager.getPaddle();
@@ -92,7 +90,7 @@ public class GameRenderer {
     }
 
     /**
-     * Render tất cả balls
+     * Render all balls
      */
     private void renderBalls(GraphicsContext gc) {
         List<Ball> balls = gameManager.getBalls();
@@ -121,7 +119,7 @@ public class GameRenderer {
 
 
     /**
-     * Render level complete overlay (đơn giản, tự động ẩn sau vài giây)
+     * Render level complete overlay
      */
     private void renderLevelCompleteOverlay(GraphicsContext gc) {
         // Background overlay nhẹ
@@ -148,7 +146,7 @@ public class GameRenderer {
     }
 
     /**
-     * Tính toán chiều rộng của text (ước lượng)
+     * calculate text width
      */
     private double calculateTextWidth(String text, Font font) {
         return text.length() * font.getSize() * 0.6;

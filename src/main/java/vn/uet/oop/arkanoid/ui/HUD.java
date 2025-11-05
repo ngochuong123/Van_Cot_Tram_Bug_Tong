@@ -26,7 +26,6 @@ public class HUD {
     }
 
     private void initializeUI() {
-        // Tạo score label
         scoreLabel = new Label("SCORE: 0");
         scoreLabel.setStyle(
                 "-fx-font-family: 'Impact';" +
@@ -35,7 +34,6 @@ public class HUD {
                         "-fx-text-fill: #7cfc00;" +
                         "-fx-effect: dropshadow(gaussian, #006400, 8, 0.8, 2, 2);");
 
-        // Tạo level label
         levelLabel = new Label("LEVEL: 1");
         levelLabel.setStyle(
                 "-fx-font-family: 'Arial';" +
@@ -43,7 +41,6 @@ public class HUD {
                         "-fx-text-fill: #ffffff;" +
                         "-fx-font-weight: bold;");
 
-        // Tạo lives label
         livesLabel = new Label("LIVES: ");
         livesLabel.setStyle(
                 "-fx-font-family: 'Arial';" +
@@ -57,7 +54,6 @@ public class HUD {
         messageLabel.setVisible(false);
         messageLabel.setManaged(false);
 
-        // Setup layout - gom tất cả vào một lần duy nhất
         heartsContainer.setAlignment(Pos.CENTER_LEFT);
         HBox livesBox = new HBox(10, livesLabel, heartsContainer);
 
@@ -70,36 +66,36 @@ public class HUD {
         try {
             return new Image(getClass().getResourceAsStream("/image/heart.png"));
         } catch (Exception e) {
-            System.err.println("❌ Could not load heart image: " + e.getMessage());
+            System.err.println(" Could not load heart image: " + e.getMessage());
             return null;
         }
     }
 
-    // === PUBLIC METHODS - CHỈ NHẬN DATA TỪ GAMEMANAGER ===
 
     /**
-     * Cập nhật điểm số từ GameManager
+     * update score
+     * @param score current score
      */
     public void setScore(int score) {
         scoreLabel.setText("SCORE: " + score);
     }
 
     /**
-     * Cập nhật số mạng từ GameManager
+     * update lives from GameManager
      */
     public void setLives(int lives) {
         updateHeartsDisplay(lives);
     }
 
     /**
-     * Cập nhật level từ GameManager
+     * update level display
      */
     public void setLevel(int level) {
         levelLabel.setText("LEVEL: " + level);
     }
 
     /**
-     * Cập nhật hiển thị trái tim
+     * update heart icons display
      */
     private void updateHeartsDisplay(int lives) {
         heartsContainer.getChildren().clear();
@@ -114,13 +110,12 @@ public class HUD {
                 heartsContainer.getChildren().add(heartView);
             }
         } else {
-            // Fallback: hiển thị số nếu không load được ảnh
             livesLabel.setText("LIVES: " + lives);
         }
     }
 
     /**
-     * Reset HUD về trạng thái ban đầu
+     * Reset HUD
      */
     public void reset() {
         setScore(0);
@@ -129,7 +124,7 @@ public class HUD {
     }
 
     /**
-     * Lấy container để thêm vào scene
+     * get the HUD container
      */
     public VBox getContainer() {
         return hudContainer;

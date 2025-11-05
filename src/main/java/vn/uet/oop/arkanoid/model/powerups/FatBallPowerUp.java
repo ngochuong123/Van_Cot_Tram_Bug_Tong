@@ -38,7 +38,6 @@ public class FatBallPowerUp extends PowerUp {
                 return;
             }
 
-            // Bắt đầu hiệu ứng mới
             isFatBallActive = true;
 
             for (Ball ball : balls) {
@@ -47,7 +46,6 @@ public class FatBallPowerUp extends PowerUp {
                 ball.setWidth(ball.getRadius() * 2);
             }
 
-            // Đặt timer 5 giây để hết hiệu ứng
             fatBallTimer = new Timer();
             fatBallTimer.schedule(new TimerTask() {
                 @Override
@@ -58,7 +56,6 @@ public class FatBallPowerUp extends PowerUp {
         }
     }
 
-    // Hết hiệu ứng → trả kích thước về bình thường
     private void resetFatBall(List<Ball> balls) {
         for (Ball ball : balls) {
             ball.setRadius(GameConfig.BALL_RADIUS);
@@ -68,7 +65,6 @@ public class FatBallPowerUp extends PowerUp {
         isFatBallActive = false;
     }
 
-    // Getter để MultiBall có thể biết hiệu ứng đang bật
     public static boolean isFatBallActive() {
         return isFatBallActive;
     }

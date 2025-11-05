@@ -16,7 +16,6 @@ public abstract class MovableObject extends GameObject implements Collidable, Re
     public Rectangle2D getBounds() {
         return new Rectangle2D(getX(), getY(), getWidth(), getHeight());
     }
-    // Cho phép hệ thống khác chỉnh vị trí
     public void setPosition(double x, double y) {
         setX(x);
         setY(y);
@@ -26,12 +25,11 @@ public abstract class MovableObject extends GameObject implements Collidable, Re
     public double getDx() {
         return dx;
     }
-
     public double getDy() {
         return dy;
     }
-    //Setter
 
+    //Setter
     public void setDx(double dx) {
         this.dx = dx;
     }

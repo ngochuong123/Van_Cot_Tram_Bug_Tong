@@ -21,7 +21,7 @@ public class AudioEngine {
     public static void setGlobalMute(boolean mute) {
         globalMute = mute;
         SoundManager.setMuted(mute);
-//        MusicPlayer.setMuted(mute); // <-- BẠN BỊ THIẾU CÁI NÀY
+//        MusicPlayer.setMuted(mute);
     }
 
     public static boolean isGlobalMuted() {
@@ -36,7 +36,6 @@ public class AudioEngine {
         SoundManager.play(soundName);
     }
 
-    // --- CÁC PHƯƠNG THỨC BỊ THIẾU ---
 
     /**
      * play menu music.
