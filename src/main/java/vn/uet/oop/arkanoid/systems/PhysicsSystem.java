@@ -1,5 +1,6 @@
 package vn.uet.oop.arkanoid.systems;
 
+import javafx.geometry.Rectangle2D;
 import vn.uet.oop.arkanoid.audio.AudioEngine;
 import vn.uet.oop.arkanoid.audio.SoundManager;
 import vn.uet.oop.arkanoid.config.GameConfig;
@@ -189,48 +190,51 @@ public class PhysicsSystem {
      * @param origin the explosive brick
      * @param bricks list of bricks
      */
+
     private void explodeAndRemoveNeighbors(ExplosiveBrick origin, List<Brick> bricks) {
         List<Brick> toRemove = new ArrayList<>();
 
-        double w  = origin.getWidth();
-        double h  = origin.getHeight();
-        double cx0 = origin.getX() + w / 2.0;
-        double cy0 = origin.getY() + h / 2.0;
-
-        double stepX = w + GameConfig.BRICK_SPACING;
-        double stepY = h + GameConfig.BRICK_SPACING;
-
-        double tolX = Math.max(2.0, GameConfig.BRICK_SPACING * 0.6);
-        double tolY = Math.max(2.0, GameConfig.BRICK_SPACING * 0.6);
+        double stepX = GameConfig.BRICK_WIDTH - GameConfig.BRICK_SPACING;
+        double stepY = GameConfig.BRICK_HEIGHT - GameConfig.BRICK_SPACING;
+        Rectangle2D explosionBox = new Rectangle2D(
+                origin.getX() - stepX,
+                origin.getY() - stepY,
+                origin.getWidth() +  2 * stepX ,
+                origin.getHeight() + 2 * stepY
+        );
 
         for (Brick b : bricks) {
             if (b == origin) continue;
 
-            double cx = b.getX() + b.getWidth() / 2.0;
-            double cy = b.getY() + b.getHeight() / 2.0;
-            double dx = cx - cx0;
-            double dy = cy - cy0;
+            Rectangle2D brickBounds = b.getBounds();
 
-            long gx = Math.round(dx / stepX);
-            long gy = Math.round(dy / stepY);
-
-            double snapX = gx * stepX;
-            double snapY = gy * stepY;
-
-            boolean closeToGrid = Math.abs(dx - snapX) <= tolX && Math.abs(dy - snapY) <= tolY;
-            boolean isNeighbor  = Math.max(Math.abs(gx), Math.abs(gy)) == 1 && !(gx == 0 && gy == 0);
-
-            if (closeToGrid && isNeighbor) {
+            if (explosionBox.intersects(brickBounds)) {
                 if (b instanceof RegeneratingBrick regen) {
                     regen.destroyPermanently();
-                    toRemove.add(b);
+                } else if (b instanceof ExplosiveBrick explosive) {
+                    explosive.takeHit();
+                    if (explosive.isBroken()) {
+                        explodeAndRemoveNeighbors(explosive, bricks);
+                    }
+                } else if (b instanceof ChainBrick cb) {
+                    cb.takeHit();
+                    if (cb.isBroken()) {
+                        int id = cb.getChainId();
+                        for (Brick other : bricks) {
+                            if (other instanceof ChainBrick chain && chain.getChainId() == id) {
+                                toRemove.add(other);
+                            }
+                        }
+                    }
                 } else {
-                    toRemove.add(b);
+                    b.takeHit();
                 }
+                toRemove.add(b);
             }
         }
         bricks.removeAll(toRemove);
     }
+
 
 
 }
