@@ -33,10 +33,10 @@ App - nơi chay chương trình
 
 | Họ và Tên           | Chức vụ             | Đảm nhiệm chính                       | Mức độ đóng góp |
 |----------------------|--------------------|----------------------------------------|-----------------|
-| Ngô Xuân Hậu         | Trưởng nhóm        |  |  |
-| Nguyễn Huy Hoàng     | Thành viên         |  |  |
-| Nguyễn Quang Hồng    | Thành viên         | |  |
-| Nguyễn Ngọc Hưởng    | Thành viên         | Xử lý giao diện ui - chuyển cảnh (menu, pause, gameover,..),sơ đồ lớp, tham gia 1 phần vào logic chính (tính điểm, mất mạng,..)  |  |
+| Ngô Xuân Hậu         | Trưởng nhóm        | xử lí physic va chạm, powerUp, hệ thống âm thanh, hình ảnh liên quan...   | 25  |
+| Nguyễn Huy Hoàng     | Thành viên         | Xử lí Bricks và các vấn đề liên quan (create, render, logic, check level complete...)  | 25 |
+| Nguyễn Quang Hồng    | Thành viên         | xử lí ball, paddle, powerUp, powerUp system và các vấn đề liên quan (logic, render...) | 25 |
+| Nguyễn Ngọc Hưởng    | Thành viên         | Xử lý giao diện ui - chuyển cảnh (menu, pause, gameover,..),sơ đồ lớp, tham gia 1 phần vào logic chính (tính điểm, mất mạng,..)  | 25 |
 
 ## 🕹️ Cách chơi
 
