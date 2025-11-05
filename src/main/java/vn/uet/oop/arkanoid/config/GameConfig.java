@@ -7,7 +7,7 @@ public class GameConfig {
 
     // ----- Ball -----
     public static final double BALL_RADIUS = 8;
-    public static final double BALL_SPEED = 250;
+    public static final double BALL_SPEED = 300;
 
     // ----- Paddle -----
     public static final double PADDLE_WIDTH = 100;
