@@ -3,7 +3,7 @@ package vn.uet.oop.arkanoid.config;
 public class GameConfig {
     // ----- Màn hình -----
     public static final double SCREEN_WIDTH = 720;
-    public static final double SCREEN_HEIGHT = 810;
+    public static final double SCREEN_HEIGHT = 720;
 
     // ----- Ball -----
     public static final double BALL_RADIUS = 8;
@@ -31,5 +31,5 @@ public class GameConfig {
     public static final int addscore = 100;
 
     // ----- PowerUp -----
-    public static final int DURATION_POWERUP = 5;
+    public static final int DURATION_POWERUP = 5000;
 }
