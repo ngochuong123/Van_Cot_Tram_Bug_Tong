@@ -2,7 +2,7 @@ package vn.uet.oop.arkanoid.config;
 
 public class GameConfig {
     // ----- Màn hình -----
-    public static final double SCREEN_WIDTH = 720;
+    public static final double SCREEN_WIDTH = 694;
     public static final double SCREEN_HEIGHT = 720;
 
     // ----- Ball -----

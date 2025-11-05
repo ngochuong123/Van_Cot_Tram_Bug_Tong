@@ -30,7 +30,7 @@ public class PowerUpSystem {
 
     /**
      * PowerUpSystem's constructor.
-     * @param powerUps
+     * @param powerUps 
      * @param paddle
      * @param balls
      */
@@ -101,31 +101,31 @@ public class PowerUpSystem {
         if (!hitBrick.isBroken()) return;
 
         Random rand = new Random();
-        double dropChance = 0.3; // 30% xác suất rơi PowerUp
+        double dropChance = 0.5; // 30% xác suất rơi PowerUp
         if (rand.nextDouble() < dropChance) {
 
             PowerUp newPowerUp;
             double typeChance = rand.nextDouble();
                 // --- Có MultiBall ---
-                if (typeChance < 0.1) {
+                if (typeChance < 0.05) {
                     newPowerUp = new ExpandPaddlePowerUp(
                             hitBrick.getX() + hitBrick.getWidth() / 2,
                             hitBrick.getY() + hitBrick.getHeight() / 2,
                             20, 20, 70
                     );
-                } else if (typeChance < 0.6) {
+                } else if (typeChance < 0.1) {
                     newPowerUp = new FatBallPowerUp(
                             hitBrick.getX() + hitBrick.getWidth() / 2,
                             hitBrick.getY() + hitBrick.getHeight() / 2,
                             20, 20, 70
                     );
-                } else if (typeChance < 0.8) {
+                } else if (typeChance < 0.5) {
                     newPowerUp = new MultiBallPowerUp(
                             hitBrick.getX() + hitBrick.getWidth() / 2,
                             hitBrick.getY() + hitBrick.getHeight() / 2,
                             20, 20, 70
                     );
-                } else if (typeChance < 0.85) {
+                } else if (typeChance < 0.55) {
                     newPowerUp = new ShieldPowerUp(
                             hitBrick.getX() + hitBrick.getWidth() / 2,
                             hitBrick.getY() + hitBrick.getHeight() / 2,
