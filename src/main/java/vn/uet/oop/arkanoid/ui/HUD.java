@@ -82,7 +82,6 @@ public class HUD {
      */
     public void setScore(int score) {
         scoreLabel.setText("SCORE: " + score);
-        System.out.println("📊 HUD: Score updated to " + score);
     }
 
     /**
@@ -90,7 +89,6 @@ public class HUD {
      */
     public void setLives(int lives) {
         updateHeartsDisplay(lives);
-        System.out.println("❤️ HUD: Lives updated to " + lives);
     }
 
     /**
@@ -98,7 +96,6 @@ public class HUD {
      */
     public void setLevel(int level) {
         levelLabel.setText("LEVEL: " + level);
-        System.out.println("🎯 HUD: Level updated to " + level);
     }
 
     /**
@@ -129,7 +126,6 @@ public class HUD {
         setScore(0);
         setLives(3);
         setLevel(1);
-        System.out.println("🔄 HUD: Reset to initial state");
     }
 
     /**

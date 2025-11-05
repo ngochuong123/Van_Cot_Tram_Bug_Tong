@@ -2,6 +2,7 @@ package vn.uet.oop.arkanoid;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
+import vn.uet.oop.arkanoid.audio.AudioEngine;
 import vn.uet.oop.arkanoid.core.SceneRouter;
 import vn.uet.oop.arkanoid.config.GameConfig;
 
@@ -13,6 +14,10 @@ public class App extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
+
+            // Tải tất cả âm thanh vào bộ nhớ TRƯỚC KHI game bắt đầu
+            AudioEngine.init();
+
             // Cấu hình stage chính
             primaryStage.setTitle("Arkanoid Game");
             primaryStage.setResizable(false);

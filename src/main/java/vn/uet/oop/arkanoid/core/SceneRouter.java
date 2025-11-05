@@ -10,6 +10,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import vn.uet.oop.arkanoid.audio.AudioEngine;
+import vn.uet.oop.arkanoid.audio.SoundManager;
 import vn.uet.oop.arkanoid.config.GameConfig;
 import vn.uet.oop.arkanoid.ui.*;
 
@@ -58,6 +60,8 @@ public class SceneRouter {
     public void showMainMenu() {
         System.out.println("🏠 Showing Main Menu");
         stopGameLoop();
+        AudioEngine.stopMusic(); // Dừng nhạc game (nếu đang phát)
+        AudioEngine.playMenuMusic(); // Bật nhạc menu
         if (menuController == null) {
             menuController = new MenuController(primaryStage, this);
         }
@@ -70,6 +74,8 @@ public class SceneRouter {
         initializeGameComponents();
         // Đặt trạng thái PLAYING
         gameManager.setState(GameState.PLAYING);
+        AudioEngine.stopMusic(); // Dừng nhạc menu
+        AudioEngine.playGameMusic(); // Bật nhạc game
         // Tạo và chuyển sang game scene
         switchToGameScene();
         // Bắt đầu game loop
@@ -118,6 +124,8 @@ public class SceneRouter {
 
     public void showGameOver(int finalScore) {
         System.out.println("💀 Showing Game Over - Score: " + finalScore);
+        AudioEngine.stopMusic();
+        AudioEngine.playSound(SoundManager.GAME_OVER);
 
         if (gameManager != null) {
             gameManager.setState(GameState.GAME_OVER);
@@ -181,6 +189,7 @@ public class SceneRouter {
         stopGameLoop();
         javafx.application.Platform.exit();
         System.exit(0);
+        AudioEngine.stopMusic();
     }
 
     // ==================== GAME SCENE MANAGEMENT ====================

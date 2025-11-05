@@ -1,5 +1,7 @@
 package vn.uet.oop.arkanoid.systems;
 
+import vn.uet.oop.arkanoid.audio.AudioEngine;
+import vn.uet.oop.arkanoid.audio.SoundManager;
 import vn.uet.oop.arkanoid.config.GameConfig;
 import vn.uet.oop.arkanoid.model.Ball;
 import vn.uet.oop.arkanoid.model.Paddle;
@@ -52,6 +54,7 @@ public class PhysicsSystem {
             return;
         }
         paddle.onBallHit();
+        AudioEngine.playSound(SoundManager.HIT_WALL);
 
         // Tính vị trí chạm tương đối
         double paddleCenter = paddle.getX() + paddle.getWidth() / 2.0;
@@ -84,6 +87,7 @@ public class PhysicsSystem {
         Brick hitBrick = CollisionSystem.getCollidedBrick(ball, bricks);
         if (hitBrick == null) return null;
 
+        AudioEngine.playSound(SoundManager.HIT_BRICK);
         // --- Phản xạ trước ---
         boolean isFireball = ball.isFireMode();
         boolean isUnbreakable = hitBrick instanceof UnbreakableBrick;
@@ -164,6 +168,7 @@ public class PhysicsSystem {
 
         // 2) Explosive: khi vỡ -> nổ 8 hướng & remove ngay
         if (hit instanceof ExplosiveBrick && hit.isBroken()) {
+            AudioEngine.playSound(SoundManager.BREAK_BRICK);
             explodeAndRemoveNeighbors((ExplosiveBrick) hit, bricks);
             // remove chính viên nổ (nếu còn trong list)
             bricks.remove(hit);
@@ -172,6 +177,7 @@ public class PhysicsSystem {
 
         // 3) Chain: nếu vỡ -> remove tất cả ChainBrick cùng chainId
         if (hit instanceof ChainBrick cb && hit.isBroken()) {
+            AudioEngine.playSound(SoundManager.BREAK_BRICK);
             int id = cb.getChainId();
             List<Brick> toRemove = new ArrayList<>();
             for (Brick b : bricks) {
@@ -191,6 +197,7 @@ public class PhysicsSystem {
 
         // 6) Gạch thường: vỡ thì remove ngay
         if (hit.isBroken()) {
+            AudioEngine.playSound(SoundManager.BREAK_BRICK);
             bricks.remove(hit);
         }
     }
