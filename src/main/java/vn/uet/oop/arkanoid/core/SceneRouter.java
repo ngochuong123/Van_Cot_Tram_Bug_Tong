@@ -45,7 +45,7 @@ public class SceneRouter {
     }
 
     private void initializeRouter() {
-        System.out.println("🚀 Initializing SceneRouter...");
+        System.out.println(" Initializing SceneRouter...");
         // Pre-initialize các controller chính
         this.menuController = new MenuController(primaryStage, this);
         // Xử lý sự kiện đóng cửa sổ chính
@@ -202,7 +202,7 @@ public class SceneRouter {
         // Hoặc: this.gameManager = new GameManager();
 
         // Khởi tạo GameRenderer
-        this.gameRenderer = new GameRenderer(gameManager, null);
+        this.gameRenderer = new GameRenderer(gameManager);
 
         // Tạo canvas và graphics context
     if (this.gameCanvas == null) {

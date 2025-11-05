@@ -1,9 +1,6 @@
 package vn.uet.oop.arkanoid.systems;
-
-import javafx.geometry.Rectangle2D;
 import vn.uet.oop.arkanoid.model.Ball;
 import vn.uet.oop.arkanoid.model.bricks.Brick;
-import vn.uet.oop.arkanoid.model.powerups.PowerUp;
 import vn.uet.oop.arkanoid.model.interfaces.Collidable;
 import vn.uet.oop.arkanoid.model.Paddle;
 import java.util.List;

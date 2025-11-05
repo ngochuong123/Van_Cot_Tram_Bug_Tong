@@ -2,8 +2,6 @@ package vn.uet.oop.arkanoid.model.bricks;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.paint.Color;
-import vn.uet.oop.arkanoid.model.GameObject;
 
 public class NormalBrick extends Brick {
 

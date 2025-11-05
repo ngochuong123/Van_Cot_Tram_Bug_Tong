@@ -350,8 +350,21 @@
                         </select>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="field">
+                        <label>Full‑screen Grid (auto rows/cols)</label>
+                        <select id="cfg-fullscreen">
+                            <option value="0" selected>No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Top Margin (px) when full‑screen</label>
+                        <input type="number" id="cfg-topmargin" value="0" />
+                    </div>
+                </div>
                 <button class="btn" id="btn-apply">Apply Config</button>
-                <div class="hint">The visible dashed box is the snap area (grid). Blocks snap to its cells.</div>
+                <div class="hint">The visible dashed box is the snap area (grid). Blocks snap to its cells. If "Full‑screen Grid" is Yes, rows/cols are computed to fill the screen while respecting brick size & spacing.</div>
             </div>
 
         </div>
@@ -395,7 +408,17 @@
         rows: 6,
         cols: 9,
         center: true,
+        fullScreen: false,      // NEW: auto-compute rows/cols to fill screen
+        topMargin: 0            // NEW: optional top margin when full-screen
     };
+
+    function recalcRowsColsFromScreen() {
+        // Fit as many whole cells as possible into the screen size
+        const cellW = cfg.brickW + cfg.spacing;
+        const cellH = cfg.brickH + cfg.spacing;
+        cfg.cols = Math.max(1, Math.floor((cfg.screenW + cfg.spacing) / cellW));
+        cfg.rows = Math.max(1, Math.floor((cfg.screenH - cfg.topMargin + cfg.spacing) / cellH));
+    }
 
     function updateCSSVars() {
         document.documentElement.style.setProperty('--screen-w', cfg.screenW + 'px');
@@ -403,13 +426,19 @@
         document.documentElement.style.setProperty('--brick-w', cfg.brickW + 'px');
         document.documentElement.style.setProperty('--brick-h', cfg.brickH + 'px');
         document.documentElement.style.setProperty('--brick-spacing', cfg.spacing + 'px');
+
+        if (cfg.fullScreen) {
+            recalcRowsColsFromScreen();
+        }
         document.documentElement.style.setProperty('--brick-rows', cfg.rows);
         document.documentElement.style.setProperty('--brick-cols', cfg.cols);
 
         const gridW = cfg.cols * (cfg.brickW + cfg.spacing) - cfg.spacing;
         const gridH = cfg.rows * (cfg.brickH + cfg.spacing) - cfg.spacing;
-        let offsetX = cfg.center ? Math.round((cfg.screenW - gridW) / 2) : 0;
-        let offsetY = cfg.center ? Math.round((cfg.screenH - gridH) / 3) : 0; // push grid a bit downward
+
+        let offsetX = cfg.center && !cfg.fullScreen ? Math.round((cfg.screenW - gridW) / 2) : 0;
+        let offsetY = cfg.center && !cfg.fullScreen ? Math.round((cfg.screenH - gridH) / 3) : cfg.topMargin;
+
         document.documentElement.style.setProperty('--grid-offset-x', offsetX + 'px');
         document.documentElement.style.setProperty('--grid-offset-y', offsetY + 'px');
     }
@@ -460,8 +489,8 @@
     function gridOffset() {
         const gridW = cfg.cols * (cfg.brickW + cfg.spacing) - cfg.spacing;
         const gridH = cfg.rows * (cfg.brickH + cfg.spacing) - cfg.spacing;
-        const offsetX = cfg.center ? Math.round((cfg.screenW - gridW) / 2) : 0;
-        const offsetY = cfg.center ? Math.round((cfg.screenH - gridH) / 3) : 0;
+        const offsetX = (cfg.center && !cfg.fullScreen) ? Math.round((cfg.screenW - gridW) / 2) : 0;
+        const offsetY = (cfg.center && !cfg.fullScreen) ? Math.round((cfg.screenH - gridH) / 3) : cfg.topMargin;
         return { offsetX, offsetY };
     }
 
@@ -740,9 +769,18 @@
         cfg.brickW = Number($('#cfg-bw').value);
         cfg.brickH = Number($('#cfg-bh').value);
         cfg.spacing = Number($('#cfg-sp').value);
-        cfg.rows = Math.max(1, Number($('#cfg-rows').value));
-        cfg.cols = Math.max(1, Number($('#cfg-cols').value));
         cfg.center = $('#cfg-center').value === '1';
+        cfg.fullScreen = $('#cfg-fullscreen').value === '1';
+        cfg.topMargin = Math.max(0, Number($('#cfg-topmargin').value) || 0);
+
+        if (!cfg.fullScreen) {
+            cfg.rows = Math.max(1, Number($('#cfg-rows').value));
+            cfg.cols = Math.max(1, Number($('#cfg-cols').value));
+        } else {
+            // auto-calc rows/cols to fill the screen area
+            recalcRowsColsFromScreen();
+        }
+
         updateCSSVars();
         // Normalize block sizes and re-snap
         for (const b of blocks) {
@@ -756,7 +794,6 @@
 
     $('#btn-apply').addEventListener('click', applyConfig);
     $('#btn-fit').addEventListener('click', () => {
-        // Fit grid to GameConfig defaults (already set); just re-center
         applyConfig();
     });
 
@@ -765,7 +802,7 @@
     // ------------------------------
     // Persistence (localStorage)
     // ------------------------------
-    const KEY = 'arkanoid_level_designer_v1';
+    const KEY = 'arkanoid_level_designer_v2_fullscreen';
 
     function persist() {
         const payload = { cfg, blocks };

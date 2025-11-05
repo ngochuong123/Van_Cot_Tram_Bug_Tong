@@ -7,7 +7,7 @@ public abstract class Brick extends GameObject {
     protected int durabilityPoints;
     int maxDurability;
 
-    public abstract int takeHit();          // return the remaining durability points after taking hit
+    public abstract int takeHit();
     public abstract boolean isBroken();
     private static Image crack1, crack2, crack3;
 
@@ -32,6 +32,10 @@ public abstract class Brick extends GameObject {
         }
     }
 
+    /**
+     * Get the crack image based on how many times the brick has been hit.
+     * @return The crack image.
+     */
     protected Image getCrackImage() {
         int timesHit = maxDurability - durabilityPoints;
 

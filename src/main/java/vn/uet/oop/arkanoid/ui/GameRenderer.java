@@ -20,29 +20,19 @@ import java.util.List;
 public class GameRenderer {
     private final GameManager gameManager;
     
-    public GameRenderer(GameManager gameManager, HUD hud) {
+    public GameRenderer(GameManager gameManager) {
         this.gameManager = gameManager;
-        // HUD được render riêng qua JavaFX nodes, không cần tham chiếu ở đây
     }
 
     public void render(GraphicsContext gc) {
-        // Clear canvas
         clearCanvas(gc);
-
-        // Chỉ render khi đang ở trạng thái gameplay
         GameState currentState = gameManager.getCurrentState();
-
         if (currentState == GameState.PLAYING || currentState == GameState.LEVEL_COMPLETE) {
             renderGameplay(gc);
-
-            // Thêm overlay level complete nếu cần
             if (currentState == GameState.LEVEL_COMPLETE) {
                 renderLevelCompleteOverlay(gc);
             }
         }
-        // Các trạng thái khác (MENU, PAUSED, GAME_OVER) được xử lý bởi các Controller
-        // riêng
-        // GameRenderer không cần render gì cả
     }
 
     /**
@@ -81,7 +71,7 @@ public class GameRenderer {
         if (bricks != null) {
             for (Brick brick : bricks) {
                 if (brick != null) {
-                    brick.render(gc); // Gọi render() của brick
+                    brick.render(gc);
                 }
             }
         }
@@ -93,7 +83,7 @@ public class GameRenderer {
     private void renderPaddle(GraphicsContext gc) {
         Paddle paddle = gameManager.getPaddle();
         if (paddle != null) {
-            paddle.render(gc); // Gọi render() của paddle
+            paddle.render(gc);
         }
         if (paddle.isHasShield()) {
             gc.setFill(Color.CYAN);
@@ -102,14 +92,14 @@ public class GameRenderer {
     }
 
     /**
-     * Render tất cả balls - GỌI render() CỦA TỪNG BALL
+     * Render tất cả balls
      */
     private void renderBalls(GraphicsContext gc) {
         List<Ball> balls = gameManager.getBalls();
         if (balls != null) {
             for (Ball ball : balls) {
                 if (ball != null) {
-                    ball.render(gc); // Gọi render() của ball
+                    ball.render(gc);
                 }
             }
         }
@@ -168,6 +158,5 @@ public class GameRenderer {
      * Cleanup resources
      */
     public void cleanup() {
-        // Cleanup nếu cần
     }
 }
