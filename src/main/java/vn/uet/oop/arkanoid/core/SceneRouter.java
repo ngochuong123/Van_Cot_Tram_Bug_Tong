@@ -193,7 +193,7 @@ public class SceneRouter {
         // Hoặc: this.gameManager = new GameManager();
 
         // Khởi tạo GameRenderer
-        this.gameRenderer = new GameRenderer(gameManager, null);
+        this.gameRenderer = new GameRenderer(gameManager);
 
         // Tạo canvas và graphics context
     if (this.gameCanvas == null) {

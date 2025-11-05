@@ -4,11 +4,6 @@ import vn.uet.oop.arkanoid.config.GameConfig;
 import vn.uet.oop.arkanoid.model.Ball;
 import vn.uet.oop.arkanoid.model.Paddle;
 import vn.uet.oop.arkanoid.model.bricks.*;
-import vn.uet.oop.arkanoid.model.powerups.*;
-import vn.uet.oop.arkanoid.model.powerups.ExpandPaddlePowerUp;
-import vn.uet.oop.arkanoid.model.powerups.MultiBallPowerUp;
-import vn.uet.oop.arkanoid.model.powerups.PowerUp;
-import vn.uet.oop.arkanoid.model.powerups.ShieldPowerUp;
 
 import java.util.ArrayList;
 import java.util.List;

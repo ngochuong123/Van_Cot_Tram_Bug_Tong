@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HUD {
-    // UI Components - chỉ làm nhiệm vụ HIỂN THỊ
     private Label scoreLabel;
     private Label levelLabel;
     private Label livesLabel;
@@ -19,11 +18,9 @@ public class HUD {
     private List<ImageView> heartIcons = new ArrayList<>();
     private HBox heartsContainer = new HBox(5);
     private VBox hudContainer = new VBox(10);
-    // State - chỉ lưu để hiển thị, KHÔNG logic game
     private final Image heartImage;
 
     public HUD() {
-        // Khởi tạo UI components
         initializeUI();
         heartImage = loadHeartImage();
     }
@@ -130,7 +127,7 @@ public class HUD {
      */
     public void reset() {
         setScore(0);
-        setLives(3); // hoặc số mạng mặc định
+        setLives(3);
         setLevel(1);
         System.out.println("🔄 HUD: Reset to initial state");
     }

@@ -62,11 +62,10 @@ public class MenuController {
 
         HBox topBox = new HBox(this.settingsButton);
         topBox.setAlignment(Pos.TOP_RIGHT);
-        topBox.setStyle("-fx-padding: 20;"); // cách mép 20px
+        topBox.setStyle("-fx-padding: 20;");
         root.setTop(topBox);
 
         this.menuScene = new Scene(root, GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT);
-        // Safe background loading
         String menuBackgroundUrl;
         try {
             menuBackgroundUrl = getClass().getResource("/image/menu.jpg").toExternalForm();
@@ -80,7 +79,6 @@ public class MenuController {
                             "-fx-background-size: cover;" +
                             "-fx-background-position: center center;");
         } else {
-            // Fallback background
             this.menuScene.getRoot().setStyle("-fx-background-color: #1a1a2e;");
         }
 
@@ -93,17 +91,15 @@ public class MenuController {
     public void createTitle() {
         // label hien chu.
         this.titleLabel = new Label("Let'S GO");
-        this.titleLabel.setFont(Font.font("Impact", 72)); // font kiểu khối
-        this.titleLabel.setTextFill(Color.web("#FF3366")); // màu vàng
+        this.titleLabel.setFont(Font.font("Impact", 72));
+        this.titleLabel.setTextFill(Color.web("#FF3366"));
         this.titleLabel.setStyle("-fx-font-weight: bold;");
-        // hieu ung do bong 3d nhe
         DropShadow shadow = new DropShadow();
         shadow.setColor(Color.web("#FF0040"));
         shadow.setRadius(25);
         shadow.setOffsetX(5);
         shadow.setOffsetY(5);
         this.titleLabel.setEffect(shadow);
-        // hieu ung phong to nho lien tuc
         ScaleTransition scale = new ScaleTransition(Duration.seconds(1.5), titleLabel);
         scale.setFromX(1.0);
         scale.setFromY(1.0);
@@ -129,20 +125,18 @@ public class MenuController {
         addHoverEffect(settingsButton, "#FF3366", "#00BFFF", 15);
         addHoverEffect(exitButton, "#FF3366", "#00BFFF", 15);
 
-        // CHỈ SET ACTION MỘT LẦN - xóa các setOnAction trùng lặp
         startButton.setOnAction(e -> {
             System.out.println("🎮 START BUTTON - Using SceneRouter to start game");
             if (router != null) {
-                router.startNewGame(); // ✅ Dùng router nếu có
+                router.startNewGame();
             }
         });
 
         settingsButton.setOnAction(e -> {
             System.out.println("SETTINGS BUTTON");
             if (router != null) {
-                router.showSettings(); // ✅ Dùng router
+                router.showSettings();
             }
-            // Xử lý settings
         });
 
         exitButton.setOnAction(e -> {

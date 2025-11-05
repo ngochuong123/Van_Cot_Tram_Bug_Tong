@@ -1,11 +1,8 @@
 package vn.uet.oop.arkanoid.model.powerups;
 
 import javafx.geometry.Rectangle2D;
-import javafx.scene.canvas.GraphicsContext;
 import vn.uet.oop.arkanoid.model.GameObject;
-import vn.uet.oop.arkanoid.model.Paddle;
 import vn.uet.oop.arkanoid.config.GameConfig;
-import vn.uet.oop.arkanoid.model.Ball;
 import vn.uet.oop.arkanoid.model.interfaces.Collidable;
 import vn.uet.oop.arkanoid.model.interfaces.Renderable;
 

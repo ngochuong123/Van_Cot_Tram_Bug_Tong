@@ -1,8 +1,5 @@
 package vn.uet.oop.arkanoid.model;
-
-import javafx.scene.canvas.GraphicsContext;
 import javafx.geometry.Rectangle2D;
-import vn.uet.oop.arkanoid.model.GameObject;
 import vn.uet.oop.arkanoid.model.interfaces.Collidable;
 import vn.uet.oop.arkanoid.model.interfaces.Renderable;
 

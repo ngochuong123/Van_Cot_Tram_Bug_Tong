@@ -24,10 +24,6 @@ public abstract class GameObject implements Collidable,Renderable {
         return new Rectangle2D((int)x, (int)y, (int)width, (int)height);
     }
 
-//    @Override
-//    public void onCollision(Collidable other) {
-//
-//    }
 
     // Getter
     public double getX() { return x; }

@@ -7,10 +7,8 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import vn.uet.oop.arkanoid.config.GameConfig;
 import vn.uet.oop.arkanoid.core.SceneRouter;
 
 public class PauseController {
@@ -18,14 +16,12 @@ public class PauseController {
     private SceneRouter router;
     private Stage parentStage;
 
-    // CONSTRUCTOR MỚI - nhận SceneRouter
     public PauseController(Stage parentStage, SceneRouter router) {
         this.parentStage = parentStage;
         this.router = router;
         createPauseMenu(parentStage);
     }
 
-    // CONSTRUCTOR CŨ (tương thích)
     public PauseController(Stage parentStage) {
         this(parentStage, null);
     }
@@ -72,11 +68,10 @@ public class PauseController {
         layout.setAlignment(Pos.CENTER);
         layout.setStyle("-fx-background-color: rgba(0, 0, 0, 0.9); -fx-padding: 40; -fx-background-radius: 15;");
 
-        Scene scene = new Scene(layout, 400, 450); // ✅ TĂNG chiều cao
+        Scene scene = new Scene(layout, 400, 450);
         scene.setFill(Color.TRANSPARENT);
         pauseStage.setScene(scene);
 
-        // Center on parent
         pauseStage.setOnShown(e -> {
             pauseStage.setX(parentStage.getX() + (parentStage.getWidth() - pauseStage.getWidth()) / 2);
             pauseStage.setY(parentStage.getY() + (parentStage.getHeight() - pauseStage.getHeight()) / 2);
@@ -96,7 +91,6 @@ public class PauseController {
                         "-fx-border-width: 2; " +
                         "-fx-border-radius: 10;");
 
-        // Hover effects
         button.setOnMouseEntered(e -> {
             button.setStyle(
                     "-fx-background-color: #00BFFF; " +
@@ -104,7 +98,7 @@ public class PauseController {
                             "-fx-border-color: #FFFFFF; " +
                             "-fx-border-width: 2; " +
                             "-fx-border-radius: 10;");
-            button.setScaleX(1.05); // THÊM hiệu ứng scale
+            button.setScaleX(1.05);
             button.setScaleY(1.05);
         });
 
@@ -115,7 +109,7 @@ public class PauseController {
                             "-fx-border-color: #FFFFFF; " +
                             "-fx-border-width: 2; " +
                             "-fx-border-radius: 10;");
-            button.setScaleX(1.0); // RESET scale
+            button.setScaleX(1.0);
             button.setScaleY(1.0);
         });
 
@@ -124,14 +118,12 @@ public class PauseController {
 
     public void show() {
         System.out.println("🎯 Showing pause menu - Non blocking");
-        // XOÁ reset flags
         pauseStage.show();
 
-        // Đảm bảo focus vào pause menu
         pauseStage.requestFocus();
     }
 
-    // Method để đóng pause menu (cho SceneRouter)
+    // Method để đóng pause menu
     public void close() {
         if (pauseStage != null) {
             pauseStage.close();

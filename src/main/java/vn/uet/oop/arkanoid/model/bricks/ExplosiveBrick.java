@@ -17,8 +17,6 @@ public class ExplosiveBrick extends Brick {
         explosiveBrickImage = new Image(getClass().getResourceAsStream("/image/ExplosiveBrick.png"));
     }
 
-    public int getBlastRadius() { return blastRadius; }
-
     @Override
     public int takeHit() {
         durabilityPoints = Math.max(0, durabilityPoints - 1);
@@ -43,4 +41,6 @@ public class ExplosiveBrick extends Brick {
             }
         }
     }
+
+    public int getBlastRadius() { return blastRadius; }
 }

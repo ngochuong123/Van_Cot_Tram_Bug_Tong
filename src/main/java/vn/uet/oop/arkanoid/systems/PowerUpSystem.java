@@ -3,7 +3,6 @@ package vn.uet.oop.arkanoid.systems;
 import vn.uet.oop.arkanoid.config.GameConfig;
 import vn.uet.oop.arkanoid.model.Paddle;
 import vn.uet.oop.arkanoid.model.Ball;
-import vn.uet.oop.arkanoid.model.interfaces.Collidable;
 import vn.uet.oop.arkanoid.model.powerups.*;
 import vn.uet.oop.arkanoid.model.bricks.Brick;
 import vn.uet.oop.arkanoid.model.bricks.UnbreakableBrick;
