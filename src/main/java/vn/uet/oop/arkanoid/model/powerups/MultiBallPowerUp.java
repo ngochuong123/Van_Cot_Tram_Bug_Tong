@@ -55,6 +55,10 @@ public class MultiBallPowerUp extends PowerUp {
                     b2.setHeight(original.getRadius() * 2);
                     b2.setWidth(original.getRadius() * 2);
                 }
+                if(FireBallPowerUp.isFireBallActive()) {
+                    b1.setFireMode(true);
+                    b2.setFireMode(true);
+                }
 
                 newBalls.add(b1);
                 newBalls.add(b2);
