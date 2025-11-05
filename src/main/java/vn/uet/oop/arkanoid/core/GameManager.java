@@ -1,7 +1,4 @@
 package vn.uet.oop.arkanoid.core;
-
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
 import vn.uet.oop.arkanoid.config.GameConfig;
 import vn.uet.oop.arkanoid.model.*;
 import vn.uet.oop.arkanoid.model.powerups.PowerUp;
@@ -10,10 +7,8 @@ import vn.uet.oop.arkanoid.model.bricks.ResourceLevelLoader;
 import vn.uet.oop.arkanoid.model.bricks.*;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import vn.uet.oop.arkanoid.systems.PowerUpSystem;
-import vn.uet.oop.arkanoid.ui.HUD;
 
 public class GameManager {
     private static GameManager instance = null;
@@ -38,7 +33,6 @@ public class GameManager {
     private boolean levelCompleted = false;
 
     // Tối ưu hóa: tái sử dụng các collection để tránh GC
-    private final List<Ball> ballsToRemove = new ArrayList<>();
     private final List<Brick> bricksToRemove = new ArrayList<>();
     private final List<PowerUp> powerUpsToRemove = new ArrayList<>();
 
@@ -64,7 +58,7 @@ public class GameManager {
         Ball mainBall = Ball.createBall(GameConfig.SCREEN_WIDTH / 2, GameConfig.SCREEN_HEIGHT / 2);
         balls.add(mainBall);
         mainBall.stickTo(paddle);
-        loadLevelFromClasspath("/levels/level2.txt"); // Bắt đầu từ level 1
+        loadLevelFromClasspath("/levels/level3.txt");
     }
 
     public void launchBall() {
@@ -187,10 +181,7 @@ public class GameManager {
     }
 
     /**
-     * Kiểm tra level có hoàn thành không
-     * - UnbreakableBrick: không cần phá
-     * - RegeneratingBrick: phải đang bị phá (isBroken = true)
-     * - Các brick khác: không được tồn tại
+     * check logic to determine if level is complete.
      */
     private boolean checkLevelComplete() {
         for (Brick brick : bricks) {
@@ -211,7 +202,7 @@ public class GameManager {
     }
 
     /**
-     * Kiểm tra và xử lý hoàn thành level
+     * check and handle level completion
      */
     private void checkAndHandleLevelCompletion() {
         if (levelCompleted) return;
@@ -225,7 +216,7 @@ public class GameManager {
     }
 
     /**
-     * Load level tiếp theo và reset trạng thái
+     * load the next level from classpath
      */
     public void loadNextLevel() {
         System.out.println("🔄 Loading Level " + currentLevel);

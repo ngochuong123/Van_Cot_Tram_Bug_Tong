@@ -1,4 +1,3 @@
-// File: vn/uet/oop/arkanoid/model/bricks/RegeneratingBrick.java
 package vn.uet.oop.arkanoid.model.bricks;
 
 import javafx.scene.canvas.GraphicsContext;
@@ -10,7 +9,7 @@ public class RegeneratingBrick extends Brick {
     private final int maxDurability;
     private final double respawnSeconds = GameConfig.BRICK_RESPAWN_TIME;
     private boolean destroyed = false;
-    private boolean permanentlyRemoved = false; // be exploded to remove permanently
+    private boolean permanentlyRemoved = false;
     private double respawnTimer = 0.0;
 
     private final Image regeneratingBrickImage;
@@ -23,7 +22,7 @@ public class RegeneratingBrick extends Brick {
     }
 
     /**
-     * destroy the brick permanently
+     * destroy the brick permanently.
      */
     public void destroyPermanently() {
         permanentlyRemoved = true;
