@@ -9,6 +9,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 import javafx.scene.image.Image;
 
+/**
+ * FireBallPowerUp class.
+ */
 public class FireBallPowerUp extends PowerUp {
 
     private static final int DURATION = GameConfig.DURATION_POWERUP;
@@ -17,6 +20,10 @@ public class FireBallPowerUp extends PowerUp {
         super(x, y, width, height, dY);
     }
 
+    /**
+     * FireBall effect.
+     * @param obj
+     */
     @Override
     public void applyEffect(Object obj) {
         if (obj instanceof java.util.List<?>) {
@@ -34,6 +41,8 @@ public class FireBallPowerUp extends PowerUp {
             }
         }
     }
+
+    //render FireBall power up image
     Image FireBall = new Image("file:src/main/resources/image/FireBallPowerUp.png");
     @Override
     public void render(GraphicsContext gc) {
