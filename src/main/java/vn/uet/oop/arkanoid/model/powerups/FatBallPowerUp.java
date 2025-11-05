@@ -12,6 +12,8 @@ import java.util.TimerTask;
 public class FatBallPowerUp extends PowerUp {
 
     private final Image bigBall;
+    private static boolean isFatBallActive = false; // hiệu ứng toàn cục
+    private static Timer fatBallTimer;              // bộ đếm thời gian toàn cục
 
     public FatBallPowerUp(double x, double y, double width, double height, double dY) {
         super(x, y, width, height, dY);
@@ -22,25 +24,53 @@ public class FatBallPowerUp extends PowerUp {
     public void applyEffect(Object obj) {
         if (obj instanceof List<?>) {
             List<Ball> balls = (List<Ball>) obj;
+
+            // Nếu đã có hiệu ứng FatBall đang hoạt động → chỉ reset thời gian
+            if (isFatBallActive) {
+                if (fatBallTimer != null) fatBallTimer.cancel();
+                fatBallTimer = new Timer();
+                fatBallTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        resetFatBall(balls);
+                    }
+                }, 5000);
+                return;
+            }
+
+            // Bắt đầu hiệu ứng mới
+            isFatBallActive = true;
+
             for (Ball ball : balls) {
-                if (ball.isHasFatBallEffect()) {
-                    return;
-                }
-                ball.setHasFatBallEffect(true);
                 ball.setRadius(ball.getRadius() * 2);
                 ball.setHeight(ball.getRadius() * 2);
                 ball.setWidth(ball.getRadius() * 2);
-                new Timer().schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        ball.setRadius(GameConfig.BALL_RADIUS);
-                        ball.setHeight(GameConfig.BALL_RADIUS * 2);
-                        ball.setWidth(GameConfig.BALL_RADIUS * 2);
-                        ball.setHasFatBallEffect(false);
-                    }
-                }, 5000);
             }
+
+            // Đặt timer 5 giây để hết hiệu ứng
+            fatBallTimer = new Timer();
+            fatBallTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    resetFatBall(balls);
+                }
+            }, 5000);
         }
+    }
+
+    // Hết hiệu ứng → trả kích thước về bình thường
+    private void resetFatBall(List<Ball> balls) {
+        for (Ball ball : balls) {
+            ball.setRadius(GameConfig.BALL_RADIUS);
+            ball.setHeight(GameConfig.BALL_RADIUS * 2);
+            ball.setWidth(GameConfig.BALL_RADIUS * 2);
+        }
+        isFatBallActive = false;
+    }
+
+    // Getter để MultiBall có thể biết hiệu ứng đang bật
+    public static boolean isFatBallActive() {
+        return isFatBallActive;
     }
 
     @Override

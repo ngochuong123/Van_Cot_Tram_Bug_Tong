@@ -1,6 +1,7 @@
 package vn.uet.oop.arkanoid.model.powerups;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import vn.uet.oop.arkanoid.model.Ball;
 
 import java.util.ArrayList;
@@ -44,6 +45,17 @@ public class MultiBallPowerUp extends PowerUp {
                 b1.setLaunched(true);
                 b2.setLaunched(true);
 
+                // Nếu FatBall đang bật → bóng mới cũng phải to
+                if (FatBallPowerUp.isFatBallActive()) {
+                    b1.setRadius(original.getRadius());
+                    b1.setHeight(original.getRadius() * 2);
+                    b1.setWidth(original.getRadius() * 2);
+
+                    b2.setRadius(original.getRadius());
+                    b2.setHeight(original.getRadius() * 2);
+                    b2.setWidth(original.getRadius() * 2);
+                }
+
                 newBalls.add(b1);
                 newBalls.add(b2);
             }
@@ -55,6 +67,7 @@ public class MultiBallPowerUp extends PowerUp {
 
 
     Image Multi = new Image("file:src/main/resources/image/x3_Ball.png");
+
     @Override
     public void render(GraphicsContext gc) {
         gc.drawImage(Multi, getX(), getY(), getWidth(), getHeight());

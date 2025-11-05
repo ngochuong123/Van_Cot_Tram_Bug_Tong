@@ -31,7 +31,7 @@ public class App extends Application {
             // Hiển thị cửa sổ
             primaryStage.show();
 
-            System.out.println("🚀 Arkanoid Game started successfully!");
+            System.out.println(" Arkanoid Game started successfully!");
 
         } catch (Exception e) {
             System.err.println("❌ Failed to start game: " + e.getMessage());
@@ -42,7 +42,7 @@ public class App extends Application {
     @Override
     public void stop() {
         // Cleanup khi ứng dụng dừng
-        System.out.println("🛑 Game application stopping...");
+        System.out.println(" Game application stopping...");
     }
 
     public static void main(String[] args) {

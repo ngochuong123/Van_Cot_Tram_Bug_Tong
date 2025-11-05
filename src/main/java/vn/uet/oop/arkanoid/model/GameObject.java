@@ -24,7 +24,6 @@ public abstract class GameObject implements Collidable,Renderable {
         return new Rectangle2D((int)x, (int)y, (int)width, (int)height);
     }
 
-
     // Getter
     public double getX() { return x; }
     public double getY() { return y; }

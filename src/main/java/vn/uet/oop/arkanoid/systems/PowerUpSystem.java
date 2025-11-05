@@ -93,8 +93,6 @@ public class PowerUpSystem {
 
             PowerUp newPowerUp;
             double typeChance = rand.nextDouble();
-
-            if (balls.size() == 1) {
                 // --- Có MultiBall ---
                 if (typeChance < 0.1) {
                     newPowerUp = new ExpandPaddlePowerUp(
@@ -102,19 +100,19 @@ public class PowerUpSystem {
                             hitBrick.getY() + hitBrick.getHeight() / 2,
                             20, 20, 70
                     );
-                } else if (typeChance < 0.2) {
+                } else if (typeChance < 0.6) {
                     newPowerUp = new FatBallPowerUp(
                             hitBrick.getX() + hitBrick.getWidth() / 2,
                             hitBrick.getY() + hitBrick.getHeight() / 2,
                             20, 20, 70
                     );
-                } else if (typeChance < 0.6) {
+                } else if (typeChance < 0.8) {
                     newPowerUp = new MultiBallPowerUp(
                             hitBrick.getX() + hitBrick.getWidth() / 2,
                             hitBrick.getY() + hitBrick.getHeight() / 2,
                             20, 20, 70
                     );
-                } else if (typeChance < 0.7) {
+                } else if (typeChance < 0.85) {
                     newPowerUp = new ShieldPowerUp(
                             hitBrick.getX() + hitBrick.getWidth() / 2,
                             hitBrick.getY() + hitBrick.getHeight() / 2,
@@ -127,34 +125,6 @@ public class PowerUpSystem {
                             20, 20, 70
                     );
                 }
-            } else {
-                // --- Không có MultiBall ---
-                if (typeChance < 0.25) {
-                    newPowerUp = new ExpandPaddlePowerUp(
-                            hitBrick.getX() + hitBrick.getWidth() / 2,
-                            hitBrick.getY() + hitBrick.getHeight() / 2,
-                            20, 20, 70
-                    );
-                } else if (typeChance < 0.5) {
-                    newPowerUp = new FatBallPowerUp(
-                            hitBrick.getX() + hitBrick.getWidth() / 2,
-                            hitBrick.getY() + hitBrick.getHeight() / 2,
-                            20, 20, 70
-                    );
-                } else if (typeChance < 0.7) {
-                    newPowerUp = new ShieldPowerUp(
-                            hitBrick.getX() + hitBrick.getWidth() / 2,
-                            hitBrick.getY() + hitBrick.getHeight() / 2,
-                            20, 20, 70
-                    );
-                } else {
-                    newPowerUp = new FireBallPowerUp(
-                            hitBrick.getX() + hitBrick.getWidth() / 2,
-                            hitBrick.getY() + hitBrick.getHeight() / 2,
-                            20, 20, 70
-                    );
-                }
-            }
 
             powerUps.add(newPowerUp);
         }
