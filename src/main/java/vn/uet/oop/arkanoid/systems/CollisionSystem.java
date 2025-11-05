@@ -14,7 +14,7 @@ import java.util.List;
 public class CollisionSystem {
 
     /*
-     * check if 2 rectangle collision
+     * check if 2 things collision
      */
     public static boolean checkRectCollision(Collidable a, Collidable b) {
         return a.getBounds().intersects(b.getBounds());

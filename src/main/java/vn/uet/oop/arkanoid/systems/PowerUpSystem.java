@@ -20,12 +20,21 @@ import java.util.Random;
 
 import static vn.uet.oop.arkanoid.systems.CollisionSystem.checkRectCollision;
 
+/**
+ * PowerUpSystem class to manage and control power up.
+ */
 public class PowerUpSystem {
     private List<PowerUp> powerUps;
     private Paddle paddle;
     private List<Ball> balls;
 
 
+    /**
+     * PowerUpSystem's constructor.
+     * @param powerUps
+     * @param paddle
+     * @param balls
+     */
     public PowerUpSystem(List<PowerUp> powerUps, Paddle paddle, List<Ball> balls) {
         this.powerUps = powerUps;
         this.paddle = paddle;
@@ -33,7 +42,7 @@ public class PowerUpSystem {
     }
 
     /*
-     * Cập nhật trạng thái (cho các powerup rơi xuống)
+     * update powerUp fall
      */
     public void updatePowerUps(double deltaTime) {
         for (int i = 0; i < powerUps.size(); i++) {
@@ -49,7 +58,7 @@ public class PowerUpSystem {
     }
 
     /*
-     * Kiểm tra và kích hoạt khi paddle chạm powerup
+     * check and apply if paddle touch power up.
      */
     public void checkAndApply() {
         for (int i = 0; i < powerUps.size(); i++) {
@@ -84,12 +93,16 @@ public class PowerUpSystem {
         }
     }
 
+    /**
+     * spawn power ups.
+     * @param hitBrick
+     */
     public void spawnPowerUps(Brick hitBrick) {
         if (hitBrick == null || hitBrick instanceof UnbreakableBrick) return;
         if (!hitBrick.isBroken()) return;
 
         Random rand = new Random();
-        double dropChance = 0.3; // 50% xác suất rơi PowerUp
+        double dropChance = 0.3; // 30% xác suất rơi PowerUp
         if (rand.nextDouble() < dropChance) {
 
             PowerUp newPowerUp;

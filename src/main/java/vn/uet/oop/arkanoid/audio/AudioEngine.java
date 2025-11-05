@@ -1,14 +1,14 @@
 package vn.uet.oop.arkanoid.audio;
 
 /**
- * Lớp điều khiển âm thanh tổng (Facade Pattern).
+ * Control sound and music class.
  */
 public class AudioEngine {
 
     private static boolean globalMute = false;
 
     /**
-     * Khởi tạo hệ thống âm thanh, tải các SFX vào bộ nhớ.
+     * create sound system.
      */
     public static void init() {
         System.out.println("--- AUDIO ENGINE: ĐANG TẢI ÂM THANH... ---");
@@ -16,7 +16,7 @@ public class AudioEngine {
     }
 
     /**
-     * Tắt/Bật tất cả âm thanh (cả nhạc và SFX).
+     * turn off all the sound.
      */
     public static void setGlobalMute(boolean mute) {
         globalMute = mute;
@@ -29,7 +29,7 @@ public class AudioEngine {
     }
 
     /**
-     * Phát một hiệu ứng âm thanh (SFX).
+     * play a sound.
      */
     public static void playSound(String soundName) {
         System.out.println("--- AUDIO ENGINE: YÊU CẦU PHÁT: " + soundName);
@@ -39,21 +39,21 @@ public class AudioEngine {
     // --- CÁC PHƯƠNG THỨC BỊ THIẾU ---
 
     /**
-     * Phát nhạc nền của menu.
+     * play menu music.
      */
     public static void playMenuMusic() {
         MusicPlayer.playMenuMusic();
     }
 
     /**
-     * Phát nhạc nền khi chơi game.
+     * play background music.
      */
     public static void playGameMusic() {
         MusicPlayer.playGameMusic();
     }
 
     /**
-     * Dừng mọi nhạc nền đang phát.
+     * stop every music is playing.
      */
     public static void stopMusic() {
         MusicPlayer.stop();

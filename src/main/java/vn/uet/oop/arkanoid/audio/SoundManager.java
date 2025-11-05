@@ -8,14 +8,11 @@ import java.util.List;      // <-- Import
 import java.util.Map;
 
 /**
- * Quản lý SFX, CÓ Caching và Sửa lỗi Garbage Collector (GC).
+ * manage and control sound effect.
  */
 public class SoundManager {
     private static Map<String, AudioClip> soundCache = new HashMap<>();
-
-    // --- SỬA LỖI GC: Thêm một List để "giữ" các clip, chống bị GC dọn dẹp ---
     private static final List<AudioClip> clipHolder = new ArrayList<>();
-
     private static boolean isMuted = false;
 
     public static final String HIT_PADDLE = "hit_paddle";
@@ -26,7 +23,7 @@ public class SoundManager {
     public static final String GAME_OVER = "game_over";
 
     public static void loadSounds() {
-        // Tải 1 lần khi khởi động
+        // load when start
         loadSound(HIT_PADDLE, "Sound/Music/Ball_Touch_Paddle.wav");
         loadSound(HIT_BRICK, "Sound/Music/Ball_Hit_Brick.wav");
         loadSound(HIT_WALL, "Sound/Music/Ball_Touch_Paddle.wav");
@@ -43,13 +40,13 @@ public class SoundManager {
                 return;
             }
 
-            // 1. Tải và tạo AudioClip MỘT LẦN
+            // create AudioClip once
             AudioClip clip = new AudioClip(resourceUrl.toExternalForm());
 
-            // 2. Lưu vào cache để truy cập nhanh
+            // 2. save in cache for quick access
             soundCache.put(name, clip);
 
-            // 3. Lưu vào list để chống GC "dọn dẹp"
+            // 3. save in list to prevent GC clean
             clipHolder.add(clip);
 
         } catch (Exception e) {
@@ -61,17 +58,17 @@ public class SoundManager {
     public static void play(String name) {
         if (isMuted) return;
 
-        // --- QUAN TRỌNG: Chỉ LẤY clip từ cache, không tạo mới ---
+        // take from cache, not create new one
         AudioClip clip = soundCache.get(name);
 
         if (clip != null) {
-            clip.play(); // Đã ở trong bộ nhớ, phát ngay lập tức (không delay)
+            clip.play(); // play sound
         } else {
             System.err.println("Âm thanh chưa được tải: " + name);
         }
     }
 
-    // (Các hàm setMuted và isMuted...)
+    // setMuted and isMuted method
     public static void setMuted(boolean muted) {
         isMuted = muted;
     }
